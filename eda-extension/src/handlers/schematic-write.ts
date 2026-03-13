@@ -1,16 +1,16 @@
 /**
  * Schematic Write Handlers
- * Uses EDA API to modify the schematic canvas
+ * Uses EDA API to create, modify, and delete schematic primitives
  *
- * NOTE: The documented SCH_Primitive API only has read methods:
- *   getPrimitiveByPrimitiveId, getPrimitivesBBox, getPrimitiveTypeByPrimitiveId
- *
- * Write operations (place/draw/modify/delete) are not yet exposed in the
- * official extension API. These handlers use placeholder calls that will
- * need to be updated when the API becomes available.
- *
- * For now, these operations return informational messages about what would
- * be performed, allowing the MCP tool interface to remain stable.
+ * API used:
+ *   eda.sch_PrimitiveComponent.create(component, x, y, subPartName, rotation, mirror, addIntoBom, addIntoPcb)
+ *   eda.sch_PrimitiveComponent.modify(primitiveId, property)
+ *   eda.sch_PrimitiveComponent.delete(primitiveIds)
+ *   eda.sch_PrimitiveComponent.createNetFlag(identification, net, x, y, rotation, mirror)
+ *   eda.sch_PrimitiveWire.create(line, net, color, lineWidth, lineType)
+ *   eda.sch_PrimitiveWire.modify(primitiveId, property)
+ *   eda.sch_PrimitiveWire.delete(primitiveIds)
+ *   eda.sch_Primitive.getPrimitiveTypeByPrimitiveId(id) — determine primitive type
  */
 
 import { BridgeCommand } from '../protocol.js';
@@ -27,12 +27,36 @@ export function registerSchematicWriteHandlers(): void {
       rotation?: number;
     };
 
-    // TODO: SCH write API not yet available in extension API
-    // When available, use the appropriate eda.sch_* method
+    // deviceId format: "libraryUuid:uuid" or just a device search object
+    // Try to parse as libraryUuid:uuid first
+    let component: { libraryUuid: string; uuid: string };
+    if (deviceId.includes(':')) {
+      const [libraryUuid, uuid] = deviceId.split(':');
+      component = { libraryUuid, uuid };
+    } else {
+      // Assume it's a uuid with default library
+      component = { libraryUuid: '', uuid: deviceId };
+    }
+
+    const result = await eda.sch_PrimitiveComponent.create(
+      component,
+      x,
+      y,
+      undefined,        // subPartName
+      rotation ?? 0,
+      false,             // mirror
+      true,              // addIntoBom
+      true,              // addIntoPcb
+    );
+
+    if (!result) {
+      throw new Error(`Failed to place component: deviceId=${deviceId} at (${x}, ${y})`);
+    }
+
     return {
-      success: false,
-      message: `Schematic component placement not yet supported via extension API. ` +
-               `Requested: deviceId=${deviceId} at (${x}, ${y}) rotation=${rotation ?? 0}`,
+      success: true,
+      primitive: result,
+      message: `Component placed at (${x}, ${y}) with rotation=${rotation ?? 0}`,
     };
   });
 
@@ -46,11 +70,22 @@ export function registerSchematicWriteHandlers(): void {
       throw new Error('At least 2 points are required to draw a wire');
     }
 
-    // TODO: SCH wire drawing API not yet available in extension API
+    // Convert [{x,y}, ...] to flat array [x1,y1,x2,y2,...] for the API
+    const line: number[] = [];
+    for (const p of points) {
+      line.push(p.x, p.y);
+    }
+
+    const result = await eda.sch_PrimitiveWire.create(line);
+
+    if (!result) {
+      throw new Error('Failed to draw wire');
+    }
+
     return {
-      success: false,
-      message: `Schematic wire drawing not yet supported via extension API. ` +
-               `Requested: ${points.length} points`,
+      success: true,
+      primitive: result,
+      message: `Wire drawn with ${points.length} points`,
     };
   });
 
@@ -62,17 +97,44 @@ export function registerSchematicWriteHandlers(): void {
       value: string;
     };
 
-    // Verify the primitive exists first
-    const primitive = eda.sch_Primitive.getPrimitiveByPrimitiveId(id);
-    if (!primitive) {
+    // Determine the primitive type to call the right modify method
+    const pType = eda.sch_Primitive.getPrimitiveTypeByPrimitiveId(id);
+    if (!pType) {
       throw new Error(`Primitive not found: ${id}`);
     }
 
-    // TODO: Attribute modification API not yet documented
+    // Build property object from key-value pair
+    const property: Record<string, any> = {};
+
+    // Handle numeric values
+    const numValue = Number(value);
+    if (['x', 'y', 'rotation', 'lineWidth'].includes(key)) {
+      property[key] = numValue;
+    } else if (['mirror', 'addIntoBom', 'addIntoPcb'].includes(key)) {
+      property[key] = value === 'true';
+    } else {
+      property[key] = value;
+    }
+
+    let result: any;
+
+    if (String(pType) === 'COMPONENT' || String(pType) === String(ESCH_PrimitiveType.COMPONENT)) {
+      result = await eda.sch_PrimitiveComponent.modify(id, property);
+    } else if (String(pType) === 'WIRE' || String(pType) === String(ESCH_PrimitiveType.WIRE)) {
+      result = await eda.sch_PrimitiveWire.modify(id, property);
+    } else {
+      // Fallback: try component modify
+      result = await eda.sch_PrimitiveComponent.modify(id, property);
+    }
+
+    if (!result) {
+      throw new Error(`Failed to modify primitive ${id}: set "${key}" to "${value}"`);
+    }
+
     return {
-      success: false,
-      message: `Schematic attribute modification not yet supported via extension API. ` +
-               `Requested: set "${key}" to "${value}" on primitive ${id}`,
+      success: true,
+      primitive: result,
+      message: `Modified "${key}" to "${value}" on primitive ${id}`,
     };
   });
 
@@ -80,17 +142,28 @@ export function registerSchematicWriteHandlers(): void {
   registerHandler(BridgeCommand.SCH_DELETE_PRIMITIVE, async (params) => {
     const { id } = params as { id: string };
 
-    // Verify the primitive exists first
-    const primitive = eda.sch_Primitive.getPrimitiveByPrimitiveId(id);
-    if (!primitive) {
+    // Determine the primitive type
+    const pType = eda.sch_Primitive.getPrimitiveTypeByPrimitiveId(id);
+    if (!pType) {
       throw new Error(`Primitive not found: ${id}`);
     }
 
-    // TODO: Primitive deletion API not yet documented
+    let success = false;
+
+    if (String(pType) === 'COMPONENT' || String(pType) === String(ESCH_PrimitiveType.COMPONENT)) {
+      success = await eda.sch_PrimitiveComponent.delete(id);
+    } else if (String(pType) === 'WIRE' || String(pType) === String(ESCH_PrimitiveType.WIRE)) {
+      success = await eda.sch_PrimitiveWire.delete(id);
+    } else {
+      // Try component delete as fallback
+      success = await eda.sch_PrimitiveComponent.delete(id);
+    }
+
     return {
-      success: false,
-      message: `Schematic primitive deletion not yet supported via extension API. ` +
-               `Requested: delete primitive ${id}`,
+      success,
+      message: success
+        ? `Primitive ${id} deleted`
+        : `Failed to delete primitive ${id}`,
     };
   });
 }

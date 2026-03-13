@@ -28,10 +28,51 @@ PCB相关扩展API参考。任务：$ARGUMENTS
 | `importAutoRouteJsonFile(autoRouteFile)` | autoRouteFile: 文件数据 | (BETA) 导入自动布线(JSON) |
 | `importAutoRouteSesFile(autoRouteFile)` | autoRouteFile: 文件数据 | (BETA) 导入自动布线(SES) |
 
-### PCB_Primitive — `eda.pcb_Primitive` — PCB图元操作
+### PCB_Primitive — `eda.pcb_Primitive` — PCB图元通用操作
 | 方法 | 参数 | 描述 |
 |------|------|------|
 | `getPrimitivesBBox(primitiveIds)` | primitiveIds: string[] | (BETA) 获取图元BBox边界框 |
+
+### PCB_PrimitiveComponent — `eda.pcb_PrimitiveComponent` — PCB器件 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(component, layer, x, y, rotation?, primitiveLock?)` | component: {libraryUuid, uuid}; layer: TPCB_LayersOfComponent; x,y: number | (BETA) 创建PCB器件 |
+| `modify(primitiveId, property)` | primitiveId: string; property: {layer?, x?, y?, rotation?, primitiveLock?, addIntoBom?, designator?, name?, manufacturer?, otherProperty?} | (BETA) 修改器件 |
+| `delete(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 删除器件 |
+| `get(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 获取器件详情 |
+| `getAll(layer?, primitiveLock?)` | layer?: TPCB_LayersOfComponent; primitiveLock?: boolean | (BETA) 获取所有器件 |
+| `getAllPinsByPrimitiveId(primitiveId)` | primitiveId: string | (BETA) 获取器件所有引脚 |
+| `getAllPrimitiveId(layer?, primitiveLock?)` | 同getAll | (BETA) 获取所有器件ID |
+
+### PCB_PrimitiveLine — `eda.pcb_PrimitiveLine` — PCB走线 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(net, layer, startX, startY, endX, endY, lineWidth?, primitiveLock?)` | net: string; layer: TPCB_LayersOfLine; startX/Y, endX/Y: number; lineWidth?: number | (BETA) 创建走线 |
+| `modify(primitiveId, property)` | primitiveId: string; property: {net?, layer?, startX?, startY?, endX?, endY?, lineWidth?, primitiveLock?} | (BETA) 修改走线 |
+| `delete(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 删除走线 |
+| `get(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 获取走线详情 |
+| `getAll(net?, layer?, primitiveLock?)` | 各可选过滤参数 | (BETA) 获取所有走线 |
+| `getAllPrimitiveId(net?, layer?, primitiveLock?)` | 同getAll | (BETA) 获取所有走线ID |
+
+### PCB_PrimitiveVia — `eda.pcb_PrimitiveVia` — PCB过孔 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(net, x, y, holeDiameter, diameter, viaType?, designRuleBlindViaName?, solderMaskExpansion?, primitiveLock?)` | net: string; x,y: number; holeDiameter,diameter: number; viaType?: EPCB_PrimitiveViaType | (BETA) 创建过孔 |
+| `modify(primitiveId, property)` | primitiveId: string; property: {net?, x?, y?, holeDiameter?, diameter?, viaType?, primitiveLock?} | (BETA) 修改过孔 |
+| `delete(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 删除过孔 |
+| `get(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 获取过孔详情 |
+| `getAll(net?, primitiveLock?)` | net?: string; primitiveLock?: boolean | (BETA) 获取所有过孔 |
+| `getAllPrimitiveId(net?, primitiveLock?)` | 同getAll | (BETA) 获取所有过孔ID |
+
+### PCB_PrimitivePad — `eda.pcb_PrimitivePad` — PCB焊盘 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(layer, padNumber, x, y, rotation?, pad?, net?, hole?, ...)` | layer: TPCB_LayersOfPad; padNumber: string; x,y: number; 更多可选参数 | (BETA) 创建焊盘 |
+| `modify(primitiveId, property)` | primitiveId: string; property: {layer?, padNumber?, x?, y?, rotation?, pad?, net?, hole?, primitiveLock?} | (BETA) 修改焊盘 |
+| `delete(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 删除焊盘 |
+| `get(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 获取焊盘详情 |
+| `getAll(layer?, net?, primitiveLock?, padType?)` | 各可选过滤参数 | (BETA) 获取所有焊盘 |
+| `getAllPrimitiveId(layer?, net?, primitiveLock?, padType?)` | 同getAll | (BETA) 获取所有焊盘ID |
 
 ### PCB_Net — `eda.pcb_Net` — 网络操作
 | 方法 | 参数 | 描述 |

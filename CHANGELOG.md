@@ -9,12 +9,45 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 ## [Unreleased]
 
 ### Planned
-- Implement schematic write operations when EDA API exposes them (place component, draw wire, modify attribute, delete primitive)
-- Implement PCB write operations (place component, draw trace, place via, modify/delete)
 - Add BOM export via `eda.sch_ManufactureData` when API is documented
 - Add error retry and reconnection logic for WebSocket
 - Add unit/integration tests
 - Support multiple concurrent EDA connections
+
+---
+
+## [1.1.0] — 2026-03-13
+
+### Changed — Write operations now functional
+
+**Schematic Write Handlers** — replaced stubs with real API calls:
+- `sch.placeComponent` → `eda.sch_PrimitiveComponent.create(component, x, y, rotation, ...)`
+- `sch.drawWire` → `eda.sch_PrimitiveWire.create(line, net, ...)`
+- `sch.modifyAttribute` → `eda.sch_PrimitiveComponent.modify()` / `eda.sch_PrimitiveWire.modify()` (auto-detects type)
+- `sch.deletePrimitive` → `eda.sch_PrimitiveComponent.delete()` / `eda.sch_PrimitiveWire.delete()` (auto-detects type)
+
+**PCB Write Handlers** — replaced stubs with real API calls:
+- `pcb.placeComponent` → `eda.pcb_PrimitiveComponent.create(component, layer, x, y, rotation, ...)`
+- `pcb.drawLine` → `eda.pcb_PrimitiveLine.create(net, layer, startX, startY, endX, endY, width)` (multi-segment support)
+- `pcb.placeVia` → `eda.pcb_PrimitiveVia.create(net, x, y, holeDiameter, diameter, viaType)`
+- `pcb.modifyAttribute` → tries Component → Line → Via modify (auto-detects type)
+- `pcb.deletePrimitive` → tries Component → Line → Via delete (auto-detects type)
+
+**Schematic Read Handlers** — upgraded to use primitive subclass APIs:
+- `sch.listComponents` → `eda.sch_PrimitiveComponent.getAll()` (was netlist-based)
+- `sch.listWires` → `eda.sch_PrimitiveWire.getAll()` (was selection-based)
+- `sch.getComponent` → `eda.sch_PrimitiveComponent.get(id)` + `getAllPinsByPrimitiveId(id)`
+- `sch.getState` → includes component/wire counts
+
+**PCB Read Handlers** — upgraded to use primitive subclass APIs:
+- `pcb.listComponents` → `eda.pcb_PrimitiveComponent.getAll()` (was netlist-based)
+- `pcb.listPrimitives` → uses `getAll()` for COMPONENT/LINE/VIA/PAD types
+- `pcb.getComponent` → `eda.pcb_PrimitiveComponent.get(id)` + `getAllPinsByPrimitiveId(id)`
+- `pcb.getState` → includes component count
+
+**Claude Code Skills** — added primitive CRUD API reference:
+- `eda-sch.md` → added SCH_PrimitiveComponent (12 methods) and SCH_PrimitiveWire (6 methods)
+- `eda-pcb.md` → added PCB_PrimitiveComponent, PCB_PrimitiveLine, PCB_PrimitiveVia, PCB_PrimitivePad (7 methods each)
 
 ---
 
@@ -88,4 +121,5 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.1.0 | 2026-03-13 | All 22 tools functional — write ops use primitive subclass APIs, read ops upgraded |
 | 1.0.0 | 2025-03-13 | Initial release — 22 MCP tools, read operations functional, write operations stubbed |

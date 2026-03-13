@@ -66,7 +66,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_sys_get_document_info` | Get editor/document info |
 | `eda_sys_show_message` | Show toast notification in EDA |
 
-> **Note:** Write operations (place/draw/modify/delete) are stubbed — the JLCEDA Pro extension API does not yet expose write methods. Read operations and system tools are fully functional.
+> **Note:** All 22 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.) discovered in the JLCEDA Pro extension API. All methods are marked BETA by the EDA vendor.
 
 ## Quick Start
 

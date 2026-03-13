@@ -14,12 +14,38 @@
 | `autoLayout(props)` | props: 布局参数 | (BETA) 自动布局 |
 | `autoRouting(props)` | props: 布线参数 | (BETA) 自动布线 |
 
-### SCH_Primitive — `eda.sch_Primitive` — 图元操作
+### SCH_Primitive — `eda.sch_Primitive` — 图元通用操作
 | 方法 | 参数 | 描述 |
 |------|------|------|
 | `getPrimitiveByPrimitiveId(id)` | id: string | 获取指定ID图元的所有属性 |
 | `getPrimitivesBBox(primitiveIds)` | primitiveIds: string[] | (BETA) 获取图元BBox边界框 |
 | `getPrimitiveTypeByPrimitiveId(id)` | id: string | (BETA) 获取图元类型 |
+
+### SCH_PrimitiveComponent — `eda.sch_PrimitiveComponent` — 器件图元 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(component, x, y, subPartName?, rotation?, mirror?, addIntoBom?, addIntoPcb?)` | component: {libraryUuid, uuid}; x,y: number; rotation?: number; mirror?: boolean | (BETA) 创建器件 |
+| `createNetFlag(identification, net, x, y, rotation?, mirror?)` | identification: 'Power'\|'Ground'\|'AnalogGround'\|'ProtectGround'; net: string; x,y: number | (BETA) 创建电源/地标志 |
+| `createNetPort(direction, net, x, y, rotation?, mirror?)` | direction: 'IN'\|'OUT'\|'BI'; net: string; x,y: number | (BETA) 创建网络端口 |
+| `createShortCircuitFlag(x, y, rotation?, mirror?)` | x,y: number | (BETA) 创建短路标志 |
+| `placeComponentWithMouse(component, subPartName?)` | component: {libraryUuid, uuid} | (BETA) 鼠标交互放置器件 |
+| `modify(primitiveId, property)` | primitiveId: string; property: {x?, y?, rotation?, mirror?, designator?, name?, addIntoBom?, addIntoPcb?, manufacturer?, otherProperty?} | (BETA) 修改器件属性 |
+| `delete(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 删除器件 |
+| `get(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 获取器件详情 |
+| `getAll(componentType?, allSchematicPages?)` | componentType?; allSchematicPages?: boolean | (BETA) 获取所有器件 |
+| `getAllPinsByPrimitiveId(primitiveId)` | primitiveId: string | (BETA) 获取器件所有引脚 |
+| `getAllPrimitiveId(componentType?, allSchematicPages?)` | 同getAll | (BETA) 获取所有器件ID |
+| `getAllPropertyNames()` | 无 | (BETA) 获取所有属性名 |
+
+### SCH_PrimitiveWire — `eda.sch_PrimitiveWire` — 导线图元 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(line, net?, color?, lineWidth?, lineType?)` | line: number[] \| number[][]; net?: string; lineWidth?: number(1-10); lineType?: ESCH_PrimitiveLineType | (BETA) 创建导线 |
+| `modify(primitiveId, property)` | primitiveId: string; property: {line?, net?, color?, lineWidth?, lineType?} | (BETA) 修改导线 |
+| `delete(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 删除导线 |
+| `get(primitiveIds)` | primitiveIds: string \| string[] | (BETA) 获取导线详情 |
+| `getAll(net?)` | net?: string | (BETA) 获取所有导线 |
+| `getAllPrimitiveId(net?)` | net?: string | (BETA) 获取所有导线ID |
 
 ### SCH_SelectControl — `eda.sch_SelectControl` — 选择控制
 | 方法 | 参数 | 描述 |
