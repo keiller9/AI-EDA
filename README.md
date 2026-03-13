@@ -136,6 +136,31 @@ The project includes `.mcp.json` — update the path if needed:
 
 > **Important:** The web version of JLCEDA Pro cannot connect to local WebSocket due to HTTPS mixed content restrictions. Use the **desktop client** (全在线 mode).
 
+## Workflow Skills (5)
+
+In addition to the 31 MCP tools, the project includes **workflow skills** (slash commands) that inject EDA domain knowledge and guide Claude through multi-step design tasks.
+
+### API Reference Skills
+| Skill | Description |
+|-------|-------------|
+| `/project:eda` | Master EDA API reference with calling conventions |
+| `/project:eda-sch` | Schematic API (SCH_*) reference |
+| `/project:eda-pcb` | PCB API (PCB_*) reference |
+| `/project:eda-lib` | Library API (LIB_*) reference |
+| `/project:eda-dmt` | Document tree API (DMT_*) reference |
+| `/project:eda-sys` | System API (SYS_*) reference |
+
+### Design Workflow Skills
+| Skill | Description |
+|-------|-------------|
+| `/project:review-pcb` | PCB layout review — decoupling, power, DFM, signal integrity checklist |
+| `/project:review-sch` | Schematic review — bypass caps, bus pull-ups, floating pins, ESD protection |
+| `/project:design-check` | Pre-fabrication check — DRC + SCH↔PCB cross-reference + BOM + routing completeness |
+| `/project:place-components` | PCB placement assistant — functional grouping, priority order, grid alignment |
+| `/project:route-traces` | PCB routing assistant — trace width, via selection, differential pairs, layer strategy |
+
+> **Design pattern:** Workflow skills combine **domain knowledge** (EDA design rules, numeric thresholds) with **MCP tool sequences** (which tools to call and in what order). API reference skills provide method-level documentation for extension development.
+
 ## Usage Examples
 
 ```
@@ -159,6 +184,21 @@ The project includes `.mcp.json` — update the path if needed:
 
 > Run DRC on the schematic
   → uses eda_sys_run_drc with type="sch"
+
+> /project:review-pcb decoupling capacitors
+  → systematic PCB review focused on decoupling cap placement
+
+> /project:review-sch power pins
+  → schematic review checking bypass caps and floating pins
+
+> /project:design-check all
+  → pre-fabrication check: DRC + SCH↔PCB cross-reference + BOM
+
+> /project:place-components functional grouping
+  → guided component placement with domain rules
+
+> /project:route-traces VCC_3V3
+  → guided trace routing with width/via/layer recommendations
 ```
 
 ## Project Structure
@@ -196,7 +236,18 @@ AI-EDA/
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── .claude/commands/            # Claude Code skills (EDA API reference)
+├── .claude/commands/            # Claude Code skills
+│   ├── eda.md                  # EDA API reference (master)
+│   ├── eda-sch.md              # Schematic API reference
+│   ├── eda-pcb.md              # PCB API reference
+│   ├── eda-lib.md              # Library API reference
+│   ├── eda-dmt.md              # Document tree API reference
+│   ├── eda-sys.md              # System API reference
+│   ├── review-pcb.md           # PCB layout review workflow
+│   ├── review-sch.md           # Schematic review workflow
+│   ├── design-check.md         # Pre-fabrication design check
+│   ├── place-components.md     # PCB component placement guide
+│   └── route-traces.md         # PCB trace routing guide
 ├── .mcp.json                    # MCP server registration
 └── .gitignore
 ```

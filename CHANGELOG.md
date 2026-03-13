@@ -16,6 +16,25 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 ---
 
+## [1.5.0] — 2026-03-13
+
+### Added — Workflow skills: domain knowledge + MCP tool guidance
+
+**5 New Workflow Skills** (`.claude/commands/`) — total skills: **11** (+5)
+- `review-pcb` — PCB layout review with checklist: decoupling capacitors (<100mil from IC), power trace width table, crystal placement, DFM rules, signal integrity quick checks
+- `review-sch` — Schematic review: bypass cap audit per IC power pin, I2C/SPI bus pull-up checks, floating pin detection, reset circuit rules, ESD protection checklist
+- `design-check` — Pre-fabrication readiness: dual-document DRC, SCH↔PCB designator cross-reference, unrouted net detection, BOM completeness audit, structured PASS/FAIL report
+- `place-components` — PCB placement assistant: priority order (connectors→IC→passives), functional grouping rules, grid alignment (25/50mil), orientation conventions, preview-before-execute
+- `route-traces` — PCB routing assistant: trace width vs current table, routing priority order, via selection guide, 4-layer stackup strategy, differential pair rules, length matching, 45° routing
+
+**Design Pattern: Skills + Tools Integration**
+- API reference skills (6 existing) → tell Claude WHAT methods exist
+- Workflow skills (5 new) → tell Claude HOW to combine MCP tools + WHAT domain rules to apply
+- Write-oriented skills enforce "preview → confirm → execute" pattern
+- All numeric thresholds are concrete and measurable (distances, widths, currents)
+
+---
+
 ## [1.4.0] — 2026-03-13
 
 ### Added — Figma-inspired tool experience improvements
@@ -194,6 +213,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.5.0 | 2026-03-13 | Workflow skills: PCB/SCH review, design check, placement, routing — domain knowledge + tool guidance |
 | 1.4.0 | 2026-03-13 | Figma-inspired: composite intent tools, enhanced descriptions, 31 tools total |
 | 1.3.0 | 2026-03-13 | Performance: parallel batch ops, compact responses, 27 tools total |
 | 1.2.0 | 2026-03-13 | Batch move tool, WebSocket connection fixed, 23 tools total |
