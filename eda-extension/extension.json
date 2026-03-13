@@ -1,0 +1,97 @@
+{
+  "name": "ai-eda-bridge",
+  "uuid": "",
+  "displayName": "AI EDA Bridge",
+  "description": "MCP 代理桥接 - 实现大模型与嘉立创EDA的双向交互",
+  "version": "1.0.0",
+  "publisher": "AI-EDA",
+  "engines": {
+    "eda": "^2.3.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "github",
+    "url": ""
+  },
+  "categories": "Other",
+  "keywords": ["AI", "MCP", "Bridge", "LLM"],
+  "images": {
+    "logo": "./images/logo.png"
+  },
+  "homepage": "",
+  "bugs": "",
+  "activationEvents": {},
+  "entry": "./dist/index",
+  "dependentExtensions": {},
+  "headerMenus": {
+    "home": [
+      {
+        "id": "AI-Bridge",
+        "title": "AI Bridge",
+        "menuItems": [
+          {
+            "id": "Connect",
+            "title": "连接 AI",
+            "registerFn": "connect"
+          },
+          {
+            "id": "Disconnect",
+            "title": "断开连接",
+            "registerFn": "disconnect"
+          },
+          {
+            "id": "Status",
+            "title": "连接状态",
+            "registerFn": "status"
+          }
+        ]
+      }
+    ],
+    "sch": [
+      {
+        "id": "AI-Bridge",
+        "title": "AI Bridge",
+        "menuItems": [
+          {
+            "id": "Connect",
+            "title": "连接 AI",
+            "registerFn": "connect"
+          },
+          {
+            "id": "Disconnect",
+            "title": "断开连接",
+            "registerFn": "disconnect"
+          },
+          {
+            "id": "Status",
+            "title": "连接状态",
+            "registerFn": "status"
+          }
+        ]
+      }
+    ],
+    "pcb": [
+      {
+        "id": "AI-Bridge",
+        "title": "AI Bridge",
+        "menuItems": [
+          {
+            "id": "Connect",
+            "title": "连接 AI",
+            "registerFn": "connect"
+          },
+          {
+            "id": "Disconnect",
+            "title": "断开连接",
+            "registerFn": "disconnect"
+          },
+          {
+            "id": "Status",
+            "title": "连接状态",
+            "registerFn": "status"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "jlceda-bridge": {
+      "command": "node",
+      "args": ["c:/Users/Administrator/Desktop/AI-EDA/mcp-server/dist/index.js"],
+      "env": {
+        "WS_PORT": "8765"
+      }
+    }
+  }
+}

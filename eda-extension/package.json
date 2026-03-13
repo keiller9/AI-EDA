@@ -1,0 +1,14 @@
+{
+  "name": "ai-eda-bridge-extension",
+  "version": "1.0.0",
+  "description": "JLCEDA Pro Extension - AI Bridge via WebSocket",
+  "type": "module",
+  "scripts": {
+    "build": "node build/packaged.js",
+    "compile": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "pro-api-types": "latest"
+  }
+}
