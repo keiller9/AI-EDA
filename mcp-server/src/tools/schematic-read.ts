@@ -15,7 +15,7 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_GET_STATE);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -25,7 +25,7 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
     { filter: z.string().optional().describe('Optional filter string to match component name or designator') },
     async ({ filter }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_LIST_COMPONENTS, { filter });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -35,7 +35,7 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_LIST_NETS);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -45,7 +45,7 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_LIST_WIRES);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -55,7 +55,7 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
     { type: z.string().describe('Primitive type: COMPONENT, WIRE, PIN, TEXT, ARC, RECTANGLE, POLYGON, CIRCLE, BUS, ATTRIBUTE') },
     async ({ type }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_LIST_PRIMITIVES, { type });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -65,7 +65,7 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
     { id: z.string().describe('Component ID') },
     async ({ id }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_GET_COMPONENT, { id });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 }

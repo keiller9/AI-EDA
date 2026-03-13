@@ -11,10 +11,10 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 
 | Component | Description |
 |-----------|-------------|
-| **mcp-server/** | Node.js MCP server — exposes 23 tools via stdio, bridges commands to EDA over WebSocket |
+| **mcp-server/** | Node.js MCP server — exposes 27 tools via stdio, bridges commands to EDA over WebSocket |
 | **eda-extension/** | JLCEDA Pro extension — receives commands via WebSocket, calls EDA API, returns results |
 
-## MCP Tools (23)
+## MCP Tools (27)
 
 ### Connection
 | Tool | Description |
@@ -38,6 +38,8 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_sch_draw_wire` | Draw a wire between points |
 | `eda_sch_modify_attribute` | Modify component attributes |
 | `eda_sch_delete_primitive` | Delete a primitive |
+| `eda_sch_batch_modify` | Batch modify multiple schematic attributes |
+| `eda_sch_batch_delete` | Batch delete multiple schematic primitives |
 
 ### PCB Read
 | Tool | Description |
@@ -56,6 +58,8 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_pcb_draw_line` | Draw a copper trace |
 | `eda_pcb_place_via` | Place a via |
 | `eda_pcb_batch_move` | Batch move multiple components at once |
+| `eda_pcb_batch_modify` | Batch modify multiple PCB attributes |
+| `eda_pcb_batch_delete` | Batch delete multiple PCB primitives |
 | `eda_pcb_modify_attribute` | Modify PCB primitive attributes |
 | `eda_pcb_delete_primitive` | Delete a PCB primitive |
 
@@ -67,7 +71,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_sys_get_document_info` | Get editor/document info |
 | `eda_sys_show_message` | Show toast notification in EDA |
 
-> **Note:** All 23 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.) discovered in the JLCEDA Pro extension API. All methods are marked BETA by the EDA vendor.
+> **Note:** All 27 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.). Batch operations use `Promise.allSettled()` for parallel execution. All EDA methods are marked BETA by the vendor.
 
 ## Quick Start
 

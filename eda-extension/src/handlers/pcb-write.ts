@@ -72,34 +72,34 @@ export function registerPcbWriteHandlers(): void {
       throw new Error('At least 2 points are required to draw a trace');
     }
 
-    const results: any[] = [];
+    // Create all line segments in parallel
+    const settled = await Promise.allSettled(
+      Array.from({ length: points.length - 1 }, (_, i) =>
+        eda.pcb_PrimitiveLine.create(
+          net ?? '',
+          layer as any,
+          points[i].x,
+          points[i].y,
+          points[i + 1].x,
+          points[i + 1].y,
+          width,
+          false,
+        )
+      )
+    );
 
-    // Create a line segment for each consecutive pair of points
-    for (let i = 0; i < points.length - 1; i++) {
-      const result = await eda.pcb_PrimitiveLine.create(
-        net ?? '',
-        layer as any,
-        points[i].x,
-        points[i].y,
-        points[i + 1].x,
-        points[i + 1].y,
-        width,
-        false,  // primitiveLock
-      );
+    const segments = settled
+      .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled' && r.value)
+      .map(r => r.value);
 
-      if (result) {
-        results.push(result);
-      }
-    }
-
-    if (results.length === 0) {
+    if (segments.length === 0) {
       throw new Error('Failed to draw any trace segments');
     }
 
     return {
       success: true,
-      segments: results,
-      message: `Drew ${results.length} trace segment(s) on ${layer}, width=${width}mil, net=${net ?? 'none'}`,
+      segments,
+      message: `Drew ${segments.length} trace segment(s) on ${layer}, width=${width}mil, net=${net ?? 'none'}`,
     };
   });
 
@@ -211,22 +211,22 @@ export function registerPcbWriteHandlers(): void {
       throw new Error('No moves specified');
     }
 
-    const results: any[] = [];
-    const errors: string[] = [];
-
-    for (const move of moves) {
-      try {
+    // Execute all moves in parallel
+    const settled = await Promise.allSettled(
+      moves.map(move => {
         const property: Record<string, any> = { x: move.x, y: move.y };
-        if (move.rotation !== undefined) {
-          property.rotation = move.rotation;
-        }
-        const result = await eda.pcb_PrimitiveComponent.modify(move.id, property);
-        results.push({ id: move.id, success: true });
-      } catch (e) {
-        errors.push(`${move.id}: ${String(e)}`);
-        results.push({ id: move.id, success: false, error: String(e) });
-      }
-    }
+        if (move.rotation !== undefined) property.rotation = move.rotation;
+        return eda.pcb_PrimitiveComponent.modify(move.id, property)
+          .then(() => ({ id: move.id, success: true as const }));
+      })
+    );
+
+    const results = settled.map((r, i) =>
+      r.status === 'fulfilled'
+        ? r.value
+        : { id: moves[i].id, success: false as const, error: String((r as PromiseRejectedResult).reason) }
+    );
+    const errors = results.filter(r => !r.success).map(r => `${r.id}: ${'error' in r ? r.error : ''}`);
 
     return {
       total: moves.length,
@@ -265,6 +265,81 @@ export function registerPcbWriteHandlers(): void {
       message: success
         ? `PCB primitive ${id} deleted`
         : `Failed to delete PCB primitive ${id}`,
+    };
+  });
+
+  // Batch modify — modify multiple PCB primitives in parallel
+  registerHandler(BridgeCommand.PCB_BATCH_MODIFY, async (params) => {
+    const { modifications } = params as {
+      modifications: Array<{ id: string; key: string; value: string }>;
+    };
+    if (!modifications || modifications.length === 0) throw new Error('No modifications specified');
+
+    const buildProp = (key: string, value: string) => {
+      const prop: Record<string, any> = {};
+      const num = Number(value);
+      if (['x', 'y', 'startX', 'startY', 'endX', 'endY', 'rotation', 'lineWidth',
+           'holeDiameter', 'diameter'].includes(key)) {
+        prop[key] = num;
+      } else if (['primitiveLock', 'addIntoBom', 'metallization'].includes(key)) {
+        prop[key] = value === 'true';
+      } else {
+        prop[key] = value;
+      }
+      return prop;
+    };
+
+    const settled = await Promise.allSettled(
+      modifications.map(async (m) => {
+        const prop = buildProp(m.key, m.value);
+        let result: any;
+        try { result = await eda.pcb_PrimitiveComponent.modify(m.id, prop); } catch (_) {}
+        if (!result) try { result = await eda.pcb_PrimitiveLine.modify(m.id, prop); } catch (_) {}
+        if (!result) try { result = await eda.pcb_PrimitiveVia.modify(m.id, prop); } catch (_) {}
+        if (!result) throw new Error(`Failed to modify ${m.id}`);
+        return { id: m.id, success: true as const };
+      })
+    );
+
+    const results = settled.map((r, i) =>
+      r.status === 'fulfilled' ? r.value
+        : { id: modifications[i].id, success: false as const, error: String((r as PromiseRejectedResult).reason) }
+    );
+
+    return {
+      total: modifications.length,
+      succeeded: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results,
+    };
+  });
+
+  // Batch delete — delete multiple PCB primitives in parallel
+  registerHandler(BridgeCommand.PCB_BATCH_DELETE, async (params) => {
+    const { ids } = params as { ids: string[] };
+    if (!ids || ids.length === 0) throw new Error('No IDs specified');
+
+    const settled = await Promise.allSettled(
+      ids.map(async (id) => {
+        let ok = false;
+        try { ok = await eda.pcb_PrimitiveComponent.delete(id); } catch (_) {}
+        if (!ok) try { ok = await eda.pcb_PrimitiveLine.delete(id); } catch (_) {}
+        if (!ok) try { ok = await eda.pcb_PrimitiveVia.delete(id); } catch (_) {}
+        if (!ok) throw new Error(`Failed to delete ${id}`);
+        return { id, success: true as const };
+      })
+    );
+
+    const results = settled.map((r, i) =>
+      r.status === 'fulfilled' ? r.value
+        : { id: ids[i], success: false as const, error: String((r as PromiseRejectedResult).reason) }
+    );
+
+    return {
+      total: ids.length,
+      succeeded: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results,
     };
   });
 }

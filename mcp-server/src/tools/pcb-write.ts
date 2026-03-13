@@ -21,7 +21,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     },
     async ({ id, x, y, layer, rotation }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_PLACE_COMPONENT, { id, x, y, layer, rotation });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -39,7 +39,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     },
     async ({ points, layer, width, net }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_DRAW_LINE, { points, layer, width, net });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -56,7 +56,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     },
     async ({ x, y, holeRadius, radius, net, type }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_PLACE_VIA, { x, y, holeRadius, radius, net, type });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -73,7 +73,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     },
     async ({ moves }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_BATCH_MOVE, { moves });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -87,7 +87,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     },
     async ({ id, key, value }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_MODIFY_ATTRIBUTE, { id, key, value });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -99,7 +99,35 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     },
     async ({ id }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_DELETE_PRIMITIVE, { id });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_batch_modify',
+    'Batch modify multiple PCB primitive attributes in a single call. Much more efficient than modifying one at a time.',
+    {
+      modifications: z.array(z.object({
+        id: z.string().describe('Primitive ID to modify'),
+        key: z.string().describe('Attribute key'),
+        value: z.string().describe('New attribute value'),
+      })).min(1).describe('Array of modifications'),
+    },
+    async ({ modifications }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_BATCH_MODIFY, { modifications });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_batch_delete',
+    'Batch delete multiple PCB primitives in a single call.',
+    {
+      ids: z.array(z.string()).min(1).describe('Array of primitive IDs to delete'),
+    },
+    async ({ ids }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_BATCH_DELETE, { ids });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 }

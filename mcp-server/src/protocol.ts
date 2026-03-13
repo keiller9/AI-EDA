@@ -54,6 +54,12 @@ export enum BridgeCommand {
   PCB_MODIFY_ATTRIBUTE = 'pcb.modifyAttribute',
   PCB_DELETE_PRIMITIVE = 'pcb.deletePrimitive',
   PCB_BATCH_MOVE = 'pcb.batchMove',
+  PCB_BATCH_MODIFY = 'pcb.batchModify',
+  PCB_BATCH_DELETE = 'pcb.batchDelete',
+
+  // Schematic Batch
+  SCH_BATCH_MODIFY = 'sch.batchModify',
+  SCH_BATCH_DELETE = 'sch.batchDelete',
 
   // System
   SYS_RUN_DRC = 'sys.runDrc',

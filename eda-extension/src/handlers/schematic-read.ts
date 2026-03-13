@@ -38,15 +38,25 @@ export function registerSchematicReadHandlers(): void {
     const components = await eda.sch_PrimitiveComponent.getAll();
     if (!components) return [];
 
+    // Return compact format
+    const compact = components.map((c: any) => ({
+      id: c.primitiveId ?? c.id,
+      designator: c.designator ?? c.name,
+      value: c.value,
+      x: c.x,
+      y: c.y,
+      rotation: c.rotation ?? 0,
+    }));
+
     if (filter) {
-      const lowerFilter = filter.toLowerCase();
-      return components.filter((c: any) => {
-        const str = JSON.stringify(c).toLowerCase();
-        return str.includes(lowerFilter);
-      });
+      const lf = filter.toLowerCase();
+      return compact.filter((c: any) =>
+        (c.designator?.toLowerCase().includes(lf)) ||
+        (c.value?.toLowerCase().includes(lf))
+      );
     }
 
-    return components;
+    return compact;
   });
 
   // List all nets

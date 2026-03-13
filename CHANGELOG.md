@@ -16,6 +16,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 ---
 
+## [1.3.0] — 2026-03-13
+
+### Added — Performance optimization & batch tools (Figma-inspired)
+
+**New MCP Tools** — total tools: **27** (+4)
+- `eda_pcb_batch_modify` — batch modify multiple PCB primitive attributes in parallel
+- `eda_pcb_batch_delete` — batch delete multiple PCB primitives in parallel
+- `eda_sch_batch_modify` — batch modify multiple schematic primitive attributes in parallel
+- `eda_sch_batch_delete` — batch delete multiple schematic primitives in parallel
+
+**Performance — Parallel Execution**
+- `pcb.batchMove` handler: sequential `for...of await` → `Promise.allSettled()` (5-10x faster for bulk moves)
+- `pcb.drawLine` handler: sequential loop → `Promise.allSettled()` (parallel segment creation)
+
+**Performance — Compact Responses**
+- `pcb.listComponents`: returns compact `{id, designator, x, y, rotation, layer, footprint}` instead of full primitive objects (~80% smaller)
+- `sch.listComponents`: returns compact `{id, designator, value, x, y, rotation}` instead of full objects
+- All MCP tools: removed JSON pretty-printing (`null, 2` → compact), ~30-40% response size reduction
+- Optimized filter: targeted field matching instead of `JSON.stringify()` full-object search
+
+### Fixed
+- `pcb.listNets`: fixed `netNames.map is not a function` — added `Array.isArray()` guard
+- `pcb.listPrimitives`: fixed `netNames is not iterable` — added `Array.isArray()` guard
+
+---
+
 ## [1.2.0] — 2026-03-13
 
 ### Added — Batch move & WebSocket stability
@@ -146,6 +172,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.3.0 | 2026-03-13 | Performance: parallel batch ops, compact responses, 27 tools total |
 | 1.2.0 | 2026-03-13 | Batch move tool, WebSocket connection fixed, 23 tools total |
 | 1.1.0 | 2026-03-13 | All 22 tools functional — write ops use primitive subclass APIs, read ops upgraded |
 | 1.0.0 | 2025-03-13 | Initial release — 22 MCP tools, read operations functional, write operations stubbed |

@@ -15,7 +15,7 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_GET_STATE);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -25,7 +25,7 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
     { filter: z.string().optional().describe('Optional filter string to match component designator or footprint') },
     async ({ filter }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_LIST_COMPONENTS, { filter });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -35,7 +35,7 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_LIST_NETS);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -45,7 +45,7 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_LIST_LAYERS);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -58,7 +58,7 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
     },
     async ({ type, layer }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_LIST_PRIMITIVES, { type, layer });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -68,7 +68,7 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
     { id: z.string().describe('Component ID') },
     async ({ id }) => {
       const data = await bridge.sendCommand(BridgeCommand.PCB_GET_COMPONENT, { id });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 }

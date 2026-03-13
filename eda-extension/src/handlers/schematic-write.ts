@@ -166,4 +166,84 @@ export function registerSchematicWriteHandlers(): void {
         : `Failed to delete primitive ${id}`,
     };
   });
+
+  // Batch modify — modify multiple schematic primitives in parallel
+  registerHandler(BridgeCommand.SCH_BATCH_MODIFY, async (params) => {
+    const { modifications } = params as {
+      modifications: Array<{ id: string; key: string; value: string }>;
+    };
+    if (!modifications || modifications.length === 0) throw new Error('No modifications specified');
+
+    const buildProp = (key: string, value: string) => {
+      const prop: Record<string, any> = {};
+      const num = Number(value);
+      if (['x', 'y', 'rotation', 'lineWidth'].includes(key)) {
+        prop[key] = num;
+      } else if (['mirror', 'addIntoBom', 'addIntoPcb'].includes(key)) {
+        prop[key] = value === 'true';
+      } else {
+        prop[key] = value;
+      }
+      return prop;
+    };
+
+    const settled = await Promise.allSettled(
+      modifications.map(async (m) => {
+        const prop = buildProp(m.key, m.value);
+        const pType = eda.sch_Primitive.getPrimitiveTypeByPrimitiveId(m.id);
+        let result: any;
+        if (String(pType) === 'WIRE' || String(pType) === String(ESCH_PrimitiveType.WIRE)) {
+          result = await eda.sch_PrimitiveWire.modify(m.id, prop);
+        } else {
+          result = await eda.sch_PrimitiveComponent.modify(m.id, prop);
+        }
+        if (!result) throw new Error(`Failed to modify ${m.id}`);
+        return { id: m.id, success: true as const };
+      })
+    );
+
+    const results = settled.map((r, i) =>
+      r.status === 'fulfilled' ? r.value
+        : { id: modifications[i].id, success: false as const, error: String((r as PromiseRejectedResult).reason) }
+    );
+
+    return {
+      total: modifications.length,
+      succeeded: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results,
+    };
+  });
+
+  // Batch delete — delete multiple schematic primitives in parallel
+  registerHandler(BridgeCommand.SCH_BATCH_DELETE, async (params) => {
+    const { ids } = params as { ids: string[] };
+    if (!ids || ids.length === 0) throw new Error('No IDs specified');
+
+    const settled = await Promise.allSettled(
+      ids.map(async (id) => {
+        const pType = eda.sch_Primitive.getPrimitiveTypeByPrimitiveId(id);
+        let ok = false;
+        if (String(pType) === 'WIRE' || String(pType) === String(ESCH_PrimitiveType.WIRE)) {
+          ok = await eda.sch_PrimitiveWire.delete(id);
+        } else {
+          ok = await eda.sch_PrimitiveComponent.delete(id);
+        }
+        if (!ok) throw new Error(`Failed to delete ${id}`);
+        return { id, success: true as const };
+      })
+    );
+
+    const results = settled.map((r, i) =>
+      r.status === 'fulfilled' ? r.value
+        : { id: ids[i], success: false as const, error: String((r as PromiseRejectedResult).reason) }
+    );
+
+    return {
+      total: ids.length,
+      succeeded: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+      results,
+    };
+  });
 }

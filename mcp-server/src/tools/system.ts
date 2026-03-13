@@ -17,7 +17,7 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
     },
     async ({ type }) => {
       const data = await bridge.sendCommand(BridgeCommand.SYS_RUN_DRC, { type });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -27,7 +27,7 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.SYS_EXPORT_BOM);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -37,7 +37,7 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.SYS_GET_DOCUMENT_INFO);
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -50,7 +50,7 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
     },
     async ({ message, type }) => {
       const data = await bridge.sendCommand(BridgeCommand.SYS_SHOW_MESSAGE, { message, type: type ?? 'info' });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 }

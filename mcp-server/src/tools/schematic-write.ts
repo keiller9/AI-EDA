@@ -20,7 +20,7 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
     },
     async ({ deviceId, x, y, rotation }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_PLACE_COMPONENT, { deviceId, x, y, rotation });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -35,7 +35,7 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
     },
     async ({ points }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_DRAW_WIRE, { points });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -49,7 +49,7 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
     },
     async ({ id, key, value }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_MODIFY_ATTRIBUTE, { id, key, value });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 
@@ -61,7 +61,35 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
     },
     async ({ id }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_DELETE_PRIMITIVE, { id });
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_batch_modify',
+    'Batch modify multiple schematic primitive attributes in a single call.',
+    {
+      modifications: z.array(z.object({
+        id: z.string().describe('Primitive ID to modify'),
+        key: z.string().describe('Attribute key'),
+        value: z.string().describe('New attribute value'),
+      })).min(1).describe('Array of modifications'),
+    },
+    async ({ modifications }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_BATCH_MODIFY, { modifications });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_batch_delete',
+    'Batch delete multiple schematic primitives in a single call.',
+    {
+      ids: z.array(z.string()).min(1).describe('Array of primitive IDs to delete'),
+    },
+    async ({ ids }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_BATCH_DELETE, { ids });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
 }

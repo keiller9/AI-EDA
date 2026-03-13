@@ -42,21 +42,32 @@ export function registerPcbReadHandlers(): void {
     const components = await eda.pcb_PrimitiveComponent.getAll();
     if (!components) return [];
 
+    // Return compact format
+    const compact = components.map((c: any) => ({
+      id: c.primitiveId ?? c.id,
+      designator: c.designator ?? c.name,
+      x: c.x,
+      y: c.y,
+      rotation: c.rotation ?? 0,
+      layer: c.layer,
+      footprint: c.footprint ?? c.footprintName,
+    }));
+
     if (filter) {
-      const lowerFilter = filter.toLowerCase();
-      return components.filter((c: any) => {
-        const str = JSON.stringify(c).toLowerCase();
-        return str.includes(lowerFilter);
-      });
+      const lf = filter.toLowerCase();
+      return compact.filter((c: any) =>
+        (c.designator?.toLowerCase().includes(lf)) ||
+        (c.footprint?.toLowerCase().includes(lf))
+      );
     }
 
-    return components;
+    return compact;
   });
 
   // List all PCB nets with lengths
   registerHandler(BridgeCommand.PCB_LIST_NETS, async () => {
     const netNames = eda.pcb_Net.getAllNetName();
-    if (!netNames) return [];
+    if (!netNames || !Array.isArray(netNames)) return [];
 
     return netNames.map((name: string) => ({
       name,
@@ -99,11 +110,11 @@ export function registerPcbReadHandlers(): void {
     }
 
     // For other types, use net-based search as fallback
-    const netNames = eda.pcb_Net.getAllNetName();
-    if (!netNames) return [];
+    const netNames2 = eda.pcb_Net.getAllNetName();
+    if (!netNames2 || !Array.isArray(netNames2)) return [];
 
     const allPrimitives: any[] = [];
-    for (const net of netNames) {
+    for (const net of netNames2) {
       const primitives = eda.pcb_Net.getAllPrimitivesByNet(net, [typeStr as any]);
       if (primitives) {
         allPrimitives.push(...primitives);

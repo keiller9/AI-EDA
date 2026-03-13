@@ -22,7 +22,7 @@ export function registerConnectionTools(server: McpServer, bridge: WSBridge): vo
             message: connected
               ? 'EDA extension is connected and ready'
               : 'EDA extension is not connected. Please open JLCEDA Pro and click AI Bridge -> Connect',
-          }, null, 2),
+          }),
         }],
       };
     },
