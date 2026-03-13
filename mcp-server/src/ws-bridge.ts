@@ -27,7 +27,11 @@ export class WSBridge {
 
   start(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.wss = new WebSocketServer({ port: this.port });
+      this.wss = new WebSocketServer({
+        port: this.port,
+        perMessageDeflate: false,   // Disable compression for broader client compatibility
+        clientTracking: true,
+      });
 
       this.wss.on('listening', () => {
         console.error(`[WSBridge] WebSocket server listening on port ${this.port}`);

@@ -11,10 +11,10 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 
 | Component | Description |
 |-----------|-------------|
-| **mcp-server/** | Node.js MCP server — exposes 22 tools via stdio, bridges commands to EDA over WebSocket |
+| **mcp-server/** | Node.js MCP server — exposes 23 tools via stdio, bridges commands to EDA over WebSocket |
 | **eda-extension/** | JLCEDA Pro extension — receives commands via WebSocket, calls EDA API, returns results |
 
-## MCP Tools (22)
+## MCP Tools (23)
 
 ### Connection
 | Tool | Description |
@@ -55,6 +55,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_pcb_place_component` | Place a component on PCB |
 | `eda_pcb_draw_line` | Draw a copper trace |
 | `eda_pcb_place_via` | Place a via |
+| `eda_pcb_batch_move` | Batch move multiple components at once |
 | `eda_pcb_modify_attribute` | Modify PCB primitive attributes |
 | `eda_pcb_delete_primitive` | Delete a PCB primitive |
 
@@ -66,7 +67,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_sys_get_document_info` | Get editor/document info |
 | `eda_sys_show_message` | Show toast notification in EDA |
 
-> **Note:** All 22 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.) discovered in the JLCEDA Pro extension API. All methods are marked BETA by the EDA vendor.
+> **Note:** All 23 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.) discovered in the JLCEDA Pro extension API. All methods are marked BETA by the EDA vendor.
 
 ## Quick Start
 
@@ -117,8 +118,11 @@ The project includes `.mcp.json` — update the path if needed:
 
 ### 5. Connect
 
-1. In JLCEDA Pro, click **AI Bridge → 连接 AI**
-2. In Claude Code, use any `eda_*` tool to interact with the design
+1. In JLCEDA Pro **desktop client**, click **AI Bridge → 连接 AI**
+2. You should see a success toast: "Connected to MCP Server"
+3. In Claude Code, use any `eda_*` tool to interact with the design
+
+> **Important:** The web version of JLCEDA Pro cannot connect to local WebSocket due to HTTPS mixed content restrictions. Use the **desktop client** (全在线 mode).
 
 ## Usage Examples
 

@@ -53,6 +53,7 @@ export enum BridgeCommand {
   PCB_PLACE_VIA = 'pcb.placeVia',
   PCB_MODIFY_ATTRIBUTE = 'pcb.modifyAttribute',
   PCB_DELETE_PRIMITIVE = 'pcb.deletePrimitive',
+  PCB_BATCH_MOVE = 'pcb.batchMove',
 
   // System
   SYS_RUN_DRC = 'sys.runDrc',

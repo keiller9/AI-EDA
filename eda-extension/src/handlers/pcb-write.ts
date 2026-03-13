@@ -196,6 +196,47 @@ export function registerPcbWriteHandlers(): void {
     };
   });
 
+  // Batch move components — move multiple components in one call
+  registerHandler(BridgeCommand.PCB_BATCH_MOVE, async (params) => {
+    const { moves } = params as {
+      moves: Array<{
+        id: string;
+        x: number;
+        y: number;
+        rotation?: number;
+      }>;
+    };
+
+    if (!moves || moves.length === 0) {
+      throw new Error('No moves specified');
+    }
+
+    const results: any[] = [];
+    const errors: string[] = [];
+
+    for (const move of moves) {
+      try {
+        const property: Record<string, any> = { x: move.x, y: move.y };
+        if (move.rotation !== undefined) {
+          property.rotation = move.rotation;
+        }
+        const result = await eda.pcb_PrimitiveComponent.modify(move.id, property);
+        results.push({ id: move.id, success: true });
+      } catch (e) {
+        errors.push(`${move.id}: ${String(e)}`);
+        results.push({ id: move.id, success: false, error: String(e) });
+      }
+    }
+
+    return {
+      total: moves.length,
+      succeeded: results.filter(r => r.success).length,
+      failed: errors.length,
+      errors: errors.length > 0 ? errors : undefined,
+      results,
+    };
+  });
+
   // Delete a PCB primitive
   registerHandler(BridgeCommand.PCB_DELETE_PRIMITIVE, async (params) => {
     const { id } = params as { id: string };

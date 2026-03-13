@@ -61,6 +61,23 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
   );
 
   server.tool(
+    'eda_pcb_batch_move',
+    'Batch move multiple PCB components to new positions in a single call. Much more efficient than modifying one at a time.',
+    {
+      moves: z.array(z.object({
+        id: z.string().describe('Component primitiveId'),
+        x: z.number().describe('New X coordinate (in mils)'),
+        y: z.number().describe('New Y coordinate (in mils)'),
+        rotation: z.number().optional().describe('New rotation angle in degrees'),
+      })).min(1).describe('Array of component moves'),
+    },
+    async ({ moves }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_BATCH_MOVE, { moves });
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    },
+  );
+
+  server.tool(
     'eda_pcb_modify_attribute',
     'Modify an attribute of a PCB primitive (e.g., change pad size, net assignment)',
     {

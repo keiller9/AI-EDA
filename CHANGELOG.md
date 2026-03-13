@@ -16,6 +16,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 ---
 
+## [1.2.0] — 2026-03-13
+
+### Added — Batch move & WebSocket stability
+
+**New MCP Tool**
+- `eda_pcb_batch_move` — move multiple PCB components in a single call, using `eda.pcb_PrimitiveComponent.modify()` for each move. Accepts array of `{id, x, y, rotation?}`. Total tools: **23**.
+- New bridge command `pcb.batchMove` added to protocol
+
+**WebSocket Connection Fixes**
+- Use unique WebSocket ID per connection (`ai-eda-bridge-<timestamp>`) to avoid EDA internal ID conflicts
+- Removed pre-close of non-existent connections that could poison EDA internal state
+- Added "Connecting to..." diagnostic toast before attempting connection
+- Added 8-second timeout detection for silent connection failures
+- Disabled `perMessageDeflate` compression on MCP Server WebSocket for broader client compatibility
+
+**Documentation**
+- README: updated tool count to 23, added desktop client requirement note
+- README: added important note about web version HTTPS mixed content restriction
+
+### Fixed
+- WebSocket connection from EDA extension to MCP Server now works reliably on JLCEDA Pro desktop client (v3.2.91)
+- Previously failed with "无法建立 WebSocket 连接" due to stale ID conflicts and compression negotiation issues
+
+---
+
 ## [1.1.0] — 2026-03-13
 
 ### Changed — Write operations now functional
@@ -121,5 +146,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.2.0 | 2026-03-13 | Batch move tool, WebSocket connection fixed, 23 tools total |
 | 1.1.0 | 2026-03-13 | All 22 tools functional — write ops use primitive subclass APIs, read ops upgraded |
 | 1.0.0 | 2025-03-13 | Initial release — 22 MCP tools, read operations functional, write operations stubbed |
