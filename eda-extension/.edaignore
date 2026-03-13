@@ -1,0 +1,16 @@
+/.git/
+/.vscode/
+/build/
+/config/
+/node_modules/
+/src/
+/.editorconfig
+/.gitattributes
+/.gitignore
+/.npmrc
+/.edaignore
+/package-lock.json
+/package.json
+/tsconfig.json
+.eslintcache
+debug.log
