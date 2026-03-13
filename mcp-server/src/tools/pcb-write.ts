@@ -11,7 +11,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_place_component',
-    'Place a component on the PCB at the specified position and layer',
+    'Place a component on the PCB at the specified position and layer.\n\nThe id parameter is a component identifier in "libraryUuid:uuid" or bare uuid format. Coordinates are in mils. Default layer is TopLayer.\n\nReturns: { success: boolean, primitive: object, message: string }.\n\nUse eda_pcb_list_layers to see valid layer names before placing. The component will appear at the specified (x, y) coordinates with the given rotation on the target layer.',
     {
       id: z.string().describe('Component ID (matching schematic designator)'),
       x: z.number().describe('X coordinate on the PCB canvas (in mils)'),
@@ -27,7 +27,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_draw_line',
-    'Draw a copper trace on the PCB by specifying a sequence of points, layer, and width',
+    'Draw a copper trace on the PCB by specifying a sequence of points, target layer, and trace width.\n\nPoints define the trace path (minimum 2). Coordinates and width are in mils. The layer must be a valid copper layer name (e.g., "TopLayer", "BottomLayer", "Inner1"). Optionally assign a net name.\n\nReturns: { success: boolean, segments: array, message: string } where segments lists each created line primitive.\n\nMultiple segments between consecutive points are created in parallel. For traces that need to switch layers, place a via (eda_pcb_place_via) at the transition point and draw separate traces on each layer.',
     {
       points: z.array(z.object({
         x: z.number().describe('X coordinate (in mils)'),
@@ -45,7 +45,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_place_via',
-    'Place a via (through-hole or blind/buried) on the PCB',
+    'Place a via (through-hole, blind, or buried) on the PCB at the specified position.\n\nCoordinates are in mils. holeRadius and radius default to 6mil and 12mil respectively. Assign a net to electrically connect layers.\n\nReturns: { success: boolean, primitive: object, message: string }.\n\nUse vias to transition traces between copper layers. Place the via at the desired transition point, then draw traces on each layer connecting to the via position.',
     {
       x: z.number().describe('X coordinate (in mils)'),
       y: z.number().describe('Y coordinate (in mils)'),
@@ -62,7 +62,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_batch_move',
-    'Batch move multiple PCB components to new positions in a single call. Much more efficient than modifying one at a time.',
+    'Batch move multiple PCB components to new positions in a single call. Much more efficient than calling eda_pcb_modify_attribute for each component.\n\nEach move specifies a component primitiveId, new x/y coordinates (in mils), and optional rotation. All moves execute in parallel.\n\nReturns: { total: number, succeeded: number, failed: number, results: Array<{id, success, error?}> }.\n\nUse this for layout rearrangement when you need to reposition 2 or more components. Get component IDs from eda_pcb_list_components first.',
     {
       moves: z.array(z.object({
         id: z.string().describe('Component primitiveId'),
@@ -79,7 +79,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_modify_attribute',
-    'Modify an attribute of a PCB primitive (e.g., change pad size, net assignment)',
+    'Modify an attribute of a PCB primitive (component, trace, or via).\n\nThe tool auto-detects the primitive type by trying component, then line, then via modify APIs. Numeric attribute keys: x, y, startX, startY, endX, endY, rotation, lineWidth, holeDiameter, diameter. Boolean keys: primitiveLock. String keys: all others (e.g., net, layer, designator).\n\nReturns: { success: boolean, primitive: object, message: string }.\n\nFor bulk modifications, use eda_pcb_batch_modify instead.',
     {
       id: z.string().describe('Primitive ID to modify'),
       key: z.string().describe('Attribute key'),
@@ -93,7 +93,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_delete_primitive',
-    'Delete a PCB primitive by its ID',
+    'Delete a PCB primitive by its ID. Works for components, traces (lines), and vias.\n\nThe tool auto-detects the primitive type by trying component, then line, then via delete APIs.\n\nReturns: { success: boolean, message: string }.\n\nFor deleting multiple primitives, use eda_pcb_batch_delete instead — it processes all deletions in parallel.',
     {
       id: z.string().describe('Primitive ID to delete'),
     },
@@ -105,7 +105,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_batch_modify',
-    'Batch modify multiple PCB primitive attributes in a single call. Much more efficient than modifying one at a time.',
+    'Batch modify multiple PCB primitive attributes in a single call. Much more efficient than calling eda_pcb_modify_attribute repeatedly.\n\nEach modification specifies an id, key, and value. All modifications execute in parallel. Supports the same attribute keys as eda_pcb_modify_attribute.\n\nReturns: { total: number, succeeded: number, failed: number, results: Array<{id, success, error?}> }.',
     {
       modifications: z.array(z.object({
         id: z.string().describe('Primitive ID to modify'),
@@ -121,7 +121,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
 
   server.tool(
     'eda_pcb_batch_delete',
-    'Batch delete multiple PCB primitives in a single call.',
+    'Batch delete multiple PCB primitives in a single call. Much more efficient than calling eda_pcb_delete_primitive repeatedly.\n\nAll deletions execute in parallel. Works for any combination of components, traces, and vias.\n\nReturns: { total: number, succeeded: number, failed: number, results: Array<{id, success, error?}> }.',
     {
       ids: z.array(z.string()).min(1).describe('Array of primitive IDs to delete'),
     },

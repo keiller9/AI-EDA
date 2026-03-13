@@ -16,6 +16,28 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 ---
 
+## [1.4.0] — 2026-03-13
+
+### Added — Figma-inspired tool experience improvements
+
+**New Composite / Intent Tools** — total tools: **31** (+4)
+- `eda_get_design_overview` — one-call design overview, auto-detects SCH/PCB, returns components + nets + stats
+- `eda_find_component` — smart component search by designator/value/footprint, returns full details + pins
+- `eda_check_design` — comprehensive design check: DRC + net analysis + component stats + human-readable report
+- `eda_pcb_get_component_context` — progressive disclosure: component + pins + connected nets with lengths + 10 nearest neighbors
+
+**Enhanced Tool Descriptions** — all 27 existing tools
+- Every tool description now includes: return format, when to use, relationships to other tools
+- Follows Figma MCP pattern: rich descriptions guide the LLM to pick the right tool
+- Example: `eda_pcb_list_components` now explains compact format, suggests `get_component` for details and `get_component_context` for spatial context
+
+**Design Patterns**
+- Outcomes over Operations: composite tools accomplish user intents in a single call
+- Progressive Disclosure: 3 levels of component detail (list → get → context)
+- Auto-detection: composite tools detect active document type (SCH/PCB) automatically
+
+---
+
 ## [1.3.0] — 2026-03-13
 
 ### Added — Performance optimization & batch tools (Figma-inspired)
@@ -172,6 +194,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.4.0 | 2026-03-13 | Figma-inspired: composite intent tools, enhanced descriptions, 31 tools total |
 | 1.3.0 | 2026-03-13 | Performance: parallel batch ops, compact responses, 27 tools total |
 | 1.2.0 | 2026-03-13 | Batch move tool, WebSocket connection fixed, 23 tools total |
 | 1.1.0 | 2026-03-13 | All 22 tools functional — write ops use primitive subclass APIs, read ops upgraded |

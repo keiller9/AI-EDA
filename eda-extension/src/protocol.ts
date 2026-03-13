@@ -66,6 +66,14 @@ export enum BridgeCommand {
   SYS_EXPORT_BOM = 'sys.exportBom',
   SYS_GET_DOCUMENT_INFO = 'sys.getDocumentInfo',
   SYS_SHOW_MESSAGE = 'sys.showMessage',
+
+  // Composite / Intent
+  SYS_GET_DESIGN_OVERVIEW = 'sys.getDesignOverview',
+  SYS_FIND_COMPONENT = 'sys.findComponent',
+  SYS_CHECK_DESIGN = 'sys.checkDesign',
+
+  // Progressive Disclosure
+  PCB_GET_COMPONENT_CONTEXT = 'pcb.getComponentContext',
 }
 
 // ============ Helper ============

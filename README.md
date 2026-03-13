@@ -11,10 +11,10 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 
 | Component | Description |
 |-----------|-------------|
-| **mcp-server/** | Node.js MCP server — exposes 27 tools via stdio, bridges commands to EDA over WebSocket |
+| **mcp-server/** | Node.js MCP server — exposes 31 tools via stdio, bridges commands to EDA over WebSocket |
 | **eda-extension/** | JLCEDA Pro extension — receives commands via WebSocket, calls EDA API, returns results |
 
-## MCP Tools (27)
+## MCP Tools (31)
 
 ### Connection
 | Tool | Description |
@@ -50,6 +50,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_pcb_list_layers` | Get layer stack info |
 | `eda_pcb_list_primitives` | List primitives by type/layer |
 | `eda_pcb_get_component` | Get detailed PCB component info |
+| `eda_pcb_get_component_context` | Get component with connected nets and nearby components |
 
 ### PCB Write
 | Tool | Description |
@@ -71,7 +72,14 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_sys_get_document_info` | Get editor/document info |
 | `eda_sys_show_message` | Show toast notification in EDA |
 
-> **Note:** All 27 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.). Batch operations use `Promise.allSettled()` for parallel execution. All EDA methods are marked BETA by the vendor.
+### Composite / Intent (Figma-inspired)
+| Tool | Description |
+|------|-------------|
+| `eda_get_design_overview` | One-call design overview — auto-detects SCH/PCB, returns components + nets + stats |
+| `eda_find_component` | Smart component search by designator/value/footprint with full details + pins |
+| `eda_check_design` | Comprehensive design check — DRC + net analysis + human-readable report |
+
+> **Note:** All 31 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.). Batch operations use `Promise.allSettled()` for parallel execution. Composite tools combine multiple API calls into single high-level operations. All EDA methods are marked BETA by the vendor.
 
 ## Quick Start
 
@@ -131,17 +139,26 @@ The project includes `.mcp.json` — update the path if needed:
 ## Usage Examples
 
 ```
+> Give me an overview of the current design
+  → uses eda_get_design_overview (auto-detects SCH/PCB)
+
+> Find component U1
+  → uses eda_find_component with query="U1"
+
+> Check the design for errors
+  → uses eda_check_design (DRC + net analysis + report)
+
 > List all components in the current schematic
   → uses eda_sch_list_components
 
 > What nets are in the PCB? Show their lengths
   → uses eda_pcb_list_nets
 
+> Show me the context of component R1 (connected nets, neighbors)
+  → uses eda_pcb_get_component_context
+
 > Run DRC on the schematic
   → uses eda_sys_run_drc with type="sch"
-
-> Show a message "Hello" in the EDA editor
-  → uses eda_sys_show_message
 ```
 
 ## Project Structure

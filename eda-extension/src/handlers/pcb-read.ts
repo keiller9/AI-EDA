@@ -145,4 +145,68 @@ export function registerPcbReadHandlers(): void {
       pins: pins ?? [],
     };
   });
+
+  // ============ Progressive Disclosure ============
+
+  // Get comprehensive component context: details + pins + connected nets + nearby components
+  registerHandler(BridgeCommand.PCB_GET_COMPONENT_CONTEXT, async (params) => {
+    const id = params.id as string;
+
+    // Get the component itself
+    const component = await eda.pcb_PrimitiveComponent.get(id);
+    if (!component) {
+      throw new Error(`PCB component not found: ${id}`);
+    }
+
+    // Get pins for this component
+    const pins = await eda.pcb_PrimitiveComponent.getAllPinsByPrimitiveId(id);
+
+    // Collect unique net names from the pins
+    const netNameSet = new Set<string>();
+    if (pins) {
+      for (const pin of pins) {
+        if ((pin as any).net) netNameSet.add((pin as any).net);
+      }
+    }
+
+    // Get net lengths for each connected net
+    const connectedNets = Array.from(netNameSet).map(name => ({
+      name,
+      length: eda.pcb_Net.getNetLength(name),
+    }));
+
+    // Get all components to find neighbors
+    const allComponents = await eda.pcb_PrimitiveComponent.getAll();
+    const cx = (component as any).x ?? 0;
+    const cy = (component as any).y ?? 0;
+
+    let nearbyComponents: Array<{ id: string; designator: string; footprint: string; distance: number }> = [];
+
+    if (allComponents) {
+      // Calculate distance to all other components, return closest 10
+      const others = allComponents
+        .filter((c: any) => (c.primitiveId ?? c.id) !== id)
+        .map((c: any) => {
+          const dx = (c.x ?? 0) - cx;
+          const dy = (c.y ?? 0) - cy;
+          const distance = Math.round(Math.sqrt(dx * dx + dy * dy));
+          return {
+            id: c.primitiveId ?? c.id,
+            designator: c.designator ?? c.name,
+            footprint: c.footprint ?? c.footprintName,
+            distance,
+          };
+        });
+
+      others.sort((a: any, b: any) => a.distance - b.distance);
+      nearbyComponents = others.slice(0, 10);
+    }
+
+    return {
+      component,
+      pins: pins ?? [],
+      connectedNets,
+      nearbyComponents,
+    };
+  });
 }

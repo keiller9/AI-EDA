@@ -1,6 +1,7 @@
 /**
  * System Handlers
- * Uses EDA API for DRC, BOM export, document info, and notifications
+ * Uses EDA API for DRC, BOM export, document info, notifications,
+ * and composite intent tools (design overview, find component, check design)
  *
  * API used:
  *   eda.sch_Drc.check(strict, userInterface, includeVerboseError) — run schematic DRC
@@ -10,6 +11,9 @@
  *   eda.sys_Environment.isClient() — is desktop client
  *   eda.sys_Environment.isJLCEDAProEdition() — is JLCEDA Pro
  *   eda.sys_ToastMessage.showMessage(msg, type) — show notification
+ *   eda.sch_PrimitiveComponent.getAll() — list all schematic components
+ *   eda.pcb_PrimitiveComponent.getAll() — list all PCB components
+ *   eda.pcb_Net.getAllNetName() / getNetLength() — PCB net data
  */
 
 import { BridgeCommand } from '../protocol.js';
@@ -85,5 +89,243 @@ export function registerSystemHandlers(): void {
       success: true,
       message: `Toast message displayed: "${message}"`,
     };
+  });
+
+  // ============ Composite / Intent Tools ============
+
+  // Get design overview — auto-detect document type, return combined data
+  registerHandler(BridgeCommand.SYS_GET_DESIGN_OVERVIEW, async () => {
+    // Try PCB first — if pcb_PrimitiveComponent.getAll() returns data, we're in a PCB document
+    let pcbComponents: any = null;
+    try {
+      pcbComponents = await eda.pcb_PrimitiveComponent.getAll();
+    } catch {
+      // Not a PCB document, will try SCH
+    }
+
+    if (pcbComponents && pcbComponents.length > 0) {
+      // PCB document
+      const netNames = eda.pcb_Net.getAllNetName();
+      const layers = eda.pcb_Layer.getAllLayers();
+      const origin = eda.pcb_Document.getCanvasOrigin();
+
+      const compact = pcbComponents.map((c: any) => ({
+        id: c.primitiveId ?? c.id,
+        designator: c.designator ?? c.name,
+        x: c.x,
+        y: c.y,
+        rotation: c.rotation ?? 0,
+        layer: c.layer,
+        footprint: c.footprint ?? c.footprintName,
+      }));
+
+      const nets = (netNames && Array.isArray(netNames))
+        ? netNames.map((name: string) => ({
+            name,
+            length: eda.pcb_Net.getNetLength(name),
+          }))
+        : [];
+
+      return {
+        documentType: 'pcb',
+        components: compact,
+        componentCount: compact.length,
+        nets,
+        netCount: nets.length,
+        layerCount: layers?.length ?? 0,
+        canvasOrigin: origin,
+      };
+    }
+
+    // Try schematic
+    let schComponents: any = null;
+    try {
+      schComponents = await eda.sch_PrimitiveComponent.getAll();
+    } catch {
+      // Not a schematic document either
+    }
+
+    if (schComponents) {
+      const wires = await eda.sch_PrimitiveWire.getAll();
+      const netlist = eda.sch_Netlist.getNetlist(ESYS_NetlistType.STANDARD);
+
+      const compact = (schComponents ?? []).map((c: any) => ({
+        id: c.primitiveId ?? c.id,
+        designator: c.designator ?? c.name,
+        value: c.value,
+        x: c.x,
+        y: c.y,
+        rotation: c.rotation ?? 0,
+      }));
+
+      return {
+        documentType: 'schematic',
+        components: compact,
+        componentCount: compact.length,
+        wireCount: wires?.length ?? 0,
+        netCount: Array.isArray(netlist) ? netlist.length : 0,
+      };
+    }
+
+    throw new Error('No active schematic or PCB document found. Please open a document in JLCEDA Pro.');
+  });
+
+  // Find component — search by designator/value/footprint with full details
+  registerHandler(BridgeCommand.SYS_FIND_COMPONENT, async (params) => {
+    const { query } = params as { query: string };
+    const lq = query.toLowerCase();
+
+    // Try PCB first
+    let pcbComponents: any = null;
+    try {
+      pcbComponents = await eda.pcb_PrimitiveComponent.getAll();
+    } catch {
+      // Not a PCB document
+    }
+
+    if (pcbComponents && pcbComponents.length > 0) {
+      const matches: any[] = [];
+      for (const c of pcbComponents) {
+        const designator = (c.designator ?? c.name ?? '').toLowerCase();
+        const footprint = (c.footprint ?? c.footprintName ?? '').toLowerCase();
+        if (designator.includes(lq) || footprint.includes(lq)) {
+          const id = c.primitiveId ?? c.id;
+          let full = c;
+          try {
+            const detail = await eda.pcb_PrimitiveComponent.get(id);
+            if (detail) full = detail;
+          } catch { /* use original */ }
+          let pins: any = [];
+          try {
+            pins = await eda.pcb_PrimitiveComponent.getAllPinsByPrimitiveId(id);
+          } catch { /* no pins */ }
+          matches.push({ ...full, pins: pins ?? [] });
+        }
+      }
+      return {
+        documentType: 'pcb',
+        matches,
+        query,
+        totalComponents: pcbComponents.length,
+      };
+    }
+
+    // Try schematic
+    let schComponents: any = null;
+    try {
+      schComponents = await eda.sch_PrimitiveComponent.getAll();
+    } catch {
+      // Not a schematic document
+    }
+
+    if (schComponents) {
+      const matches: any[] = [];
+      for (const c of schComponents) {
+        const designator = (c.designator ?? c.name ?? '').toLowerCase();
+        const value = (c.value ?? '').toLowerCase();
+        if (designator.includes(lq) || value.includes(lq)) {
+          const id = c.primitiveId ?? c.id;
+          let full = c;
+          try {
+            const detail = await eda.sch_PrimitiveComponent.get(id);
+            if (detail) full = detail;
+          } catch { /* use original */ }
+          let pins: any = [];
+          try {
+            pins = await eda.sch_PrimitiveComponent.getAllPinsByPrimitiveId(id);
+          } catch { /* no pins */ }
+          matches.push({ ...full, pins: pins ?? [] });
+        }
+      }
+      return {
+        documentType: 'schematic',
+        matches,
+        query,
+        totalComponents: schComponents.length,
+      };
+    }
+
+    throw new Error('No active schematic or PCB document found.');
+  });
+
+  // Check design — DRC + net analysis + statistics in one report
+  registerHandler(BridgeCommand.SYS_CHECK_DESIGN, async (params) => {
+    let { type } = params as { type?: 'sch' | 'pcb' };
+
+    // Auto-detect if not specified
+    if (!type) {
+      let pcbComponents: any = null;
+      try {
+        pcbComponents = await eda.pcb_PrimitiveComponent.getAll();
+      } catch { /* not PCB */ }
+      if (pcbComponents && pcbComponents.length > 0) {
+        type = 'pcb';
+      } else {
+        type = 'sch';
+      }
+    }
+
+    if (type === 'sch') {
+      const drcResult = eda.sch_Drc.check(true, false, true);
+      const components = await eda.sch_PrimitiveComponent.getAll();
+      const netlist = eda.sch_Netlist.getNetlist(ESYS_NetlistType.STANDARD);
+
+      const componentCount = components?.length ?? 0;
+      const netCount = Array.isArray(netlist) ? netlist.length : 0;
+      const violationCount = Array.isArray(drcResult) ? drcResult.length : 0;
+
+      const report = [
+        'Schematic Design Check Report',
+        `Components: ${componentCount}`,
+        `Nets: ${netCount}`,
+        `DRC violations: ${violationCount}`,
+        violationCount === 0
+          ? 'Status: PASS — No DRC violations found.'
+          : `Status: FAIL — ${violationCount} violation(s) found.`,
+      ].join('\n');
+
+      return {
+        documentType: 'schematic',
+        drc: { result: drcResult, violationCount },
+        stats: { componentCount, netCount },
+        report,
+      };
+    } else {
+      const drcResult = eda.pcb_Drc.check(true, false, true);
+      const components = await eda.pcb_PrimitiveComponent.getAll();
+      const netNames = eda.pcb_Net.getAllNetName();
+
+      const componentCount = components?.length ?? 0;
+      const netCount = (netNames && Array.isArray(netNames)) ? netNames.length : 0;
+
+      // Count nets with zero length (potentially unrouted)
+      let unroutedNets = 0;
+      if (netNames && Array.isArray(netNames)) {
+        for (const name of netNames) {
+          const len = eda.pcb_Net.getNetLength(name);
+          if (!len || len === 0) unroutedNets++;
+        }
+      }
+
+      const violationCount = Array.isArray(drcResult) ? drcResult.length : 0;
+
+      const report = [
+        'PCB Design Check Report',
+        `Components: ${componentCount}`,
+        `Nets: ${netCount}`,
+        `Potentially unrouted nets: ${unroutedNets}`,
+        `DRC violations: ${violationCount}`,
+        violationCount === 0 && unroutedNets === 0
+          ? 'Status: PASS — No issues found.'
+          : `Status: NEEDS ATTENTION — ${violationCount} DRC violation(s), ${unroutedNets} potentially unrouted net(s).`,
+      ].join('\n');
+
+      return {
+        documentType: 'pcb',
+        drc: { result: drcResult, violationCount },
+        stats: { componentCount, netCount, unroutedNets },
+        report,
+      };
+    }
   });
 }
