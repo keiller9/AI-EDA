@@ -96,6 +96,58 @@
 |------|------|------|
 | `pushData(eventType, props)` | eventType; props: object | 向仿真内核发送数据 |
 
+### SCH_PrimitivePin — `eda.sch_PrimitivePin` — 引脚图元 CRUD（仅符号编辑器）
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(x, y, pinNumber, pinName?, rotation?, pinLength?, pinColor?, pinShape?, pinType?)` | x,y: number; pinNumber: string; pinShape?: ESCH_PrimitivePinShape; pinType?: ESCH_PrimitivePinType | (BETA) 创建引脚 |
+| `modify(primitiveId, property)` | 同create参数 | (BETA) 修改引脚 |
+| `delete(primitiveIds)` | string \| string[] | (BETA) 删除引脚 |
+| `get(primitiveIds)` | string \| string[] | (BETA) 获取引脚 |
+| `getAll()` | 无 | (BETA) 获取所有引脚 |
+| `getAllPrimitiveId()` | 无 | (BETA) 获取所有引脚ID |
+
+### SCH_PrimitiveArc — `eda.sch_PrimitiveArc` — 圆弧 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(startX, startY, referenceX, referenceY, endX, endY, color?, fillColor?, lineWidth?, lineType?)` | 坐标+样式 | (BETA) 创建圆弧 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取 |
+
+### SCH_PrimitiveText — `eda.sch_PrimitiveText` — 文本 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(x, y, content, rotation?, textColor?, fontName?, fontSize?, bold?, italic?, underLine?, alignMode?)` | 位置+文本+样式 | (BETA) 创建文本 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取 |
+
+### SCH_PrimitiveBus — `eda.sch_PrimitiveBus` — 总线 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(busName, line, color?, lineWidth?, lineType?)` | busName: string; line: number[] | (BETA) 创建总线 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取 |
+
+### SCH_PrimitiveCircle — `eda.sch_PrimitiveCircle` — 圆 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(centerX, centerY, radius, color?, fillColor?, lineWidth?, lineType?, fillStyle?)` | centerX,Y,radius: number | (BETA) 创建圆 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取 |
+
+### SCH_PrimitivePolygon — `eda.sch_PrimitivePolygon` — 多边形 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(line, color?, fillColor?, lineWidth?, lineType?)` | line: number[] | (BETA) 创建多边形 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取 |
+
+### SCH_PrimitiveRectangle — `eda.sch_PrimitiveRectangle` — 矩形 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(topLeftX, topLeftY, width, height, cornerRadius?, rotation?, color?, fillColor?, lineWidth?, lineType?, fillStyle?)` | 位置+尺寸+样式 | (BETA) 创建矩形 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取 |
+
+### SCH_PrimitiveAttribute — `eda.sch_PrimitiveAttribute` — 属性图元
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `modify(primitiveId, property)` | 属性对象 | (BETA) 修改属性 |
+| `get(primitiveIds)` | string \| string[] | (BETA) 获取属性 |
+
 ---
 
 根据以上API完成任务：**$ARGUMENTS**

@@ -203,6 +203,63 @@ PCB相关扩展API参考。任务：$ARGUMENTS
 | `getPrimitivesByPrimitiveId(ids)` | ids: string[] | 批量获取图元 → IPCB_Primitive[] |
 | `getPrimitivesBBox(primitiveIds)` | primitiveIds: string[] | (BETA) 获取边界框 → {minX,minY,maxX,maxY} |
 
+### PCB_PrimitiveArc — `eda.pcb_PrimitiveArc` — 圆弧线 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(net, layer, startX, startY, endX, endY, arcAngle, lineWidth?, interactiveMode?, primitiveLock?)` | 基本参数 | (BETA) 创建圆弧 |
+| `modify/delete/get/getAllPrimitiveId` | 同PrimitiveLine | (BETA) 标准CRUD |
+
+### PCB_PrimitiveString — `eda.pcb_PrimitiveString` — 文本 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(layer, x, y, text, fontFamily, fontSize, lineWidth, alignMode, rotation, reverse, expansion, mirror, primitiveLock)` | 全参数 | (BETA) 创建文本 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取文本 |
+
+### PCB_PrimitivePour — `eda.pcb_PrimitivePour` — 覆铜边框 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(net, layer, complexPolygon, pourFillMethod?, preserveSilos?, pourName?, pourPriority?, lineWidth?, primitiveLock?)` | net: string; layer; complexPolygon: IPCB_ComplexPolygon | (BETA) 创建覆铜 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取覆铜 |
+
+### PCB_PrimitiveRegion — `eda.pcb_PrimitiveRegion` — 禁止/约束区域 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(layer, complexPolygon, ruleType?, regionName?, lineWidth?, primitiveLock?)` | ruleType: EPCB_PrimitiveRegionRuleType | (BETA) 创建区域 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取区域 |
+
+### PCB_PrimitiveFill — `eda.pcb_PrimitiveFill` — 填充 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(layer, complexPolygon, net?, fillMode?, lineWidth?, primitiveLock?)` | fillMode?: EPCB_PrimitiveFillMode | (BETA) 创建填充 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取填充 |
+
+### PCB_PrimitivePolyline — `eda.pcb_PrimitivePolyline` — 折线 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(net, layer, polygon, lineWidth?, primitiveLock?)` | polygon: IPCB_Polygon | (BETA) 创建折线 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取折线 |
+
+### PCB_PrimitiveDimension — `eda.pcb_PrimitiveDimension` — 尺寸标注 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(dimensionType, coordinateSet, layer?, unit?, lineWidth?, precision?, primitiveLock?)` | dimensionType: EPCB_PrimitiveDimensionType | (BETA) 创建标注 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取标注 |
+
+### PCB_PrimitiveImage — `eda.pcb_PrimitiveImage` — 图像 CRUD
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `create(x, y, complexPolygon, layer, width?, height?, rotation?, horizonMirror?, primitiveLock?)` | 基本参数 | (BETA) 创建图像 |
+| `modify/delete/get` | 标准CRUD | (BETA) 修改/删除/获取图像 |
+
+### PCB_MathPolygon — `eda.pcb_MathPolygon` — 多边形数学
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `createPolygon(polygon)` | polygon: TPCB_PolygonSourceArray | 创建单多边形 |
+| `createComplexPolygon(complexPolygon)` | complexPolygon | 创建复杂多边形 |
+| `splitPolygon(...complexPolygons)` | 多个复杂多边形 | 拆分为单多边形 |
+| `calculateWidth/Height(complexPolygon)` | complexPolygon | 计算BBox宽/高 |
+| `convertImageToComplexPolygon(imageBlob, width, height)` | Blob; width, height: number | 图像转多边形 |
+
 ---
 
 根据以上API完成任务：**$ARGUMENTS**

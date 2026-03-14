@@ -168,34 +168,74 @@
 | `changeMenu(menuId, menuItems)` | menuId: string; menuItems: ISYS_RightClickMenuItem[] | (BETA) 修改右键菜单 |
 
 ### SYS_Log — `eda.sys_Log` — 日志
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `log(logType, tag, message)` | logType: ESYS_LogType; tag, message: string | 写日志 |
+| `getLog(limit?)` | limit?: number | 获取日志 → ISYS_LogLine[] |
+| `clearLog()` | 无 | 清除日志 |
 
 ### SYS_Timer — `eda.sys_Timer` — 定时器
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `setTimeout(callFn, delay)` | callFn: Function; delay: number(ms) | 延时执行 → timerId |
+| `setInterval(callFn, delay)` | callFn: Function; delay: number(ms) | 间隔执行 → timerId |
+| `clearTimeout(timerId)` | timerId | 清除延时 |
+| `clearInterval(timerId)` | timerId | 清除间隔 |
 
 ### SYS_Tool — `eda.sys_Tool` — 工具
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `generateUuid()` | 无 | 生成UUID |
+| `copyToClipboard(text)` | text: string | 复制到剪贴板 |
+| `readFromClipboard()` | 无 | 读取剪贴板 |
 
 ### SYS_Setting — `eda.sys_Setting` — 设置
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `restoreDefault()` | 无 | 恢复所有设置为默认值 |
 
 ### SYS_PanelControl — `eda.sys_PanelControl` — 面板控制
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `openLeftPanel(tab?)` | tab?: ESYS_LeftPanelTab | 打开左侧面板 |
+| `closeLeftPanel()` | 无 | 关闭左侧面板 |
+| `openBottomPanel(tab?)` | tab?: ESYS_BottomPanelTab | 打开底部面板 |
+| `closeBottomPanel()` | 无 | 关闭底部面板 |
+| `openRightPanel(tab?)` | tab?: ESYS_RightPanelTab | 打开右侧面板 |
+| `closeRightPanel()` | 无 | 关闭右侧面板 |
 
 ### SYS_LoadingAndProgressBar — `eda.sys_LoadingAndProgressBar` — 加载与进度条
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `showLoading()` | 无 | 显示加载遮罩 |
+| `hideLoading()` | 无 | 隐藏加载遮罩 |
+| `showProgressBar(title?)` | title?: string | 显示进度条 |
+| `setProgressBarProgress(progress)` | progress: number(0-100) | 设置进度 |
+| `hideProgressBar()` | 无 | 隐藏进度条 |
 
 ### SYS_MessageBox — `eda.sys_MessageBox` — 消息框
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `showMessageBox(content, title?, buttons?)` | content: string; title?; buttons? | 弹出消息框 |
 
 ### SYS_FontManager — `eda.sys_FontManager` — 字体管理
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `getAllFontNames()` | 无 | 获取所有可用字体名 → string[] |
 
 ### SYS_FileManager — `eda.sys_FileManager` — 文件管理
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `getProjectFile(fileName?, password?, fileType?)` | 文件名; 密码; 文件类型 | 获取工程文件 → File |
+| `getDocumentFile(fileName?, password?, fileType?)` | 文件名; 密码; 文件类型 | 获取文档文件 → File |
 
 ### SYS_FormatConversion — `eda.sys_FormatConversion` — 格式转换(Chameleon)
-> 待补充详细方法
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `convertAltiumDesignerLibrariesToEasyEDASingleFile(file)` | file: File | AD库→嘉立创(单文件) |
+| `convertAltiumDesignerLibrariesToEasyEDAMultiFiles(file)` | file: File | AD库→嘉立创(多文件) |
+| `convertDisaLibrariesToEasyEDASingleFile(file)` | file: File | T/DISA 4001库→嘉立创(单文件) |
+| `convertDisaLibrariesToEasyEDAMultiFiles(file)` | file: File | T/DISA 4001库→嘉立创(多文件) |
 
 ---
 
