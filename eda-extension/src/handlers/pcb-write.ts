@@ -72,25 +72,21 @@ export function registerPcbWriteHandlers(): void {
       throw new Error('At least 2 points are required to draw a trace');
     }
 
-    // Create all line segments in parallel
-    const settled = await Promise.allSettled(
-      Array.from({ length: points.length - 1 }, (_, i) =>
-        eda.pcb_PrimitiveLine.create(
-          net ?? '',
-          layer as any,
-          points[i].x,
-          points[i].y,
-          points[i + 1].x,
-          points[i + 1].y,
-          width,
-          false,
-        )
-      )
-    );
-
-    const segments = settled
-      .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled' && r.value)
-      .map(r => r.value);
+    // Create line segments sequentially to preserve ordering
+    const segments: any[] = [];
+    for (let i = 0; i < points.length - 1; i++) {
+      const seg = await eda.pcb_PrimitiveLine.create(
+        net ?? '',
+        layer as any,
+        points[i].x,
+        points[i].y,
+        points[i + 1].x,
+        points[i + 1].y,
+        width,
+        false,
+      );
+      if (seg) segments.push(seg);
+    }
 
     if (segments.length === 0) {
       throw new Error('Failed to draw any trace segments');
@@ -160,6 +156,7 @@ export function registerPcbWriteHandlers(): void {
 
     if (['x', 'y', 'startX', 'startY', 'endX', 'endY', 'rotation', 'lineWidth',
          'holeDiameter', 'diameter', 'holeOffsetX', 'holeOffsetY', 'holeRotation'].includes(key)) {
+      if (isNaN(numValue)) throw new Error(`Invalid numeric value for "${key}": "${value}"`);
       property[key] = numValue;
     } else if (['primitiveLock', 'addIntoBom', 'metallization'].includes(key)) {
       property[key] = value === 'true';
@@ -280,6 +277,7 @@ export function registerPcbWriteHandlers(): void {
       const num = Number(value);
       if (['x', 'y', 'startX', 'startY', 'endX', 'endY', 'rotation', 'lineWidth',
            'holeDiameter', 'diameter'].includes(key)) {
+        if (isNaN(num)) throw new Error(`Invalid numeric value for "${key}": "${value}"`);
         prop[key] = num;
       } else if (['primitiveLock', 'addIntoBom', 'metallization'].includes(key)) {
         prop[key] = value === 'true';

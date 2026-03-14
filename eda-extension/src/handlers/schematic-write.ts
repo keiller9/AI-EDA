@@ -109,6 +109,7 @@ export function registerSchematicWriteHandlers(): void {
     // Handle numeric values
     const numValue = Number(value);
     if (['x', 'y', 'rotation', 'lineWidth'].includes(key)) {
+      if (isNaN(numValue)) throw new Error(`Invalid numeric value for "${key}": "${value}"`);
       property[key] = numValue;
     } else if (['mirror', 'addIntoBom', 'addIntoPcb'].includes(key)) {
       property[key] = value === 'true';
@@ -178,6 +179,7 @@ export function registerSchematicWriteHandlers(): void {
       const prop: Record<string, any> = {};
       const num = Number(value);
       if (['x', 'y', 'rotation', 'lineWidth'].includes(key)) {
+        if (isNaN(num)) throw new Error(`Invalid numeric value for "${key}": "${value}"`);
         prop[key] = num;
       } else if (['mirror', 'addIntoBom', 'addIntoPcb'].includes(key)) {
         prop[key] = value === 'true';

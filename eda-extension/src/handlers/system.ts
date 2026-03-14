@@ -93,17 +93,38 @@ export function registerSystemHandlers(): void {
 
   // ============ Composite / Intent Tools ============
 
+  // Helper: detect document type using DMT API
+  const detectDocumentType = async (): Promise<'pcb' | 'sch' | 'unknown'> => {
+    try {
+      const info = await eda.dmt_SelectControl.getCurrentDocumentInfo();
+      if (info) {
+        const type = String((info as any).type ?? (info as any).documentType ?? '').toLowerCase();
+        if (type.includes('pcb') || type.includes('footprint')) return 'pcb';
+        if (type.includes('sch') || type.includes('symbol')) return 'sch';
+      }
+    } catch {
+      // DMT API not available, fall back to try-catch detection
+    }
+    // Fallback: try PCB API
+    try {
+      const comps = await eda.pcb_PrimitiveComponent.getAll();
+      if (comps) return 'pcb';
+    } catch {
+      // Not PCB
+    }
+    return 'sch';
+  };
+
   // Get design overview — auto-detect document type, return combined data
   registerHandler(BridgeCommand.SYS_GET_DESIGN_OVERVIEW, async () => {
-    // Try PCB first — if pcb_PrimitiveComponent.getAll() returns data, we're in a PCB document
+    const docType = await detectDocumentType();
+
     let pcbComponents: any = null;
-    try {
-      pcbComponents = await eda.pcb_PrimitiveComponent.getAll();
-    } catch {
-      // Not a PCB document, will try SCH
+    if (docType === 'pcb') {
+      try { pcbComponents = await eda.pcb_PrimitiveComponent.getAll(); } catch {}
     }
 
-    if (pcbComponents && pcbComponents.length > 0) {
+    if (docType === 'pcb') {
       // PCB document
       const netNames = eda.pcb_Net.getAllNetName();
       const layers = eda.pcb_Layer.getAllLayers();
@@ -175,15 +196,13 @@ export function registerSystemHandlers(): void {
     const { query } = params as { query: string };
     const lq = query.toLowerCase();
 
-    // Try PCB first
+    const docType = await detectDocumentType();
     let pcbComponents: any = null;
-    try {
-      pcbComponents = await eda.pcb_PrimitiveComponent.getAll();
-    } catch {
-      // Not a PCB document
+    if (docType === 'pcb') {
+      try { pcbComponents = await eda.pcb_PrimitiveComponent.getAll(); } catch {}
     }
 
-    if (pcbComponents && pcbComponents.length > 0) {
+    if (docType === 'pcb' && pcbComponents) {
       const matches: any[] = [];
       for (const c of pcbComponents) {
         const designator = (c.designator ?? c.name ?? '').toLowerCase();
@@ -254,15 +273,8 @@ export function registerSystemHandlers(): void {
 
     // Auto-detect if not specified
     if (!type) {
-      let pcbComponents: any = null;
-      try {
-        pcbComponents = await eda.pcb_PrimitiveComponent.getAll();
-      } catch { /* not PCB */ }
-      if (pcbComponents && pcbComponents.length > 0) {
-        type = 'pcb';
-      } else {
-        type = 'sch';
-      }
+      const docType = await detectDocumentType();
+      type = docType === 'pcb' ? 'pcb' : 'sch';
     }
 
     if (type === 'sch') {
@@ -471,15 +483,19 @@ export function registerSystemHandlers(): void {
   registerHandler(BridgeCommand.SYS_UNIT_CONVERT, async (params) => {
     const { value, from, to } = params as { value: number; from: string; to: string };
     let result: number;
-    const key = `${from}_${to}`;
-    switch (key) {
-      case 'mil_mm': result = await eda.sys_Unit.milToMm(value); break;
-      case 'mm_mil': result = await eda.sys_Unit.mmToMil(value); break;
-      case 'mil_inch': result = await eda.sys_Unit.milToInch(value); break;
-      case 'inch_mil': result = await eda.sys_Unit.inchToMil(value); break;
-      case 'mm_inch': result = await eda.sys_Unit.mmToInch(value); break;
-      case 'inch_mm': result = await eda.sys_Unit.inchToMm(value); break;
-      default: throw new Error(`Unsupported conversion: ${from} → ${to}. Use: mil, mm, inch`);
+    if (from === to) {
+      result = value;
+    } else {
+      const key = `${from}_${to}`;
+      switch (key) {
+        case 'mil_mm': result = await eda.sys_Unit.milToMm(value); break;
+        case 'mm_mil': result = await eda.sys_Unit.mmToMil(value); break;
+        case 'mil_inch': result = await eda.sys_Unit.milToInch(value); break;
+        case 'inch_mil': result = await eda.sys_Unit.inchToMil(value); break;
+        case 'mm_inch': result = await eda.sys_Unit.mmToInch(value); break;
+        case 'inch_mm': result = await eda.sys_Unit.inchToMm(value); break;
+        default: throw new Error(`Unsupported conversion: ${from} → ${to}. Use: mil, mm, inch`);
+      }
     }
     return { value, from, to, result };
   });
