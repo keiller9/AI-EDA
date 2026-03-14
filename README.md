@@ -1,5 +1,7 @@
 # AI-EDA
 
+**English** | [中文](README.zh-CN.md)
+
 MCP (Model Context Protocol) bridge that connects **Claude Code** with **JLCEDA Pro** (嘉立创EDA专业版), enabling hardware engineers to interact with schematic and PCB designs through natural language.
 
 ## Architecture
@@ -172,7 +174,7 @@ The project includes `.mcp.json` — update the path if needed:
 
 ## Workflow Skills (5)
 
-In addition to the 31 MCP tools, the project includes **workflow skills** (slash commands) that inject EDA domain knowledge and guide Claude through multi-step design tasks.
+In addition to the 65 MCP tools, the project includes **workflow skills** (slash commands) that inject EDA domain knowledge and guide Claude through multi-step design tasks.
 
 ### API Reference Skills
 | Skill | Description |
