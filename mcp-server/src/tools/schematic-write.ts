@@ -65,6 +65,97 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
     },
   );
 
+  // ============ Auto Layout / Routing ============
+
+  server.tool(
+    'eda_sch_auto_layout',
+    'Trigger automatic layout for the current schematic. Rearranges components for better readability.\n\nOptionally specify component UUIDs to lay out only specific components. If omitted, all components are laid out.\n\nReturns: { success: boolean, result: any, message: string }.\n\nThis calls the EDA built-in auto layout algorithm. Results may vary — review the layout after execution.',
+    {
+      uuids: z.array(z.string()).optional().describe('Optional array of component UUIDs to lay out. If omitted, all components are included.'),
+    },
+    async ({ uuids }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_AUTO_LAYOUT, { uuids });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_auto_routing',
+    'Trigger automatic wire routing for the current schematic. Draws wires to connect component pins based on netlist.\n\nOptionally specify component UUIDs to route only specific components. If omitted, all connections are routed.\n\nReturns: { success: boolean, result: any, message: string }.\n\nThis calls the EDA built-in auto routing algorithm. Best used after auto layout or manual component placement.',
+    {
+      uuids: z.array(z.string()).optional().describe('Optional array of component UUIDs to route. If omitted, all connections are routed.'),
+    },
+    async ({ uuids }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_AUTO_ROUTING, { uuids });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Selection Control ============
+
+  server.tool(
+    'eda_sch_select_primitives',
+    'Select specific primitives in the schematic editor by their IDs. This visually selects them in the UI.\n\nReturns: { success: boolean, selectedCount: number, message: string }.\n\nUse this to highlight specific components or wires for the user to see. Combine with eda_sch_list_components to find IDs first.',
+    {
+      ids: z.array(z.string()).min(1).describe('Array of primitive IDs to select'),
+    },
+    async ({ ids }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_SELECT_PRIMITIVES, { ids });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_cross_probe',
+    'Cross-probe select in the schematic: highlight and select components, pins, or nets by name.\n\nThis is the schematic equivalent of clicking on a component in PCB to highlight it in schematic. Specify designators (e.g. ["U1", "R1"]), pin references (e.g. ["U1_1", "U1_2"]), or net names (e.g. ["VCC", "GND"]).\n\nReturns: { success: boolean, message: string }.',
+    {
+      components: z.array(z.string()).optional().describe('Component designators to highlight (e.g. ["U1", "R1"])'),
+      pins: z.array(z.string()).optional().describe('Pin references in "Designator_PinNumber" format (e.g. ["U1_1", "U1_2"])'),
+      nets: z.array(z.string()).optional().describe('Net names to highlight (e.g. ["VCC", "GND"])'),
+      highlight: z.boolean().optional().describe('Whether to highlight (default true)'),
+    },
+    async ({ components, pins, nets, highlight }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_CROSS_PROBE, { components, pins, nets, highlight });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Net Symbols ============
+
+  server.tool(
+    'eda_sch_create_net_flag',
+    'Create a net flag (power symbol) on the schematic — such as GND, VCC, 3V3, etc.\n\nNet flags are the power/ground symbols that label nets without drawing wires between them. Place them near IC power pins to establish power connections.\n\nParameters:\n- identification: the flag type identifier\n- net: the net name this flag represents (e.g. "GND", "VCC")\n- x, y: canvas coordinates\n\nReturns: { success: boolean, primitive: object, message: string }.',
+    {
+      identification: z.string().describe('Net flag type identifier'),
+      net: z.string().describe('Net name (e.g. "GND", "VCC", "3V3")'),
+      x: z.number().describe('X coordinate on canvas'),
+      y: z.number().describe('Y coordinate on canvas'),
+      rotation: z.number().optional().describe('Rotation in degrees (default 0)'),
+      mirror: z.boolean().optional().describe('Mirror the symbol (default false)'),
+    },
+    async ({ identification, net, x, y, rotation, mirror }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_CREATE_NET_FLAG, { identification, net, x, y, rotation, mirror });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_create_net_port',
+    'Create a net port on the schematic — a directional port symbol (IN, OUT, BI) for inter-sheet connectivity.\n\nNet ports connect signals across different schematic pages. The direction indicates signal flow.\n\nReturns: { success: boolean, primitive: object, message: string }.',
+    {
+      direction: z.string().describe('Port direction: "IN", "OUT", or "BI" (bidirectional)'),
+      net: z.string().describe('Net name for this port'),
+      x: z.number().describe('X coordinate on canvas'),
+      y: z.number().describe('Y coordinate on canvas'),
+      rotation: z.number().optional().describe('Rotation in degrees (default 0)'),
+      mirror: z.boolean().optional().describe('Mirror the symbol (default false)'),
+    },
+    async ({ direction, net, x, y, rotation, mirror }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_CREATE_NET_PORT, { direction, net, x, y, rotation, mirror });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
   server.tool(
     'eda_sch_batch_modify',
     'Batch modify multiple schematic primitive attributes in a single call. Much more efficient than calling eda_sch_modify_attribute repeatedly.\n\nEach modification specifies an id, key, and value. All modifications are executed in parallel.\n\nReturns: { total: number, succeeded: number, failed: number, results: Array<{id, success, error?}> }.\n\nUse this when you need to change attributes on 2 or more primitives. Supports the same attribute keys as eda_sch_modify_attribute.',

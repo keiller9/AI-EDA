@@ -11,10 +11,10 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 
 | Component | Description |
 |-----------|-------------|
-| **mcp-server/** | Node.js MCP server — exposes 31 tools via stdio, bridges commands to EDA over WebSocket |
+| **mcp-server/** | Node.js MCP server — exposes 40 tools via stdio, bridges commands to EDA over WebSocket |
 | **eda-extension/** | JLCEDA Pro extension — receives commands via WebSocket, calls EDA API, returns results |
 
-## MCP Tools (31)
+## MCP Tools (40)
 
 ### Connection
 | Tool | Description |
@@ -30,6 +30,8 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_sch_list_wires` | List all wires |
 | `eda_sch_list_primitives` | List primitives by type |
 | `eda_sch_get_component` | Get detailed component info by ID |
+| `eda_sch_get_component_context` | Get component with connected nets and nearby components |
+| `eda_sch_get_selection` | Get currently selected primitive IDs |
 
 ### Schematic Write
 | Tool | Description |
@@ -38,6 +40,12 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_sch_draw_wire` | Draw a wire between points |
 | `eda_sch_modify_attribute` | Modify component attributes |
 | `eda_sch_delete_primitive` | Delete a primitive |
+| `eda_sch_auto_layout` | Trigger automatic schematic layout |
+| `eda_sch_auto_routing` | Trigger automatic schematic wire routing |
+| `eda_sch_select_primitives` | Select primitives in the editor by IDs |
+| `eda_sch_cross_probe` | Cross-probe highlight components/pins/nets |
+| `eda_sch_create_net_flag` | Create a net flag (GND, VCC, etc.) |
+| `eda_sch_create_net_port` | Create a net port (IN, OUT, BI) |
 | `eda_sch_batch_modify` | Batch modify multiple schematic attributes |
 | `eda_sch_batch_delete` | Batch delete multiple schematic primitives |
 
@@ -78,8 +86,9 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_get_design_overview` | One-call design overview — auto-detects SCH/PCB, returns components + nets + stats |
 | `eda_find_component` | Smart component search by designator/value/footprint with full details + pins |
 | `eda_check_design` | Comprehensive design check — DRC + net analysis + human-readable report |
+| `eda_sch_get_bom` | Get BOM data from schematic — grouped by value/footprint |
 
-> **Note:** All 31 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.). Batch operations use `Promise.allSettled()` for parallel execution. Composite tools combine multiple API calls into single high-level operations. All EDA methods are marked BETA by the vendor.
+> **Note:** All 40 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.). Batch operations use `Promise.allSettled()` for parallel execution. Composite tools combine multiple API calls into single high-level operations. All EDA methods are marked BETA by the vendor.
 
 ## Quick Start
 
@@ -180,7 +189,16 @@ In addition to the 31 MCP tools, the project includes **workflow skills** (slash
   → uses eda_pcb_list_nets
 
 > Show me the context of component R1 (connected nets, neighbors)
-  → uses eda_pcb_get_component_context
+  → uses eda_pcb_get_component_context or eda_sch_get_component_context
+
+> Get the BOM for this schematic
+  → uses eda_sch_get_bom
+
+> Auto-layout the schematic
+  → uses eda_sch_auto_layout
+
+> Highlight U1 and its connected nets
+  → uses eda_sch_cross_probe with components=["U1"]
 
 > Run DRC on the schematic
   → uses eda_sys_run_drc with type="sch"

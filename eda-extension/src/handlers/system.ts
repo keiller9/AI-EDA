@@ -328,4 +328,59 @@ export function registerSystemHandlers(): void {
       };
     }
   });
+
+  // ============ BOM ============
+
+  // Get BOM data from schematic (built from components + netlist)
+  registerHandler(BridgeCommand.SCH_GET_BOM, async () => {
+    // Get all components across all schematic pages
+    const components = await eda.sch_PrimitiveComponent.getAll(undefined, true);
+    if (!components || components.length === 0) {
+      return { items: [], totalComponents: 0, uniqueValues: 0 };
+    }
+
+    // Build BOM: group by value + footprint
+    const bomMap = new Map<string, { designators: string[]; value: string; footprint: string; count: number; properties: Record<string, any> }>();
+
+    for (const c of components) {
+      const comp = c as any;
+      const value = comp.value ?? '';
+      const footprint = comp.footprint ?? comp.footprintName ?? '';
+      const designator = comp.designator ?? comp.name ?? '';
+      const key = `${value}||${footprint}`;
+
+      if (bomMap.has(key)) {
+        const entry = bomMap.get(key)!;
+        entry.designators.push(designator);
+        entry.count++;
+      } else {
+        bomMap.set(key, {
+          designators: [designator],
+          value,
+          footprint,
+          count: 1,
+          properties: {
+            manufacturer: comp.manufacturer,
+            manufacturerId: comp.manufacturerId,
+            supplier: comp.supplier,
+            supplierId: comp.supplierId,
+          },
+        });
+      }
+    }
+
+    const items = Array.from(bomMap.values()).map(entry => ({
+      ...entry,
+      designators: entry.designators.sort().join(', '),
+    }));
+
+    // Sort by designator prefix (R, C, U, etc.)
+    items.sort((a, b) => a.designators.localeCompare(b.designators));
+
+    return {
+      items,
+      totalComponents: components.length,
+      uniqueValues: items.length,
+    };
+  });
 }

@@ -74,6 +74,23 @@ export enum BridgeCommand {
 
   // Progressive Disclosure
   PCB_GET_COMPONENT_CONTEXT = 'pcb.getComponentContext',
+  SCH_GET_COMPONENT_CONTEXT = 'sch.getComponentContext',
+
+  // Schematic Document
+  SCH_AUTO_LAYOUT = 'sch.autoLayout',
+  SCH_AUTO_ROUTING = 'sch.autoRouting',
+
+  // Schematic Selection
+  SCH_SELECT_PRIMITIVES = 'sch.selectPrimitives',
+  SCH_CROSS_PROBE = 'sch.crossProbe',
+  SCH_GET_SELECTION = 'sch.getSelection',
+
+  // Schematic Net Symbols
+  SCH_CREATE_NET_FLAG = 'sch.createNetFlag',
+  SCH_CREATE_NET_PORT = 'sch.createNetPort',
+
+  // Schematic BOM
+  SCH_GET_BOM = 'sch.getBom',
 }
 
 // ============ Helper ============

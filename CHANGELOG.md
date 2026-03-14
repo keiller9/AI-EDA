@@ -9,10 +9,38 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 ## [Unreleased]
 
 ### Planned
-- Add BOM export via `eda.sch_ManufactureData` when API is documented
 - Add error retry and reconnection logic for WebSocket
 - Add unit/integration tests
 - Support multiple concurrent EDA connections
+
+---
+
+## [1.6.0] — 2026-03-14
+
+### Added — New SCH API coverage + progressive disclosure
+
+**9 New MCP Tools** — total tools: **40** (+9)
+
+Progressive Disclosure (Level 3):
+- `eda_sch_get_component_context` — comprehensive component context: details + pins + connected nets + nearby components (mirrors `eda_pcb_get_component_context`)
+- `eda_sch_get_selection` — get currently selected primitive IDs from the editor
+
+Schematic Document Operations:
+- `eda_sch_auto_layout` — trigger EDA built-in auto layout for schematic components
+- `eda_sch_auto_routing` — trigger EDA built-in auto wire routing
+
+Selection & Cross-Probe:
+- `eda_sch_select_primitives` — programmatically select primitives in the editor
+- `eda_sch_cross_probe` — cross-probe highlight by designator, pin reference, or net name
+
+Net Symbols:
+- `eda_sch_create_net_flag` — create power/ground net flags (GND, VCC, 3V3)
+- `eda_sch_create_net_port` — create directional net ports (IN, OUT, BI) for multi-page designs
+
+BOM:
+- `eda_sch_get_bom` — live BOM data grouped by value/footprint with manufacturer/supplier info
+
+**API Discovery**: Re-read official JLCEDA Pro API docs and found extensive BETA APIs previously undocumented in this project — SCH_PrimitiveComponent has full CRUD, SCH_Document has autoLayout/autoRouting, SCH_SelectControl has cross-probe, SCH_ManufactureData has BOM export.
 
 ---
 

@@ -120,4 +120,82 @@ export function registerSchematicReadHandlers(): void {
       pins: pins ?? [],
     };
   });
+
+  // ============ Progressive Disclosure ============
+
+  // Get comprehensive component context: details + pins + connected nets + nearby components
+  registerHandler(BridgeCommand.SCH_GET_COMPONENT_CONTEXT, async (params) => {
+    const id = params.id as string;
+
+    // Get the component itself
+    const component = await eda.sch_PrimitiveComponent.get(id);
+    if (!component) {
+      throw new Error(`SCH component not found: ${id}`);
+    }
+
+    // Get pins for this component
+    const pins = await eda.sch_PrimitiveComponent.getAllPinsByPrimitiveId(id);
+
+    // Get netlist to find which nets this component connects to
+    const netlist = eda.sch_Netlist.getNetlist(ESYS_NetlistType.STANDARD);
+    const connectedNets: Array<{ name: string; pinCount: number }> = [];
+
+    if (netlist && Array.isArray(netlist)) {
+      const compDesignator = (component as any).designator ?? (component as any).name;
+      // Parse netlist — each net entry typically has net name and connected pins
+      for (const net of netlist) {
+        const netName = (net as any).name ?? (net as any).net;
+        const netPins = (net as any).pins ?? (net as any).connections ?? [];
+        // Check if any pin belongs to this component
+        const matchingPins = netPins.filter((p: any) => {
+          const pinComp = p.designator ?? p.component ?? p.ref;
+          return pinComp === compDesignator;
+        });
+        if (matchingPins.length > 0) {
+          connectedNets.push({ name: netName, pinCount: matchingPins.length });
+        }
+      }
+    }
+
+    // Get all components to find neighbors
+    const allComponents = await eda.sch_PrimitiveComponent.getAll();
+    const cx = (component as any).x ?? 0;
+    const cy = (component as any).y ?? 0;
+
+    let nearbyComponents: Array<{ id: string; designator: string; value: string; distance: number }> = [];
+
+    if (allComponents) {
+      const others = allComponents
+        .filter((c: any) => (c.primitiveId ?? c.id) !== id)
+        .map((c: any) => {
+          const dx = (c.x ?? 0) - cx;
+          const dy = (c.y ?? 0) - cy;
+          const distance = Math.round(Math.sqrt(dx * dx + dy * dy));
+          return {
+            id: c.primitiveId ?? c.id,
+            designator: c.designator ?? c.name,
+            value: c.value,
+            distance,
+          };
+        });
+
+      others.sort((a: any, b: any) => a.distance - b.distance);
+      nearbyComponents = others.slice(0, 10);
+    }
+
+    return {
+      component,
+      pins: pins ?? [],
+      connectedNets,
+      nearbyComponents,
+    };
+  });
+
+  // ============ Selection ============
+
+  // Get currently selected primitive IDs
+  registerHandler(BridgeCommand.SCH_GET_SELECTION, async () => {
+    const ids = eda.sch_SelectControl.getSelectedPrimitives_PrimitiveId();
+    return { selectedIds: ids ?? [] };
+  });
 }

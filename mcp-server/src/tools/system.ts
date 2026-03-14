@@ -89,4 +89,16 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ BOM ============
+
+  server.tool(
+    'eda_sch_get_bom',
+    'Get BOM (Bill of Materials) data from the current schematic, grouped by value and footprint.\n\nReturns: { items: Array<{designators, value, footprint, count, properties}>, totalComponents: number, uniqueValues: number }.\n\nEach item groups components with the same value and footprint. The designators field lists all matching component references (e.g. "C1, C2, C3"). Properties include manufacturer and supplier info when available.\n\nThis builds BOM data from live schematic components — no file export needed.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_GET_BOM);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

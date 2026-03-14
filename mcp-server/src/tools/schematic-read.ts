@@ -68,4 +68,28 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ Progressive Disclosure (Level 3) ============
+
+  server.tool(
+    'eda_sch_get_component_context',
+    'Get comprehensive context for a schematic component: full details, pins, connected nets, and nearby components.\n\nThis is the richest level of component information, combining data that would otherwise require multiple tool calls.\n\nReturns: { component: object, pins: array, connectedNets: Array<{name, pinCount}>, nearbyComponents: Array<{id, designator, value, distance}> }.\n\nThe three levels of SCH component detail:\n1. eda_sch_list_components — compact list for all components\n2. eda_sch_get_component — full attributes + pins for one component\n3. eda_sch_get_component_context (this tool) — component + connected nets + spatial neighbors\n\nUse this when you need to understand a component in its circuit context.',
+    { id: z.string().describe('Component primitive ID. Get this from eda_sch_list_components results.') },
+    async ({ id }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_GET_COMPONENT_CONTEXT, { id });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Selection ============
+
+  server.tool(
+    'eda_sch_get_selection',
+    'Get the primitive IDs of all currently selected elements in the schematic editor.\n\nReturns: { selectedIds: string[] }.\n\nUse this to discover what the user has selected in the editor, then inspect those elements with eda_sch_get_component or other tools.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_GET_SELECTION);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

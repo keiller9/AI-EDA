@@ -215,6 +215,78 @@ export function registerSchematicWriteHandlers(): void {
     };
   });
 
+  // ============ Auto Layout / Routing ============
+
+  // Trigger schematic auto layout
+  registerHandler(BridgeCommand.SCH_AUTO_LAYOUT, async (params) => {
+    const uuids = params.uuids as string[] | undefined;
+    const props: any = {};
+    if (uuids && uuids.length > 0) props.uuids = uuids;
+    const result = await eda.sch_Document.autoLayout(props);
+    return { success: true, result, message: 'Auto layout completed' };
+  });
+
+  // Trigger schematic auto routing
+  registerHandler(BridgeCommand.SCH_AUTO_ROUTING, async (params) => {
+    const uuids = params.uuids as string[] | undefined;
+    const props: any = {};
+    if (uuids && uuids.length > 0) props.uuids = uuids;
+    const result = await eda.sch_Document.autoRouting(props);
+    return { success: true, result, message: 'Auto routing completed' };
+  });
+
+  // ============ Selection Control ============
+
+  // Select primitives by IDs
+  registerHandler(BridgeCommand.SCH_SELECT_PRIMITIVES, async (params) => {
+    const ids = params.ids as string[];
+    if (!ids || ids.length === 0) throw new Error('No IDs specified');
+    eda.sch_SelectControl.doSelectPrimitives(ids);
+    return { success: true, selectedCount: ids.length, message: `Selected ${ids.length} primitives` };
+  });
+
+  // Cross-probe select (highlight components/pins/nets)
+  registerHandler(BridgeCommand.SCH_CROSS_PROBE, async (params) => {
+    const components = params.components as string[] | undefined;
+    const pins = params.pins as string[] | undefined;
+    const nets = params.nets as string[] | undefined;
+    const highlight = params.highlight as boolean | undefined;
+    const result = eda.sch_SelectControl.doCrossProbeSelect(components, pins, nets, highlight ?? true, true);
+    return { success: result, message: result ? 'Cross-probe selection applied' : 'Cross-probe selection failed' };
+  });
+
+  // ============ Net Symbols ============
+
+  // Create a net flag (GND, VCC, etc.)
+  registerHandler(BridgeCommand.SCH_CREATE_NET_FLAG, async (params) => {
+    const { identification, net, x, y, rotation, mirror } = params as {
+      identification: string;
+      net: string;
+      x: number;
+      y: number;
+      rotation?: number;
+      mirror?: boolean;
+    };
+    const result = await eda.sch_PrimitiveComponent.createNetFlag(identification, net, x, y, rotation ?? 0, mirror ?? false);
+    if (!result) throw new Error(`Failed to create net flag: ${net}`);
+    return { success: true, primitive: result, message: `Net flag "${net}" created at (${x}, ${y})` };
+  });
+
+  // Create a net port (IN, OUT, BI)
+  registerHandler(BridgeCommand.SCH_CREATE_NET_PORT, async (params) => {
+    const { direction, net, x, y, rotation, mirror } = params as {
+      direction: string;
+      net: string;
+      x: number;
+      y: number;
+      rotation?: number;
+      mirror?: boolean;
+    };
+    const result = await eda.sch_PrimitiveComponent.createNetPort(direction, net, x, y, rotation ?? 0, mirror ?? false);
+    if (!result) throw new Error(`Failed to create net port: ${net}`);
+    return { success: true, primitive: result, message: `Net port "${net}" (${direction}) created at (${x}, ${y})` };
+  });
+
   // Batch delete — delete multiple schematic primitives in parallel
   registerHandler(BridgeCommand.SCH_BATCH_DELETE, async (params) => {
     const { ids } = params as { ids: string[] };
