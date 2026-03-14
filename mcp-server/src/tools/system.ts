@@ -33,7 +33,7 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
 
   server.tool(
     'eda_sys_get_document_info',
-    'Get environment information about the JLCEDA Pro editor, not the current document content.\n\nReturns: { editorVersion: string, editorCompileDate: string, userInfo: object, isClient: boolean, isWeb: boolean, isOnlineMode: boolean, isJLCEDAPro: boolean }.\n\nUse this to verify the editor environment. This does NOT return document content — for document state use eda_sch_get_state or eda_pcb_get_state. For a combined overview, use eda_get_design_overview.',
+    'Get info about the current editor state: editor version, compile date, user info, platform mode.\n\nReturns: { editorVersion, editorCompileDate, userInfo, isClient, isWeb, isOnlineMode, isJLCEDAPro }.\n\nThis returns editor/platform metadata. For the current DOCUMENT type and UUID, use eda_dmt_get_document_info instead. For environment flags only, use eda_sys_get_environment.',
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.SYS_GET_DOCUMENT_INFO);
@@ -236,7 +236,7 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
 
   server.tool(
     'eda_sys_get_environment',
-    'Get the EDA runtime environment info: editor version, user, client/web mode, edition.\n\nReturns: { version, user, isClient, isWeb, isJLCEDA, isOnline }.',
+    'Get compact EDA runtime environment flags.\n\nReturns: { version, user, isClient, isWeb, isJLCEDA, isOnline }.\n\nThis is a lighter alternative to eda_sys_get_document_info — returns only key flags without compile date or full user object.',
     {},
     async () => {
       const data = await bridge.sendCommand(BridgeCommand.SYS_GET_ENVIRONMENT);
