@@ -128,6 +128,44 @@ export enum BridgeCommand {
   // PCB Manufacture
   PCB_EXPORT_GERBER = 'pcb.exportGerber',
   PCB_EXPORT_PICK_PLACE = 'pcb.exportPickPlace',
+
+  // SCH Supplement
+  SCH_SAVE = 'sch.save',
+  SCH_IMPORT_CHANGES = 'sch.importChanges',
+  SCH_CLEAR_SELECTION = 'sch.clearSelection',
+  SCH_GET_MOUSE_POSITION = 'sch.getMousePosition',
+  SCH_GET_PRIMITIVES_BBOX = 'sch.getPrimitivesBBox',
+
+  // PCB Primitive Create
+  PCB_DRAW_ARC = 'pcb.drawArc',
+  PCB_PLACE_TEXT = 'pcb.placeText',
+  PCB_CREATE_POUR = 'pcb.createPour',
+  PCB_CREATE_REGION = 'pcb.createRegion',
+  PCB_CREATE_FILL = 'pcb.createFill',
+  PCB_DRAW_POLYLINE = 'pcb.drawPolyline',
+  PCB_PLACE_DIMENSION = 'pcb.placeDimension',
+  PCB_GET_MOUSE_POSITION = 'pcb.getMousePosition',
+
+  // DMT Document Tree
+  DMT_GET_DOCUMENT_INFO = 'dmt.getDocumentInfo',
+  DMT_OPEN_DOCUMENT = 'dmt.openDocument',
+  DMT_GET_PROJECT_INFO = 'dmt.getProjectInfo',
+  DMT_LIST_BOARDS = 'dmt.listBoards',
+  DMT_GET_BOARD_INFO = 'dmt.getBoardInfo',
+  DMT_LIST_TABS = 'dmt.listTabs',
+
+  // LIB Library
+  LIB_SEARCH_DEVICE = 'lib.searchDevice',
+  LIB_GET_DEVICE = 'lib.getDevice',
+  LIB_SEARCH_FOOTPRINT = 'lib.searchFootprint',
+  LIB_GET_LIBRARIES = 'lib.getLibraries',
+  LIB_GET_DEVICE_BY_LCSC = 'lib.getDeviceByLcsc',
+
+  // SYS Supplement
+  SYS_GET_ENVIRONMENT = 'sys.getEnvironment',
+  SYS_GET_USER_CONFIG = 'sys.getUserConfig',
+  SYS_UNIT_CONVERT = 'sys.unitConvert',
+  SYS_OPEN_URL = 'sys.openUrl',
 }
 
 // ============ Helper ============

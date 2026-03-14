@@ -91,6 +91,38 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
     },
   );
 
+  // ============ Document ============
+
+  server.tool(
+    'eda_sch_save',
+    'Save the current schematic document.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_SAVE);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_import_changes',
+    'Import changes from PCB back into the schematic. Synchronizes modifications made in the PCB editor.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_IMPORT_CHANGES);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_clear_selection',
+    'Clear all selection in the schematic editor.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_CLEAR_SELECTION);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
   // ============ Selection Control ============
 
   server.tool(

@@ -198,4 +198,18 @@ export function registerSchematicReadHandlers(): void {
     const ids = eda.sch_SelectControl.getSelectedPrimitives_PrimitiveId();
     return { selectedIds: ids ?? [] };
   });
+
+  // Get current mouse position on canvas
+  registerHandler(BridgeCommand.SCH_GET_MOUSE_POSITION, async () => {
+    const pos = await eda.sch_SelectControl.getCurrentMousePosition();
+    return pos ?? { x: 0, y: 0 };
+  });
+
+  // Get primitives bounding box
+  registerHandler(BridgeCommand.SCH_GET_PRIMITIVES_BBOX, async (params) => {
+    const ids = params.ids as string[];
+    if (!ids || ids.length === 0) throw new Error('No IDs specified');
+    const bbox = await eda.sch_Primitive.getPrimitivesBBox(ids);
+    return bbox ?? null;
+  });
 }

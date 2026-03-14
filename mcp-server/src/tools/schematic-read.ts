@@ -92,4 +92,24 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  server.tool(
+    'eda_sch_get_mouse_position',
+    'Get the current mouse position on the schematic canvas.\n\nReturns: { x: number, y: number }.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_GET_MOUSE_POSITION);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_get_primitives_bbox',
+    'Get the bounding box of specified schematic primitives.\n\nReturns: { left, top, right, bottom } or null.',
+    { ids: z.array(z.string()).min(1).describe('Array of primitive IDs') },
+    async ({ ids }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_GET_PRIMITIVES_BBOX, { ids });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

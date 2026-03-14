@@ -6,7 +6,7 @@ MCP (Model Context Protocol) bridge that connects **Claude Code** with **JLCEDA 
 
 ## Why AI-EDA?
 
-Traditional EDA workflows require deep menu navigation and manual repetition. AI-EDA bridges Claude's reasoning with JLCEDA Pro's full API surface — **65 MCP tools** covering schematic, PCB, library, and system operations. Ask in natural language, get results in the editor.
+Traditional EDA workflows require deep menu navigation and manual repetition. AI-EDA bridges Claude's reasoning with JLCEDA Pro's full API surface — **93 MCP tools** covering schematic, PCB, library, and system operations. Ask in natural language, get results in the editor.
 
 **Key capabilities:**
 - **Read** — List components, nets, layers, DRC rules; query by coordinates or region
@@ -24,7 +24,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 
 | Component | Description |
 |-----------|-------------|
-| **mcp-server/** | Node.js MCP server — 65 tools via stdio, WebSocket bridge to EDA |
+| **mcp-server/** | Node.js MCP server — 93 tools via stdio, WebSocket bridge to EDA |
 | **eda-extension/** | JLCEDA Pro extension — receives commands, calls EDA API, returns results |
 | **.claude/commands/** | 11 workflow skills — domain knowledge + MCP tool guidance |
 
@@ -114,7 +114,7 @@ The project includes `.mcp.json` — update the path if needed:
   → pre-fabrication check: DRC + SCH↔PCB cross-ref + BOM
 ```
 
-## MCP Tools (65)
+## MCP Tools (93)
 
 ### Connection (1)
 | Tool | Description |
@@ -211,7 +211,7 @@ The project includes `.mcp.json` — update the path if needed:
 
 ## Workflow Skills (11)
 
-In addition to the 65 MCP tools, the project includes **workflow skills** — slash commands that inject EDA domain knowledge and guide Claude through multi-step design tasks.
+In addition to the 93 MCP tools, the project includes **workflow skills** — slash commands that inject EDA domain knowledge and guide Claude through multi-step design tasks.
 
 ### API Reference Skills (6)
 | Skill | Description |
@@ -240,7 +240,7 @@ In addition to the 65 MCP tools, the project includes **workflow skills** — sl
 AI-EDA/
 ├── mcp-server/                  # MCP Server (Node.js/TypeScript)
 │   ├── src/
-│   │   ├── index.ts             # Server entry — registers all 65 tools
+│   │   ├── index.ts             # Server entry — registers all 93 tools
 │   │   ├── ws-bridge.ts         # WebSocket server, request/response matching
 │   │   ├── protocol.ts          # Shared command enum (synced with extension)
 │   │   └── tools/               # MCP tool definitions (Zod schemas)
@@ -297,6 +297,7 @@ AI-EDA/
 
 | Version | Tools | Highlights |
 |---------|-------|------------|
+| v1.8.0 | 93 | Complete coverage — SCH/PCB primitives, DMT, LIB, SYS |
 | v1.7.0 | 65 | PCB full coverage — document, net, selection, layer, DRC rules, manufacturing |
 | v1.6.0 | 40 | SCH full coverage — auto layout, cross-probe, BOM, net flags |
 | v1.5.0 | 31 | Workflow skills — domain knowledge + MCP tool guidance |

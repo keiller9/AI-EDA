@@ -15,6 +15,50 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 ---
 
+## [1.8.0] — 2026-03-14
+
+### Added — Complete API coverage across all subsystems
+
+**28 New MCP Tools** — total tools: **93** (+28)
+
+SCH Supplement (5):
+- `eda_sch_save`, `eda_sch_import_changes` — document persistence
+- `eda_sch_clear_selection`, `eda_sch_get_mouse_position` — editor interaction
+- `eda_sch_get_primitives_bbox` — spatial queries
+
+PCB Primitive Create (8):
+- `eda_pcb_draw_arc` — arc traces
+- `eda_pcb_place_text` — silkscreen text
+- `eda_pcb_create_pour` — copper pour (polygon fill)
+- `eda_pcb_create_region` — keep-out/constraint regions
+- `eda_pcb_create_fill` — solid fills
+- `eda_pcb_draw_polyline` — multi-segment lines
+- `eda_pcb_place_dimension` — dimension annotations
+- `eda_pcb_get_mouse_position` — cursor position
+
+DMT Document Tree (6):
+- `eda_dmt_get_document_info` — current document type + UUID
+- `eda_dmt_open_document` — open document by UUID
+- `eda_dmt_get_project_info` — project details
+- `eda_dmt_list_boards` — list all boards
+- `eda_dmt_get_board_info` — board details (SCH+PCB associations)
+- `eda_dmt_list_tabs` — editor tabs
+
+LIB Library (5):
+- `eda_lib_search_device` — search component library
+- `eda_lib_get_device` — get device details
+- `eda_lib_search_footprint` — search footprints
+- `eda_lib_get_libraries` — list all libraries
+- `eda_lib_get_device_by_lcsc` — lookup by LCSC C-code
+
+SYS System (4):
+- `eda_sys_get_environment` — editor version, user, mode
+- `eda_sys_get_user_config` — extension configs
+- `eda_sys_unit_convert` — mil/mm/inch conversion
+- `eda_sys_open_url` — open URL
+
+---
+
 ## [1.7.0] — 2026-03-14
 
 ### Added — PCB API full coverage

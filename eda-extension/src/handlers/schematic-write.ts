@@ -287,6 +287,26 @@ export function registerSchematicWriteHandlers(): void {
     return { success: true, primitive: result, message: `Net port "${net}" (${direction}) created at (${x}, ${y})` };
   });
 
+  // ============ Document ============
+
+  // Save schematic document
+  registerHandler(BridgeCommand.SCH_SAVE, async () => {
+    await eda.sch_Document.save();
+    return { success: true, message: 'Schematic document saved' };
+  });
+
+  // Import changes from PCB
+  registerHandler(BridgeCommand.SCH_IMPORT_CHANGES, async () => {
+    await eda.sch_Document.importChanges();
+    return { success: true, message: 'Changes imported from PCB' };
+  });
+
+  // Clear selection
+  registerHandler(BridgeCommand.SCH_CLEAR_SELECTION, async () => {
+    eda.sch_SelectControl.clearSelected();
+    return { success: true, message: 'Selection cleared' };
+  });
+
   // Batch delete — delete multiple schematic primitives in parallel
   registerHandler(BridgeCommand.SCH_BATCH_DELETE, async (params) => {
     const { ids } = params as { ids: string[] };

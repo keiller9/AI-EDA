@@ -383,4 +383,110 @@ export function registerSystemHandlers(): void {
       uniqueValues: items.length,
     };
   });
+
+  // ============ DMT Document Tree ============
+
+  registerHandler(BridgeCommand.DMT_GET_DOCUMENT_INFO, async () => {
+    const info = await eda.dmt_SelectControl.getCurrentDocumentInfo();
+    return info ?? {};
+  });
+
+  registerHandler(BridgeCommand.DMT_OPEN_DOCUMENT, async (params) => {
+    const uuid = params.uuid as string;
+    await eda.dmt_EditorControl.openDocument(uuid);
+    return { success: true, message: `Document ${uuid} opened` };
+  });
+
+  registerHandler(BridgeCommand.DMT_GET_PROJECT_INFO, async (params) => {
+    const uuid = params.uuid as string;
+    const info = await eda.dmt_Project.getProjectInfo(uuid);
+    return info ?? {};
+  });
+
+  registerHandler(BridgeCommand.DMT_LIST_BOARDS, async () => {
+    const boards = await eda.dmt_Board.getAllBoardsName();
+    return boards ?? [];
+  });
+
+  registerHandler(BridgeCommand.DMT_GET_BOARD_INFO, async (params) => {
+    const name = params.name as string;
+    const info = await eda.dmt_Board.getBoardInfo(name);
+    return info ?? {};
+  });
+
+  registerHandler(BridgeCommand.DMT_LIST_TABS, async () => {
+    const tabs = await eda.dmt_EditorControl.getAllTabs();
+    return tabs ?? [];
+  });
+
+  // ============ LIB Library ============
+
+  registerHandler(BridgeCommand.LIB_SEARCH_DEVICE, async (params) => {
+    const { key, libraryUuid, classification, itemsOfPage, page } = params as any;
+    const results = await eda.lib_Device.search(key, libraryUuid, classification, undefined, itemsOfPage ?? 20, page ?? 1);
+    return results ?? [];
+  });
+
+  registerHandler(BridgeCommand.LIB_GET_DEVICE, async (params) => {
+    const { deviceUuid, libraryUuid } = params as any;
+    const device = await eda.lib_Device.get(deviceUuid, libraryUuid);
+    return device ?? {};
+  });
+
+  registerHandler(BridgeCommand.LIB_SEARCH_FOOTPRINT, async (params) => {
+    const { key, libraryUuid, classification, itemsOfPage, page } = params as any;
+    const results = await eda.lib_Footprint.search(key, libraryUuid, classification, itemsOfPage ?? 20, page ?? 1);
+    return results ?? [];
+  });
+
+  registerHandler(BridgeCommand.LIB_GET_LIBRARIES, async () => {
+    const libs = await eda.lib_LibrariesList.getAllLibrariesInfo();
+    return libs ?? [];
+  });
+
+  registerHandler(BridgeCommand.LIB_GET_DEVICE_BY_LCSC, async (params) => {
+    const { lcscIds, libraryUuid } = params as any;
+    const results = await eda.lib_Device.getByLcscIds(lcscIds, libraryUuid, true);
+    return results ?? [];
+  });
+
+  // ============ SYS Supplement ============
+
+  registerHandler(BridgeCommand.SYS_GET_ENVIRONMENT, async () => {
+    return {
+      version: await eda.sys_Environment.getEditorCurrentVersion(),
+      user: await eda.sys_Environment.getUserInfo(),
+      isClient: await eda.sys_Environment.isClient(),
+      isWeb: await eda.sys_Environment.isWeb(),
+      isJLCEDA: await eda.sys_Environment.isJLCEDAProEdition(),
+      isOnline: await eda.sys_Environment.isOnlineMode(),
+    };
+  });
+
+  registerHandler(BridgeCommand.SYS_GET_USER_CONFIG, async () => {
+    const configs = await eda.sys_Storage.getExtensionAllUserConfigs();
+    return configs ?? {};
+  });
+
+  registerHandler(BridgeCommand.SYS_UNIT_CONVERT, async (params) => {
+    const { value, from, to } = params as { value: number; from: string; to: string };
+    let result: number;
+    const key = `${from}_${to}`;
+    switch (key) {
+      case 'mil_mm': result = await eda.sys_Unit.milToMm(value); break;
+      case 'mm_mil': result = await eda.sys_Unit.mmToMil(value); break;
+      case 'mil_inch': result = await eda.sys_Unit.milToInch(value); break;
+      case 'inch_mil': result = await eda.sys_Unit.inchToMil(value); break;
+      case 'mm_inch': result = await eda.sys_Unit.mmToInch(value); break;
+      case 'inch_mm': result = await eda.sys_Unit.inchToMm(value); break;
+      default: throw new Error(`Unsupported conversion: ${from} → ${to}. Use: mil, mm, inch`);
+    }
+    return { value, from, to, result };
+  });
+
+  registerHandler(BridgeCommand.SYS_OPEN_URL, async (params) => {
+    const { url, target } = params as { url: string; target?: string };
+    eda.sys_Window.open(url, target as any);
+    return { success: true, message: `Opened ${url}` };
+  });
 }

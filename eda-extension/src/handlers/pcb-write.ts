@@ -469,6 +469,78 @@ export function registerPcbWriteHandlers(): void {
     return { success: true, message: `Differential pair "${name}" created: +${positiveNet} / -${negativeNet}` };
   });
 
+  // ============ PCB Primitive Create ============
+
+  // Draw arc
+  registerHandler(BridgeCommand.PCB_DRAW_ARC, async (params) => {
+    const { net, layer, startX, startY, endX, endY, arcAngle, lineWidth } = params as any;
+    const result = await eda.pcb_PrimitiveArc.create(net, layer, startX, startY, endX, endY, arcAngle, lineWidth);
+    if (!result) throw new Error('Failed to create arc');
+    return { success: true, primitive: result, message: 'Arc created' };
+  });
+
+  // Place text/silkscreen
+  registerHandler(BridgeCommand.PCB_PLACE_TEXT, async (params) => {
+    const { layer, x, y, text, fontFamily, fontSize, lineWidth, alignMode, rotation, reverse, expansion, mirror } = params as any;
+    const result = await eda.pcb_PrimitiveString.create(layer, x, y, text, fontFamily ?? 'default', fontSize ?? 40, lineWidth ?? 6, alignMode ?? 0, rotation ?? 0, reverse ?? false, expansion ?? false, mirror ?? false);
+    if (!result) throw new Error('Failed to create text');
+    return { success: true, primitive: result, message: `Text "${text}" placed at (${x}, ${y})` };
+  });
+
+  // Create copper pour
+  registerHandler(BridgeCommand.PCB_CREATE_POUR, async (params) => {
+    const { net, layer, points, pourFillMethod } = params as any;
+    // Build complexPolygon from points array [{x,y}...]
+    const polygon = eda.pcb_MathPolygon.createPolygon(points.flatMap((p: any) => [p.x, p.y]));
+    const complexPolygon = eda.pcb_MathPolygon.createComplexPolygon({ outline: polygon });
+    const result = await eda.pcb_PrimitivePour.create(net, layer, complexPolygon, pourFillMethod);
+    if (!result) throw new Error('Failed to create copper pour');
+    return { success: true, primitive: result, message: `Copper pour created on net "${net}"` };
+  });
+
+  // Create keep-out/constraint region
+  registerHandler(BridgeCommand.PCB_CREATE_REGION, async (params) => {
+    const { layer, points, ruleType, regionName } = params as any;
+    const polygon = eda.pcb_MathPolygon.createPolygon(points.flatMap((p: any) => [p.x, p.y]));
+    const complexPolygon = eda.pcb_MathPolygon.createComplexPolygon({ outline: polygon });
+    const result = await eda.pcb_PrimitiveRegion.create(layer, complexPolygon, ruleType, regionName);
+    if (!result) throw new Error('Failed to create region');
+    return { success: true, primitive: result, message: `Region "${regionName ?? 'unnamed'}" created` };
+  });
+
+  // Create fill
+  registerHandler(BridgeCommand.PCB_CREATE_FILL, async (params) => {
+    const { layer, points, net, fillMode } = params as any;
+    const polygon = eda.pcb_MathPolygon.createPolygon(points.flatMap((p: any) => [p.x, p.y]));
+    const complexPolygon = eda.pcb_MathPolygon.createComplexPolygon({ outline: polygon });
+    const result = await eda.pcb_PrimitiveFill.create(layer, complexPolygon, net, fillMode);
+    if (!result) throw new Error('Failed to create fill');
+    return { success: true, primitive: result, message: 'Fill created' };
+  });
+
+  // Draw polyline
+  registerHandler(BridgeCommand.PCB_DRAW_POLYLINE, async (params) => {
+    const { net, layer, points, lineWidth } = params as any;
+    const polygon = eda.pcb_MathPolygon.createPolygon(points.flatMap((p: any) => [p.x, p.y]));
+    const result = await eda.pcb_PrimitivePolyline.create(net, layer, polygon, lineWidth);
+    if (!result) throw new Error('Failed to create polyline');
+    return { success: true, primitive: result, message: `Polyline with ${points.length} points created` };
+  });
+
+  // Place dimension annotation
+  registerHandler(BridgeCommand.PCB_PLACE_DIMENSION, async (params) => {
+    const { dimensionType, coordinateSet, layer, unit, lineWidth, precision } = params as any;
+    const result = await eda.pcb_PrimitiveDimension.create(dimensionType, coordinateSet, layer, unit, lineWidth, precision);
+    if (!result) throw new Error('Failed to create dimension');
+    return { success: true, primitive: result, message: 'Dimension annotation created' };
+  });
+
+  // Get PCB mouse position
+  registerHandler(BridgeCommand.PCB_GET_MOUSE_POSITION, async () => {
+    const pos = await eda.pcb_SelectControl.getCurrentMousePosition();
+    return pos ?? { x: 0, y: 0 };
+  });
+
   // ============ Manufacture Export ============
 
   // Export Gerber files

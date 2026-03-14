@@ -6,7 +6,7 @@ MCP（模型上下文协议）桥接器，连接 **Claude Code** 与 **嘉立创
 
 ## 为什么选择 AI-EDA？
 
-传统 EDA 工作流需要深度菜单导航和大量手动重复操作。AI-EDA 将 Claude 的推理能力与嘉立创 EDA Pro 的完整 API 接口桥接 — **65 个 MCP 工具**覆盖原理图、PCB、元件库和系统操作。用自然语言提问，在编辑器中得到结果。
+传统 EDA 工作流需要深度菜单导航和大量手动重复操作。AI-EDA 将 Claude 的推理能力与嘉立创 EDA Pro 的完整 API 接口桥接 — **93 个 MCP 工具**覆盖原理图、PCB、元件库和系统操作。用自然语言提问，在编辑器中得到结果。
 
 **核心能力：**
 - **读取** — 列出器件、网络、层叠、DRC 规则；按坐标或区域查询
@@ -24,7 +24,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 
 | 组件 | 说明 |
 |------|------|
-| **mcp-server/** | Node.js MCP 服务器 — 65 个工具通过 stdio 暴露，WebSocket 桥接到 EDA |
+| **mcp-server/** | Node.js MCP 服务器 — 93 个工具通过 stdio 暴露，WebSocket 桥接到 EDA |
 | **eda-extension/** | 嘉立创 EDA Pro 扩展 — 接收命令，调用 EDA API，返回结果 |
 | **.claude/commands/** | 11 个工作流技能 — 领域知识 + MCP 工具引导 |
 
@@ -114,7 +114,7 @@ npm run build
   → 生产前检查：DRC + 原理图↔PCB 交叉校验 + BOM
 ```
 
-## MCP 工具（65 个）
+## MCP 工具（93 个）
 
 ### 连接（1）
 | 工具 | 说明 |
@@ -238,7 +238,7 @@ npm run build
 AI-EDA/
 ├── mcp-server/                  # MCP 服务器（Node.js/TypeScript）
 │   ├── src/
-│   │   ├── index.ts             # 服务器入口 — 注册全部 65 个工具
+│   │   ├── index.ts             # 服务器入口 — 注册全部 93 个工具
 │   │   ├── ws-bridge.ts         # WebSocket 服务器，请求/响应匹配
 │   │   ├── protocol.ts          # 共享命令枚举（与扩展同步）
 │   │   └── tools/               # MCP 工具定义（Zod schema）
@@ -272,6 +272,7 @@ AI-EDA/
 
 | 版本 | 工具数 | 亮点 |
 |------|--------|------|
+| v1.8.0 | 93 | 全覆盖 — SCH/PCB 图元、DMT、LIB、SYS |
 | v1.7.0 | 65 | PCB 全覆盖 — 文档、网络、选择、层叠、DRC 规则、制造导出 |
 | v1.6.0 | 40 | SCH 全覆盖 — 自动布局、交叉探测、BOM、网络标识 |
 | v1.5.0 | 31 | 工作流技能 — 领域知识 + MCP 工具引导 |

@@ -101,4 +101,183 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ DMT Document Tree ============
+
+  server.tool(
+    'eda_dmt_get_document_info',
+    'Get info about the currently active document — type (schematic/PCB/symbol/footprint), UUID, and project UUID.\n\nUse this to understand what document is currently open before performing operations.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_GET_DOCUMENT_INFO);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_open_document',
+    'Open a document (schematic page, PCB, symbol, footprint) by its UUID in the editor.',
+    { uuid: z.string().describe('Document UUID to open') },
+    async ({ uuid }) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_OPEN_DOCUMENT, { uuid });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_get_project_info',
+    'Get detailed project information including name, description, and associated documents.',
+    { uuid: z.string().describe('Project UUID') },
+    async ({ uuid }) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_GET_PROJECT_INFO, { uuid });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_list_boards',
+    'List all board names in the current project. Each board groups a schematic with a PCB.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_LIST_BOARDS);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_get_board_info',
+    'Get board details including associated schematic and PCB UUIDs.',
+    { name: z.string().describe('Board name') },
+    async ({ name }) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_GET_BOARD_INFO, { name });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_list_tabs',
+    'List all open editor tabs with their document UUIDs and types.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_LIST_TABS);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ LIB Library ============
+
+  server.tool(
+    'eda_lib_search_device',
+    'Search the component library for devices by keyword. Returns matching devices with their properties.\n\nUse this to find component UUIDs needed for eda_sch_place_component.',
+    {
+      key: z.string().describe('Search keyword (part number, name, or description)'),
+      libraryUuid: z.string().optional().describe('Library UUID to search in (omit for all)'),
+      itemsOfPage: z.number().optional().describe('Results per page (default 20)'),
+      page: z.number().optional().describe('Page number (default 1)'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.LIB_SEARCH_DEVICE, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_lib_get_device',
+    'Get full details of a specific device from the library.',
+    {
+      deviceUuid: z.string().describe('Device UUID'),
+      libraryUuid: z.string().describe('Library UUID containing the device'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.LIB_GET_DEVICE, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_lib_search_footprint',
+    'Search the library for footprints by keyword.',
+    {
+      key: z.string().describe('Search keyword'),
+      libraryUuid: z.string().optional().describe('Library UUID'),
+      itemsOfPage: z.number().optional(),
+      page: z.number().optional(),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.LIB_SEARCH_FOOTPRINT, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_lib_get_libraries',
+    'Get information about all available libraries (system, personal, project, team).',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.LIB_GET_LIBRARIES);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_lib_get_device_by_lcsc',
+    'Look up devices by their LCSC part numbers (C-codes like C12345).',
+    {
+      lcscIds: z.array(z.string()).min(1).describe('Array of LCSC part numbers (e.g. ["C12345", "C67890"])'),
+      libraryUuid: z.string().optional().describe('Library UUID'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.LIB_GET_DEVICE_BY_LCSC, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ SYS Supplement ============
+
+  server.tool(
+    'eda_sys_get_environment',
+    'Get the EDA runtime environment info: editor version, user, client/web mode, edition.\n\nReturns: { version, user, isClient, isWeb, isJLCEDA, isOnline }.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SYS_GET_ENVIRONMENT);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sys_get_user_config',
+    'Get all extension user configurations stored in the EDA.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.SYS_GET_USER_CONFIG);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sys_unit_convert',
+    'Convert between EDA units: mil, mm, inch.\n\nReturns: { value, from, to, result }.',
+    {
+      value: z.number().describe('Value to convert'),
+      from: z.enum(['mil', 'mm', 'inch']).describe('Source unit'),
+      to: z.enum(['mil', 'mm', 'inch']).describe('Target unit'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.SYS_UNIT_CONVERT, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sys_open_url',
+    'Open a URL in the EDA browser or external window.',
+    {
+      url: z.string().describe('URL to open'),
+      target: z.string().optional().describe('Window target'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.SYS_OPEN_URL, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

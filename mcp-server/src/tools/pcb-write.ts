@@ -345,4 +345,122 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ PCB Primitive Create ============
+
+  server.tool(
+    'eda_pcb_draw_arc',
+    'Draw an arc trace on the PCB.\n\nReturns: { success, primitive, message }.',
+    {
+      net: z.string().describe('Net name'),
+      layer: z.string().describe('Layer name'),
+      startX: z.number(), startY: z.number(),
+      endX: z.number(), endY: z.number(),
+      arcAngle: z.number().describe('Arc angle in degrees'),
+      lineWidth: z.number().optional().describe('Trace width'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_DRAW_ARC, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_place_text',
+    'Place text (silkscreen label) on the PCB.\n\nReturns: { success, primitive, message }.',
+    {
+      layer: z.string().describe('Layer name (e.g. "TopSilkscreen")'),
+      x: z.number(), y: z.number(),
+      text: z.string().describe('Text content'),
+      fontSize: z.number().optional().describe('Font size (default 40)'),
+      rotation: z.number().optional(),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_PLACE_TEXT, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_create_pour',
+    'Create a copper pour (polygon fill) on the PCB. Define the outline with an array of points.\n\nReturns: { success, primitive, message }.',
+    {
+      net: z.string().describe('Net name for the pour (e.g. "GND")'),
+      layer: z.string().describe('Layer name'),
+      points: z.array(z.object({ x: z.number(), y: z.number() })).min(3).describe('Outline points (min 3)'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CREATE_POUR, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_create_region',
+    'Create a keep-out or constraint region on the PCB.\n\nReturns: { success, primitive, message }.',
+    {
+      layer: z.string().describe('Layer name'),
+      points: z.array(z.object({ x: z.number(), y: z.number() })).min(3).describe('Outline points'),
+      ruleType: z.string().optional().describe('Region rule type'),
+      regionName: z.string().optional(),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CREATE_REGION, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_create_fill',
+    'Create a solid fill area on the PCB.\n\nReturns: { success, primitive, message }.',
+    {
+      layer: z.string().describe('Layer name'),
+      points: z.array(z.object({ x: z.number(), y: z.number() })).min(3).describe('Outline points'),
+      net: z.string().optional().describe('Net name'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CREATE_FILL, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_draw_polyline',
+    'Draw a polyline (multi-segment line) on the PCB.\n\nReturns: { success, primitive, message }.',
+    {
+      net: z.string().describe('Net name'),
+      layer: z.string().describe('Layer name'),
+      points: z.array(z.object({ x: z.number(), y: z.number() })).min(2).describe('Polyline points'),
+      lineWidth: z.number().optional(),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_DRAW_POLYLINE, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_place_dimension',
+    'Place a dimension annotation on the PCB.\n\nReturns: { success, primitive, message }.',
+    {
+      dimensionType: z.string().describe('Dimension type'),
+      coordinateSet: z.any().describe('Coordinate set for the dimension'),
+      layer: z.string().optional(),
+      unit: z.string().optional(),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_PLACE_DIMENSION, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_mouse_position',
+    'Get the current mouse position on the PCB canvas.\n\nReturns: { x: number, y: number }.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_MOUSE_POSITION);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }
