@@ -9,9 +9,12 @@ import { BridgeRequest, BridgeResponse, isRequest, createResponse } from './prot
 type RequestHandler = (request: BridgeRequest) => Promise<BridgeResponse>;
 
 const WS_ID_PREFIX = 'ai-eda-bridge';
+const HEARTBEAT_INTERVAL_MS = 15_000; // Check connection every 15s
 let currentWsId: string | null = null;
 let onRequestHandler: RequestHandler | null = null;
 let connected = false;
+let heartbeatTimer: any = null;
+let lastMessageTime = 0;
 
 /**
  * Set the handler for incoming requests from MCP Server
@@ -39,6 +42,7 @@ export function connectToServer(url: string = 'ws://127.0.0.1:8765'): void {
 
   // Message handler — EDA passes MessageEvent, not raw string
   function onMessage(event: any) {
+    lastMessageTime = Date.now();
     try {
       const raw = typeof event === 'string' ? event : (event?.data ?? event);
       const data = typeof raw === 'string' ? raw : String(raw);
@@ -59,6 +63,8 @@ export function connectToServer(url: string = 'ws://127.0.0.1:8765'): void {
   function onConnected() {
     connected = true;
     currentWsId = wsId;
+    lastMessageTime = Date.now();
+    startHeartbeat(wsId);
     eda.sys_ToastMessage.showMessage(
       'AI Bridge: Connected to MCP Server',
       ESYS_ToastMessageType.SUCCESS,
@@ -95,9 +101,44 @@ export function connectToServer(url: string = 'ws://127.0.0.1:8765'): void {
 }
 
 /**
+ * Start heartbeat to detect connection loss.
+ * Sends a small ping message periodically. If the send fails,
+ * the connection is considered lost and we mark as disconnected.
+ */
+function startHeartbeat(wsId: string): void {
+  stopHeartbeat();
+  heartbeatTimer = setInterval(() => {
+    if (!connected || !currentWsId || currentWsId !== wsId) {
+      stopHeartbeat();
+      return;
+    }
+    try {
+      // Send a ping — if the connection is broken, this will throw
+      eda.sys_WebSocket.send(wsId, JSON.stringify({ type: 'ping', ts: Date.now() }));
+    } catch {
+      // Connection lost
+      connected = false;
+      stopHeartbeat();
+      eda.sys_ToastMessage.showMessage(
+        'AI Bridge: Connection lost. Use AI Bridge → Connect to reconnect.',
+        ESYS_ToastMessageType.WARNING,
+      );
+    }
+  }, HEARTBEAT_INTERVAL_MS);
+}
+
+function stopHeartbeat(): void {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+}
+
+/**
  * Disconnect from the MCP Server
  */
 export function disconnectFromServer(): void {
+  stopHeartbeat();
   if (currentWsId) {
     try {
       eda.sys_WebSocket.close(currentWsId);

@@ -157,9 +157,9 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
   server.tool(
     'eda_pcb_get_netlist',
     'Get the PCB netlist data. Returns the complete netlist with component-pin-net mappings.\n\nThis is the PCB-side netlist, which should match the schematic netlist after importing changes.',
-    {},
-    async () => {
-      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_NETLIST);
+    { type: z.string().optional().describe('Netlist format type (optional, defaults to STANDARD)') },
+    async ({ type }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_NETLIST, { type });
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );

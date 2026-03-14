@@ -56,6 +56,7 @@ export class WSBridge {
         ws.on('message', (data) => {
           try {
             const msg = JSON.parse(data.toString());
+            if (msg.type === 'ping') return; // Heartbeat from extension — ignore
             if (isResponse(msg)) {
               this.handleResponse(msg);
             }

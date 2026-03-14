@@ -51,7 +51,7 @@ export function registerSchematicReadTools(server: McpServer, bridge: WSBridge):
 
   server.tool(
     'eda_sch_list_primitives',
-    'List all primitives of a specified type in the current schematic.\n\nSupported types: COMPONENT, WIRE, PIN, TEXT, ARC, RECTANGLE, POLYGON, CIRCLE, BUS, ATTRIBUTE.\n\nReturns: Array of primitive objects matching the specified type. For COMPONENT and WIRE types, this calls dedicated APIs and returns complete results. For other types, results depend on the current selection in the editor.\n\nPrefer eda_sch_list_components for component data (compact format with filter support) or eda_sch_list_wires for wire data. Use this tool when you need other primitive types like TEXT, ARC, or BUS.',
+    'List primitives of a specified type in the current schematic.\n\nSupported types: COMPONENT, WIRE, PIN, TEXT, ARC, RECTANGLE, POLYGON, CIRCLE, BUS, ATTRIBUTE.\n\nReturns: Array of primitive objects matching the specified type.\n\nIMPORTANT: For COMPONENT and WIRE types, this returns ALL primitives via dedicated APIs. For other types (PIN, TEXT, ARC, etc.), this can only return currently SELECTED primitives of that type — it does NOT list all primitives of that type in the document.\n\nPrefer eda_sch_list_components for component data or eda_sch_list_wires for wire data.',
     { type: z.string().describe('Primitive type: COMPONENT, WIRE, PIN, TEXT, ARC, RECTANGLE, POLYGON, CIRCLE, BUS, ATTRIBUTE') },
     async ({ type }) => {
       const data = await bridge.sendCommand(BridgeCommand.SCH_LIST_PRIMITIVES, { type });

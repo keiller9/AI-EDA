@@ -225,7 +225,7 @@ export function registerSchematicWriteHandlers(): void {
     const props: any = {};
     if (uuids && uuids.length > 0) props.uuids = uuids;
     const result = await eda.sch_Document.autoLayout(props);
-    return { success: true, result, message: 'Auto layout completed' };
+    return { success: !!result, result, message: result ? 'Auto layout completed' : 'Auto layout returned no result' };
   });
 
   // Trigger schematic auto routing
@@ -234,7 +234,7 @@ export function registerSchematicWriteHandlers(): void {
     const props: any = {};
     if (uuids && uuids.length > 0) props.uuids = uuids;
     const result = await eda.sch_Document.autoRouting(props);
-    return { success: true, result, message: 'Auto routing completed' };
+    return { success: !!result, result, message: result ? 'Auto routing completed' : 'Auto routing returned no result' };
   });
 
   // ============ Selection Control ============

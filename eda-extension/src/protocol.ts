@@ -183,7 +183,3 @@ export function createResponse(id: string, success: boolean, data?: unknown, err
 export function isRequest(msg: BridgeMessage): msg is BridgeRequest {
   return msg.type === 'request';
 }
-
-export function isResponse(msg: BridgeMessage): msg is BridgeResponse {
-  return msg.type === 'response';
-}

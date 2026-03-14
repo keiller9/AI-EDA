@@ -13,7 +13,7 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     'eda_pcb_place_component',
     'Place a component on the PCB at the specified position and layer.\n\nThe id parameter is a component identifier in "libraryUuid:uuid" or bare uuid format. Coordinates are in mils. Default layer is TopLayer.\n\nReturns: { success: boolean, primitive: object, message: string }.\n\nUse eda_pcb_list_layers to see valid layer names before placing. The component will appear at the specified (x, y) coordinates with the given rotation on the target layer.',
     {
-      id: z.string().describe('Component ID (matching schematic designator)'),
+      id: z.string().describe('Component ID in "libraryUuid:uuid" format or bare device UUID. Use eda_lib_search_device to find valid IDs.'),
       x: z.number().describe('X coordinate on the PCB canvas (in mils)'),
       y: z.number().describe('Y coordinate on the PCB canvas (in mils)'),
       layer: z.string().optional().describe('Target layer (e.g., "TopLayer", "BottomLayer"). Defaults to TopLayer'),
