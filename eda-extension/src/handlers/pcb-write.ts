@@ -342,4 +342,156 @@ export function registerPcbWriteHandlers(): void {
       results,
     };
   });
+
+  // ============ Document ============
+
+  // Save PCB document
+  registerHandler(BridgeCommand.PCB_SAVE, async () => {
+    await eda.pcb_Document.save();
+    return { success: true, message: 'PCB document saved' };
+  });
+
+  // Import changes from schematic
+  registerHandler(BridgeCommand.PCB_IMPORT_CHANGES, async () => {
+    await eda.pcb_Document.importChanges();
+    return { success: true, message: 'Changes imported from schematic' };
+  });
+
+  // ============ Net Write ============
+
+  // Highlight a net
+  registerHandler(BridgeCommand.PCB_HIGHLIGHT_NET, async (params) => {
+    const net = params.net as string;
+    eda.pcb_Net.highlightNet(net);
+    return { success: true, message: `Net "${net}" highlighted` };
+  });
+
+  // Unhighlight a net
+  registerHandler(BridgeCommand.PCB_UNHIGHLIGHT_NET, async (params) => {
+    const net = params.net as string;
+    eda.pcb_Net.unhighlightNet(net);
+    return { success: true, message: `Net "${net}" unhighlighted` };
+  });
+
+  // Select a net
+  registerHandler(BridgeCommand.PCB_SELECT_NET, async (params) => {
+    const net = params.net as string;
+    eda.pcb_Net.selectNet(net);
+    return { success: true, message: `Net "${net}" selected` };
+  });
+
+  // ============ Selection Write ============
+
+  // Select primitives by IDs
+  registerHandler(BridgeCommand.PCB_SELECT_PRIMITIVES, async (params) => {
+    const ids = params.ids as string[];
+    if (!ids || ids.length === 0) throw new Error('No IDs specified');
+    eda.pcb_SelectControl.doSelectPrimitives(ids);
+    return { success: true, selectedCount: ids.length, message: `Selected ${ids.length} primitives` };
+  });
+
+  // Cross-probe select
+  registerHandler(BridgeCommand.PCB_CROSS_PROBE, async (params) => {
+    const components = params.components as string[] | undefined;
+    const pins = params.pins as string[] | undefined;
+    const nets = params.nets as string[] | undefined;
+    const highlight = params.highlight as boolean | undefined;
+    const result = eda.pcb_SelectControl.doCrossProbeSelect(components, pins, nets, highlight ?? true, true);
+    return { success: result, message: result ? 'Cross-probe selection applied' : 'Cross-probe selection failed' };
+  });
+
+  // Clear selection
+  registerHandler(BridgeCommand.PCB_CLEAR_SELECTION, async () => {
+    eda.pcb_SelectControl.clearSelected();
+    return { success: true, message: 'Selection cleared' };
+  });
+
+  // ============ Layer ============
+
+  // Select a layer
+  registerHandler(BridgeCommand.PCB_SELECT_LAYER, async (params) => {
+    const layer = params.layer as string;
+    eda.pcb_Layer.selectLayer(layer as any);
+    return { success: true, message: `Layer "${layer}" selected` };
+  });
+
+  // Set layer visibility
+  registerHandler(BridgeCommand.PCB_SET_LAYER_VISIBILITY, async (params) => {
+    const layer = params.layer as string;
+    const visible = params.visible as boolean;
+    const exclusive = params.exclusive as boolean | undefined;
+    if (visible) {
+      eda.pcb_Layer.setLayerVisible(layer as any, exclusive ?? false);
+    } else {
+      eda.pcb_Layer.setLayerInvisible(layer as any, exclusive ?? false);
+    }
+    return { success: true, message: `Layer "${layer}" ${visible ? 'visible' : 'hidden'}${exclusive ? ' (exclusive)' : ''}` };
+  });
+
+  // Set number of copper layers
+  registerHandler(BridgeCommand.PCB_SET_COPPER_LAYERS, async (params) => {
+    const numberOfLayers = params.numberOfLayers as number;
+    eda.pcb_Layer.setTheNumberOfCopperLayers(numberOfLayers);
+    return { success: true, message: `Copper layers set to ${numberOfLayers}` };
+  });
+
+  // ============ DRC Rules ============
+
+  // Get current DRC rule configuration
+  registerHandler(BridgeCommand.PCB_GET_DRC_RULES, async () => {
+    const config = eda.pcb_Drc.getCurrentRuleConfiguration();
+    return config ?? {};
+  });
+
+  // Get all net classes
+  registerHandler(BridgeCommand.PCB_GET_NET_CLASSES, async () => {
+    const netClasses = eda.pcb_Drc.getAllNetClasses();
+    return netClasses ?? [];
+  });
+
+  // Create a net class
+  registerHandler(BridgeCommand.PCB_CREATE_NET_CLASS, async (params) => {
+    const { name, nets, color } = params as { name: string; nets: string[]; color?: string };
+    eda.pcb_Drc.createNetClass(name, nets, color);
+    return { success: true, message: `Net class "${name}" created with ${nets.length} nets` };
+  });
+
+  // Get all differential pairs
+  registerHandler(BridgeCommand.PCB_GET_DIFF_PAIRS, async () => {
+    const pairs = eda.pcb_Drc.getAllDifferentialPairs();
+    return pairs ?? [];
+  });
+
+  // Create a differential pair
+  registerHandler(BridgeCommand.PCB_CREATE_DIFF_PAIR, async (params) => {
+    const { name, positiveNet, negativeNet } = params as { name: string; positiveNet: string; negativeNet: string };
+    eda.pcb_Drc.createDifferentialPair(name, positiveNet, negativeNet);
+    return { success: true, message: `Differential pair "${name}" created: +${positiveNet} / -${negativeNet}` };
+  });
+
+  // ============ Manufacture Export ============
+
+  // Export Gerber files
+  registerHandler(BridgeCommand.PCB_EXPORT_GERBER, async (params) => {
+    const fileName = params.fileName as string | undefined;
+    try {
+      const file = await eda.pcb_ManufactureData.getGerberFile(fileName ?? 'gerber');
+      return { success: true, message: 'Gerber files exported', hasFile: !!file };
+    } catch (e: any) {
+      return { success: false, message: `Gerber export failed: ${e.message}` };
+    }
+  });
+
+  // Export pick-and-place file
+  registerHandler(BridgeCommand.PCB_EXPORT_PICK_PLACE, async (params) => {
+    const fileName = params.fileName as string | undefined;
+    const fileType = params.fileType as 'xlsx' | 'csv' | undefined;
+    const unit = params.unit as string | undefined;
+    try {
+      const file = await eda.pcb_ManufactureData.getPickAndPlaceFile(fileName ?? 'pick_place', fileType ?? 'csv', unit as any);
+      return { success: true, message: 'Pick-and-place file exported', hasFile: !!file };
+    } catch (e: any) {
+      return { success: false, message: `Pick-and-place export failed: ${e.message}` };
+    }
+  });
 }

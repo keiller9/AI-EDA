@@ -11,10 +11,10 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 
 | Component | Description |
 |-----------|-------------|
-| **mcp-server/** | Node.js MCP server — exposes 40 tools via stdio, bridges commands to EDA over WebSocket |
+| **mcp-server/** | Node.js MCP server — exposes 65 tools via stdio, bridges commands to EDA over WebSocket |
 | **eda-extension/** | JLCEDA Pro extension — receives commands via WebSocket, calls EDA API, returns results |
 
-## MCP Tools (40)
+## MCP Tools (65)
 
 ### Connection
 | Tool | Description |
@@ -59,6 +59,13 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_pcb_list_primitives` | List primitives by type/layer |
 | `eda_pcb_get_component` | Get detailed PCB component info |
 | `eda_pcb_get_component_context` | Get component with connected nets and nearby components |
+| `eda_pcb_navigate_to` | Navigate editor view to canvas coordinates |
+| `eda_pcb_zoom_to_board` | Zoom to fit board outline |
+| `eda_pcb_get_primitive_at_point` | Get primitive at specific coordinates |
+| `eda_pcb_get_primitives_in_region` | Get all primitives in a rectangular area |
+| `eda_pcb_get_net_primitives` | Get all primitives belonging to a net |
+| `eda_pcb_get_netlist` | Get PCB netlist data |
+| `eda_pcb_get_selection` | Get currently selected primitive IDs |
 
 ### PCB Write
 | Tool | Description |
@@ -71,6 +78,24 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_pcb_batch_delete` | Batch delete multiple PCB primitives |
 | `eda_pcb_modify_attribute` | Modify PCB primitive attributes |
 | `eda_pcb_delete_primitive` | Delete a PCB primitive |
+| `eda_pcb_save` | Save PCB document |
+| `eda_pcb_import_changes` | Import changes from schematic |
+| `eda_pcb_highlight_net` | Highlight a net in the editor |
+| `eda_pcb_unhighlight_net` | Remove net highlight |
+| `eda_pcb_select_net` | Select all primitives of a net |
+| `eda_pcb_select_primitives` | Select primitives by IDs |
+| `eda_pcb_cross_probe` | Cross-probe highlight components/pins/nets |
+| `eda_pcb_clear_selection` | Clear all selection |
+| `eda_pcb_select_layer` | Set active layer |
+| `eda_pcb_set_layer_visibility` | Show/hide a layer |
+| `eda_pcb_set_copper_layers` | Set number of copper layers |
+| `eda_pcb_get_drc_rules` | Get current DRC rule configuration |
+| `eda_pcb_get_net_classes` | Get all net class definitions |
+| `eda_pcb_create_net_class` | Create a net class grouping |
+| `eda_pcb_get_diff_pairs` | Get all differential pair definitions |
+| `eda_pcb_create_diff_pair` | Create a differential pair |
+| `eda_pcb_export_gerber` | Export Gerber manufacturing files |
+| `eda_pcb_export_pick_place` | Export pick-and-place file |
 
 ### System
 | Tool | Description |
@@ -88,7 +113,7 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 | `eda_check_design` | Comprehensive design check — DRC + net analysis + human-readable report |
 | `eda_sch_get_bom` | Get BOM data from schematic — grouped by value/footprint |
 
-> **Note:** All 40 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.). Batch operations use `Promise.allSettled()` for parallel execution. Composite tools combine multiple API calls into single high-level operations. All EDA methods are marked BETA by the vendor.
+> **Note:** All 65 tools are functional. Write operations use the primitive subclass APIs (`SCH_PrimitiveComponent`, `PCB_PrimitiveLine`, etc.). Batch operations use `Promise.allSettled()` for parallel execution. Composite tools combine multiple API calls into single high-level operations. All EDA methods are marked BETA by the vendor.
 
 ## Quick Start
 

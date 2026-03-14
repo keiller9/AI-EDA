@@ -85,4 +85,94 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ Document ============
+
+  server.tool(
+    'eda_pcb_navigate_to',
+    'Navigate the PCB editor view to specific canvas coordinates. Centers the viewport on the given position.\n\nUse this to focus the user\'s view on a specific area of the PCB, e.g. after finding a component\'s position.',
+    {
+      x: z.number().describe('X coordinate on canvas'),
+      y: z.number().describe('Y coordinate on canvas'),
+    },
+    async ({ x, y }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_NAVIGATE_TO, { x, y });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_zoom_to_board',
+    'Zoom the PCB editor view to fit the entire board outline. Useful as a reset after navigating to specific areas.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_ZOOM_TO_BOARD);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_primitive_at_point',
+    'Get the PCB primitive located at a specific canvas coordinate. Returns the topmost primitive at that point, or null if empty.\n\nUseful for "what is at this position?" queries.',
+    {
+      x: z.number().describe('X coordinate'),
+      y: z.number().describe('Y coordinate'),
+    },
+    async ({ x, y }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_PRIMITIVE_AT_POINT, { x, y });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_primitives_in_region',
+    'Get all PCB primitives within a rectangular region. Returns all primitives whose bounds intersect the specified area.\n\nUseful for area-based queries like "what components are in this region of the board?".',
+    {
+      left: z.number().describe('Left boundary X coordinate'),
+      right: z.number().describe('Right boundary X coordinate'),
+      top: z.number().describe('Top boundary Y coordinate'),
+      bottom: z.number().describe('Bottom boundary Y coordinate'),
+    },
+    async ({ left, right, top, bottom }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_PRIMITIVES_IN_REGION, { left, right, top, bottom });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Net ============
+
+  server.tool(
+    'eda_pcb_get_net_primitives',
+    'Get all primitives belonging to a specific PCB net, optionally filtered by primitive type.\n\nReturns: Array of primitive objects (traces, pads, vias, etc.) connected to the specified net.\n\nUse this to understand the physical routing of a specific net.',
+    {
+      net: z.string().describe('Net name to query'),
+      primitiveTypes: z.array(z.string()).optional().describe('Optional filter: primitive types to include (e.g. ["LINE", "VIA", "PAD"])'),
+    },
+    async ({ net, primitiveTypes }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_NET_PRIMITIVES, { net, primitiveTypes });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_netlist',
+    'Get the PCB netlist data. Returns the complete netlist with component-pin-net mappings.\n\nThis is the PCB-side netlist, which should match the schematic netlist after importing changes.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_NETLIST);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Selection ============
+
+  server.tool(
+    'eda_pcb_get_selection',
+    'Get the primitive IDs of all currently selected elements in the PCB editor.\n\nReturns: { selectedIds: string[] }.\n\nUse this to discover what the user has selected, then inspect those elements with other tools.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_SELECTION);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

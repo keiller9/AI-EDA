@@ -130,4 +130,219 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ Document ============
+
+  server.tool(
+    'eda_pcb_save',
+    'Save the current PCB document.\n\nReturns: { success: boolean, message: string }.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_SAVE);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_import_changes',
+    'Import changes from the schematic into the PCB. Synchronizes component additions, deletions, and net changes from the schematic.\n\nReturns: { success: boolean, message: string }.\n\nRun this after making schematic changes to update the PCB accordingly.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_IMPORT_CHANGES);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Net ============
+
+  server.tool(
+    'eda_pcb_highlight_net',
+    'Highlight a specific net in the PCB editor. All traces, pads, and vias belonging to this net will be visually highlighted.\n\nUse eda_pcb_unhighlight_net to remove the highlight.',
+    { net: z.string().describe('Net name to highlight (e.g. "VCC", "GND", "NET1")') },
+    async ({ net }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_HIGHLIGHT_NET, { net });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_unhighlight_net',
+    'Remove highlight from a specific net in the PCB editor.',
+    { net: z.string().describe('Net name to unhighlight') },
+    async ({ net }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_UNHIGHLIGHT_NET, { net });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_select_net',
+    'Select all primitives belonging to a specific net in the PCB editor. All traces, pads, and vias of this net will be selected.',
+    { net: z.string().describe('Net name to select') },
+    async ({ net }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_SELECT_NET, { net });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Selection ============
+
+  server.tool(
+    'eda_pcb_select_primitives',
+    'Select specific primitives in the PCB editor by their IDs. This visually selects them in the UI.\n\nCombine with eda_pcb_list_components or eda_pcb_list_primitives to find IDs first.',
+    { ids: z.array(z.string()).min(1).describe('Array of primitive IDs to select') },
+    async ({ ids }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_SELECT_PRIMITIVES, { ids });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_cross_probe',
+    'Cross-probe select in the PCB: highlight and select components, pins, or nets by name.\n\nSpecify designators (e.g. ["U1"]), pin references (e.g. ["U1_1"]), or net names (e.g. ["VCC"]).',
+    {
+      components: z.array(z.string()).optional().describe('Component designators (e.g. ["U1", "R1"])'),
+      pins: z.array(z.string()).optional().describe('Pin references "Designator_PinNumber" (e.g. ["U1_1"])'),
+      nets: z.array(z.string()).optional().describe('Net names (e.g. ["VCC", "GND"])'),
+      highlight: z.boolean().optional().describe('Whether to highlight (default true)'),
+    },
+    async ({ components, pins, nets, highlight }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CROSS_PROBE, { components, pins, nets, highlight });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_clear_selection',
+    'Clear all selection in the PCB editor.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CLEAR_SELECTION);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Layer ============
+
+  server.tool(
+    'eda_pcb_select_layer',
+    'Select (activate) a specific layer in the PCB editor. New drawing operations will target this layer.\n\nCommon layer names: "TopLayer", "BottomLayer", "InnerLayer1", "InnerLayer2", etc.',
+    { layer: z.string().describe('Layer name or ID to select') },
+    async ({ layer }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_SELECT_LAYER, { layer });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_set_layer_visibility',
+    'Show or hide a specific layer in the PCB editor. When exclusive is true, all other layers are set to the opposite visibility.',
+    {
+      layer: z.string().describe('Layer name or ID'),
+      visible: z.boolean().describe('true to show, false to hide'),
+      exclusive: z.boolean().optional().describe('If true, set all other layers to opposite visibility (default false)'),
+    },
+    async ({ layer, visible, exclusive }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_SET_LAYER_VISIBILITY, { layer, visible, exclusive });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_set_copper_layers',
+    'Set the number of copper layers in the PCB stackup. Common values: 2 (default), 4, 6, 8.\n\nThis changes the layer stack configuration. Use eda_pcb_list_layers to see current layers.',
+    { numberOfLayers: z.number().describe('Number of copper layers (2, 4, 6, 8, etc.)') },
+    async ({ numberOfLayers }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_SET_COPPER_LAYERS, { numberOfLayers });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ DRC Rules ============
+
+  server.tool(
+    'eda_pcb_get_drc_rules',
+    'Get the current PCB DRC (Design Rule Check) rule configuration. Returns all clearance, width, and spacing rules.\n\nUse this to understand design constraints before placing traces or checking compliance.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_DRC_RULES);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_net_classes',
+    'Get all defined net classes in the PCB. Net classes group nets with similar routing requirements (e.g. power, signal, high-speed).\n\nReturns: Array of net class objects with name, nets, and associated rules.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_NET_CLASSES);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_create_net_class',
+    'Create a new net class grouping multiple nets. Net classes enable applying shared routing rules to a group of nets.\n\nExample: create a "Power" class for VCC, 3V3, 5V nets with wider trace width rules.',
+    {
+      name: z.string().describe('Net class name (e.g. "Power", "HighSpeed")'),
+      nets: z.array(z.string()).describe('Array of net names to include'),
+      color: z.string().optional().describe('Optional display color for the net class'),
+    },
+    async ({ name, nets, color }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CREATE_NET_CLASS, { name, nets, color });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_diff_pairs',
+    'Get all defined differential pairs in the PCB. Differential pairs define paired positive/negative signal nets (e.g. USB_D+/USB_D-, HDMI lanes).\n\nReturns: Array of differential pair objects with name, positive net, negative net.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_DIFF_PAIRS);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_create_diff_pair',
+    'Create a differential pair definition. Pairs a positive and negative signal net for matched-impedance routing.\n\nExample: create "USB" pair with positiveNet="USB_D+" and negativeNet="USB_D-".',
+    {
+      name: z.string().describe('Differential pair name (e.g. "USB", "HDMI_D0")'),
+      positiveNet: z.string().describe('Positive signal net name'),
+      negativeNet: z.string().describe('Negative signal net name'),
+    },
+    async ({ name, positiveNet, negativeNet }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CREATE_DIFF_PAIR, { name, positiveNet, negativeNet });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Manufacture Export ============
+
+  server.tool(
+    'eda_pcb_export_gerber',
+    'Export Gerber manufacturing files for PCB fabrication. Generates standard Gerber RS-274X files for all layers.\n\nReturns: { success: boolean, message: string }.',
+    {
+      fileName: z.string().optional().describe('Output filename prefix (default "gerber")'),
+    },
+    async ({ fileName }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_EXPORT_GERBER, { fileName });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_export_pick_place',
+    'Export pick-and-place (centroid) file for SMT assembly. Contains component positions, rotations, and layer assignments.\n\nReturns: { success: boolean, message: string }.',
+    {
+      fileName: z.string().optional().describe('Output filename (default "pick_place")'),
+      fileType: z.enum(['xlsx', 'csv']).optional().describe('File format (default "csv")'),
+      unit: z.string().optional().describe('Unit for coordinates'),
+    },
+    async ({ fileName, fileType, unit }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_EXPORT_PICK_PLACE, { fileName, fileType, unit });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

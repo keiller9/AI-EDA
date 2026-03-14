@@ -91,6 +91,43 @@ export enum BridgeCommand {
 
   // Schematic BOM
   SCH_GET_BOM = 'sch.getBom',
+
+  // PCB Document
+  PCB_SAVE = 'pcb.save',
+  PCB_IMPORT_CHANGES = 'pcb.importChanges',
+  PCB_NAVIGATE_TO = 'pcb.navigateTo',
+  PCB_ZOOM_TO_BOARD = 'pcb.zoomToBoard',
+  PCB_GET_PRIMITIVE_AT_POINT = 'pcb.getPrimitiveAtPoint',
+  PCB_GET_PRIMITIVES_IN_REGION = 'pcb.getPrimitivesInRegion',
+
+  // PCB Net
+  PCB_HIGHLIGHT_NET = 'pcb.highlightNet',
+  PCB_UNHIGHLIGHT_NET = 'pcb.unhighlightNet',
+  PCB_SELECT_NET = 'pcb.selectNet',
+  PCB_GET_NET_PRIMITIVES = 'pcb.getNetPrimitives',
+  PCB_GET_NETLIST = 'pcb.getNetlist',
+
+  // PCB Selection
+  PCB_SELECT_PRIMITIVES = 'pcb.selectPrimitives',
+  PCB_CROSS_PROBE = 'pcb.crossProbe',
+  PCB_GET_SELECTION = 'pcb.getSelection',
+  PCB_CLEAR_SELECTION = 'pcb.clearSelection',
+
+  // PCB Layer
+  PCB_SELECT_LAYER = 'pcb.selectLayer',
+  PCB_SET_LAYER_VISIBILITY = 'pcb.setLayerVisibility',
+  PCB_SET_COPPER_LAYERS = 'pcb.setCopperLayers',
+
+  // PCB DRC Rules
+  PCB_GET_DRC_RULES = 'pcb.getDrcRules',
+  PCB_GET_NET_CLASSES = 'pcb.getNetClasses',
+  PCB_CREATE_NET_CLASS = 'pcb.createNetClass',
+  PCB_GET_DIFF_PAIRS = 'pcb.getDiffPairs',
+  PCB_CREATE_DIFF_PAIR = 'pcb.createDiffPair',
+
+  // PCB Manufacture
+  PCB_EXPORT_GERBER = 'pcb.exportGerber',
+  PCB_EXPORT_PICK_PLACE = 'pcb.exportPickPlace',
 }
 
 // ============ Helper ============

@@ -209,4 +209,58 @@ export function registerPcbReadHandlers(): void {
       nearbyComponents,
     };
   });
+
+  // ============ Document ============
+
+  // Navigate to canvas coordinates
+  registerHandler(BridgeCommand.PCB_NAVIGATE_TO, async (params) => {
+    const { x, y } = params as { x: number; y: number };
+    eda.pcb_Document.navigateToCoordinates(x, y);
+    return { success: true, message: `Navigated to (${x}, ${y})` };
+  });
+
+  // Zoom to board outline
+  registerHandler(BridgeCommand.PCB_ZOOM_TO_BOARD, async () => {
+    eda.pcb_Document.zoomToBoardOutline();
+    return { success: true, message: 'Zoomed to board outline' };
+  });
+
+  // Get primitive at point
+  registerHandler(BridgeCommand.PCB_GET_PRIMITIVE_AT_POINT, async (params) => {
+    const { x, y } = params as { x: number; y: number };
+    const primitive = eda.pcb_Document.getPrimitiveAtPoint(x, y);
+    return primitive ?? null;
+  });
+
+  // Get primitives in region
+  registerHandler(BridgeCommand.PCB_GET_PRIMITIVES_IN_REGION, async (params) => {
+    const { left, right, top, bottom } = params as { left: number; right: number; top: number; bottom: number };
+    const primitives = eda.pcb_Document.getPrimitivesInRegion(left, right, top, bottom);
+    return primitives ?? [];
+  });
+
+  // ============ Net Read ============
+
+  // Get all primitives belonging to a net
+  registerHandler(BridgeCommand.PCB_GET_NET_PRIMITIVES, async (params) => {
+    const net = params.net as string;
+    const primitiveTypes = params.primitiveTypes as string[] | undefined;
+    const primitives = eda.pcb_Net.getAllPrimitivesByNet(net, primitiveTypes as any);
+    return primitives ?? [];
+  });
+
+  // Get PCB netlist
+  registerHandler(BridgeCommand.PCB_GET_NETLIST, async (params) => {
+    const type = params.type as any;
+    const netlist = eda.pcb_Net.getNetlist(type);
+    return netlist ?? [];
+  });
+
+  // ============ Selection Read ============
+
+  // Get currently selected primitive IDs
+  registerHandler(BridgeCommand.PCB_GET_SELECTION, async () => {
+    const ids = eda.pcb_SelectControl.getAllSelectedPrimitives_PrimitiveId();
+    return { selectedIds: ids ?? [] };
+  });
 }

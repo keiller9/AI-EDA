@@ -15,6 +15,48 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 ---
 
+## [1.7.0] — 2026-03-14
+
+### Added — PCB API full coverage
+
+**25 New MCP Tools** — total tools: **65** (+25)
+
+PCB Document Operations (6):
+- `eda_pcb_save` — save document
+- `eda_pcb_import_changes` — sync changes from schematic
+- `eda_pcb_navigate_to` — navigate viewport to coordinates
+- `eda_pcb_zoom_to_board` — zoom to fit board outline
+- `eda_pcb_get_primitive_at_point` — spatial query at point
+- `eda_pcb_get_primitives_in_region` — spatial query in rectangle
+
+PCB Net Operations (5):
+- `eda_pcb_highlight_net` / `unhighlight_net` — visual net highlighting
+- `eda_pcb_select_net` — select all primitives of a net
+- `eda_pcb_get_net_primitives` — get all traces/pads/vias of a net
+- `eda_pcb_get_netlist` — get PCB-side netlist
+
+PCB Selection (4):
+- `eda_pcb_select_primitives` — select by IDs
+- `eda_pcb_cross_probe` — cross-probe by designator/pin/net
+- `eda_pcb_get_selection` — get selected IDs
+- `eda_pcb_clear_selection` — clear selection
+
+PCB Layer Management (3):
+- `eda_pcb_select_layer` — set active layer
+- `eda_pcb_set_layer_visibility` — show/hide layers
+- `eda_pcb_set_copper_layers` — set copper layer count
+
+PCB DRC Rule Management (5):
+- `eda_pcb_get_drc_rules` — read DRC configuration
+- `eda_pcb_get_net_classes` / `create_net_class` — net class management
+- `eda_pcb_get_diff_pairs` / `create_diff_pair` — differential pair management
+
+PCB Manufacturing Export (2):
+- `eda_pcb_export_gerber` — export Gerber fabrication files
+- `eda_pcb_export_pick_place` — export pick-and-place assembly data
+
+---
+
 ## [1.6.0] — 2026-03-14
 
 ### Added — New SCH API coverage + progressive disclosure
