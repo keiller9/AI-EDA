@@ -3,7 +3,7 @@
 	"uuid": "5fea22594dd044e0a418a2fb27cbf59f",
 	"displayName": "AI EDA Bridge",
 	"description": "MCP 代理桥接 - 实现大模型与嘉立创EDA的双向交互",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"publisher": "AI-EDA",
 	"engines": {
 		"eda": "^2.3.0"
@@ -25,7 +25,9 @@
 	},
 	"homepage": "",
 	"bugs": "",
-	"activationEvents": {},
+	"activationEvents": {
+		"onStartupFinished": "activate"
+	},
 	"entry": "./dist/index",
 	"dependentExtensions": {},
 	"headerMenus": {
@@ -48,6 +50,16 @@
 						"id": "Status",
 						"title": "连接状态",
 						"registerFn": "status"
+					},
+					{
+						"id": "StatusPanel",
+						"title": "状态面板",
+						"registerFn": "showStatusPanel"
+					},
+					{
+						"id": "ConfigurePort",
+						"title": "配置端口",
+						"registerFn": "configurePort"
 					}
 				]
 			}
@@ -71,6 +83,32 @@
 						"id": "Status",
 						"title": "连接状态",
 						"registerFn": "status"
+					},
+					{
+						"id": "StatusPanel",
+						"title": "状态面板",
+						"registerFn": "showStatusPanel"
+					},
+					{
+						"id": "ConfigurePort",
+						"title": "配置端口",
+						"registerFn": "configurePort"
+					}
+				]
+			},
+			{
+				"id": "AI-Tools",
+				"title": "AI Tools",
+				"menuItems": [
+					{
+						"id": "AnalyzeSelected",
+						"title": "AI 分析选中元件",
+						"registerFn": "analyzeSelectedSch"
+					},
+					{
+						"id": "CheckDesignSch",
+						"title": "AI 检查设计",
+						"registerFn": "checkDesignSch"
 					}
 				]
 			}
@@ -94,6 +132,32 @@
 						"id": "Status",
 						"title": "连接状态",
 						"registerFn": "status"
+					},
+					{
+						"id": "StatusPanel",
+						"title": "状态面板",
+						"registerFn": "showStatusPanel"
+					},
+					{
+						"id": "ConfigurePort",
+						"title": "配置端口",
+						"registerFn": "configurePort"
+					}
+				]
+			},
+			{
+				"id": "AI-Tools",
+				"title": "AI Tools",
+				"menuItems": [
+					{
+						"id": "ReviewLayout",
+						"title": "AI 审查布局",
+						"registerFn": "reviewLayoutPcb"
+					},
+					{
+						"id": "CheckDrcPcb",
+						"title": "AI 检查DRC",
+						"registerFn": "checkDrcPcb"
 					}
 				]
 			}

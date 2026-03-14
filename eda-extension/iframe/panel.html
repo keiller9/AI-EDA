@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Bridge Status</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    color: #e0e0e0;
+    background: #1e1e2e;
+    padding: 12px;
+    overflow-y: auto;
+  }
+  .section { margin-bottom: 14px; }
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #888;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 4px;
+  }
+  .conn-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.on { background: #4caf50; box-shadow: 0 0 6px #4caf5088; }
+  .dot.off { background: #f44336; box-shadow: 0 0 6px #f4433688; }
+  .conn-label { font-weight: 600; }
+  .conn-detail { color: #aaa; font-size: 12px; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .stat-card {
+    background: #2a2a3e;
+    border-radius: 6px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .log-table th {
+    text-align: left;
+    color: #888;
+    font-weight: 500;
+    padding: 4px 6px;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    background: #1e1e2e;
+  }
+  .log-table td {
+    padding: 3px 6px;
+    border-bottom: 1px solid #2a2a3e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+  .log-table tr:hover { background: #2a2a3e; }
+  .badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge.ok { background: #1b5e20; color: #4caf50; }
+  .badge.err { background: #b71c1c33; color: #f44336; }
+  .log-scroll {
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .empty-msg {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="section">
+  <div class="section-title">Connection</div>
+  <div class="conn-row">
+    <div id="dot" class="dot off"></div>
+    <span id="conn-label" class="conn-label">Disconnected</span>
+  </div>
+  <div class="conn-detail">Port: <span id="port">8765</span> | Uptime: <span id="uptime">--</span></div>
+</div>
+
+<div class="section">
+  <div class="section-title">Statistics</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-rate">--</div>
+      <div class="stat-label">Success Rate</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-failed">0</div>
+      <div class="stat-label">Failed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-avg">--</div>
+      <div class="stat-label">Avg Latency</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Command Log</div>
+  <div class="log-scroll">
+    <table class="log-table">
+      <thead><tr><th>Command</th><th>Time</th><th>ms</th><th>Status</th></tr></thead>
+      <tbody id="log-body"></tbody>
+    </table>
+    <div id="empty-log" class="empty-msg">No commands yet</div>
+  </div>
+</div>
+
+<script>
+function formatUptime(ms) {
+  if (!ms || ms <= 0) return '--';
+  var s = Math.floor(ms / 1000);
+  var h = Math.floor(s / 3600);
+  var m = Math.floor((s % 3600) / 60);
+  s = s % 60;
+  if (h > 0) return h + 'h ' + m + 'm';
+  if (m > 0) return m + 'm ' + s + 's';
+  return s + 's';
+}
+
+function formatTime(ts) {
+  var d = new Date(ts);
+  return d.toLocaleTimeString('en-GB', { hour12: false });
+}
+
+function shortCmd(cmd) {
+  // e.g. "sch.listComponents" -> "listComponents"
+  var idx = cmd.indexOf('.');
+  return idx >= 0 ? cmd.substring(idx + 1) : cmd;
+}
+
+function refresh() {
+  var data = null;
+  try { data = window.parent.__AI_EDA_PANEL_DATA__; } catch(e) {}
+  if (!data) return;
+
+  // Connection
+  var dot = document.getElementById('dot');
+  var label = document.getElementById('conn-label');
+  dot.className = 'dot ' + (data.connected ? 'on' : 'off');
+  label.textContent = data.connected ? 'Connected' : 'Disconnected';
+  document.getElementById('port').textContent = data.port || 8765;
+
+  var uptime = data.connected && data.connectedSince
+    ? formatUptime(Date.now() - data.connectedSince)
+    : '--';
+  document.getElementById('uptime').textContent = uptime;
+
+  // Stats
+  var stats = data.stats || {};
+  document.getElementById('stat-total').textContent = stats.total || 0;
+  document.getElementById('stat-failed').textContent = stats.failed || 0;
+  document.getElementById('stat-rate').textContent = stats.total > 0
+    ? Math.round(stats.succeeded / stats.total * 100) + '%'
+    : '--';
+  document.getElementById('stat-avg').textContent = stats.total > 0
+    ? stats.avgDurationMs + 'ms'
+    : '--';
+
+  // Log
+  var log = data.log || [];
+  var tbody = document.getElementById('log-body');
+  var emptyMsg = document.getElementById('empty-log');
+
+  if (log.length === 0) {
+    tbody.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  // Render newest first
+  var html = '';
+  for (var i = log.length - 1; i >= 0; i--) {
+    var e = log[i];
+    var badge = e.success
+      ? '<span class="badge ok">OK</span>'
+      : '<span class="badge err">ERR</span>';
+    html += '<tr><td title="' + e.command + '">' + shortCmd(e.command) + '</td>'
+      + '<td>' + formatTime(e.timestamp) + '</td>'
+      + '<td>' + e.durationMs + '</td>'
+      + '<td>' + badge + '</td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+setInterval(refresh, 2000);
+refresh();
+</script>
+</body>
+</html>

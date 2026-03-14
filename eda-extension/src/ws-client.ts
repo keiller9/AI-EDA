@@ -15,6 +15,8 @@ let onRequestHandler: RequestHandler | null = null;
 let connected = false;
 let heartbeatTimer: any = null;
 let lastMessageTime = 0;
+let currentPort = 8765;
+let connectedSince: number | null = null;
 
 /**
  * Set the handler for incoming requests from MCP Server
@@ -26,7 +28,19 @@ export function setRequestHandler(handler: RequestHandler): void {
 /**
  * Connect to the MCP Server WebSocket bridge
  */
-export function connectToServer(url: string = 'ws://127.0.0.1:8765'): void {
+export function setPort(port: number): void {
+  currentPort = port;
+}
+
+export function getPort(): number {
+  return currentPort;
+}
+
+export function getConnectedSince(): number | null {
+  return connectedSince;
+}
+
+export function connectToServer(url: string = `ws://127.0.0.1:${currentPort}`): void {
   if (connected && currentWsId) {
     disconnectFromServer();
   }
@@ -64,6 +78,7 @@ export function connectToServer(url: string = 'ws://127.0.0.1:8765'): void {
     connected = true;
     currentWsId = wsId;
     lastMessageTime = Date.now();
+    connectedSince = Date.now();
     startHeartbeat(wsId);
     eda.sys_ToastMessage.showMessage(
       'AI Bridge: Connected to MCP Server',
@@ -148,6 +163,7 @@ export function disconnectFromServer(): void {
     currentWsId = null;
   }
   connected = false;
+  connectedSince = null;
 }
 
 /**
