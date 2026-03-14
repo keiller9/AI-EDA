@@ -11,7 +11,7 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
 
   server.tool(
     'eda_sch_place_component',
-    'Place a component (device) on the schematic at the specified position.\n\nParameters: deviceId is a JLCEDA library reference in "libraryUuid:uuid" format or a bare uuid. Coordinates are in schematic canvas units. Rotation is 0, 90, 180, or 270 degrees.\n\nReturns: { success: boolean, primitive: object, message: string } where primitive is the created component object.\n\nThe component will be added to both BOM and PCB by default. To find valid deviceId values, search the JLCEDA component library.',
+    'Place a component (device) on the schematic at the specified position.\n\nParameters: deviceId is a JLCEDA library reference in "libraryUuid:uuid" format or a bare uuid. Coordinates are in schematic canvas units. Rotation is 0, 90, 180, or 270 degrees.\n\nReturns: { success: boolean, primitive: object, message: string } where primitive is the created component object.\n\nThe component will be added to both BOM and PCB by default. To find valid deviceId values, use eda_lib_search_device first.\n\nBEFORE placing: verify the device is correct for the circuit (check datasheet for pin count, voltage ratings). After placing, you MUST connect all power pins (VCC→power net, GND→ground net) and add decoupling capacitors near IC power pins.',
     {
       deviceId: z.string().describe('Device ID from JLCEDA library (e.g., component UUID)'),
       x: z.number().describe('X coordinate on the schematic canvas'),
@@ -26,7 +26,7 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
 
   server.tool(
     'eda_sch_draw_wire',
-    'Draw a wire (electrical connection) on the schematic by specifying a sequence of points.\n\nThe points array defines the wire path with minimum 2 points. Coordinates are in schematic canvas units. Wire segments connect consecutive points.\n\nReturns: { success: boolean, primitive: object, message: string }.\n\nTo connect two component pins, you need their exact pin positions (get these from eda_sch_get_component) and draw a wire between them. Wires create electrical connections between pins they touch.',
+    'Draw a wire (electrical connection) on the schematic by specifying a sequence of points.\n\nThe points array defines the wire path with minimum 2 points. Coordinates are in schematic canvas units. Wire segments connect consecutive points.\n\nReturns: { success: boolean, primitive: object, message: string }.\n\nTo connect two component pins, you need their exact pin positions (get these from eda_sch_get_component) and draw a wire between them.\n\nELECTRICAL SAFETY: Before drawing, verify the connection is electrically valid — do NOT connect two outputs together, do NOT short VCC to GND, do NOT leave power pins unconnected. Use eda_sch_get_component_context to check pin types and existing connections first.',
     {
       points: z.array(z.object({
         x: z.number().describe('X coordinate'),
@@ -156,7 +156,7 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
 
   server.tool(
     'eda_sch_create_net_flag',
-    'Create a net flag (power symbol) on the schematic — such as GND, VCC, 3V3, etc.\n\nNet flags are the power/ground symbols that label nets without drawing wires between them. Place them near IC power pins to establish power connections.\n\nParameters:\n- identification: the flag type identifier\n- net: the net name this flag represents (e.g. "GND", "VCC")\n- x, y: canvas coordinates\n\nReturns: { success: boolean, primitive: object, message: string }.',
+    'Create a net flag (power symbol) on the schematic — such as GND, VCC, 3V3, etc.\n\nNet flags are the power/ground symbols that label nets without drawing wires between them. Place them near IC power pins to establish power connections.\n\nParameters:\n- identification: the flag type identifier (Power, Ground, AnalogGround, ProtectGround)\n- net: the net name this flag represents (e.g. "GND", "VCC")\n- x, y: canvas coordinates\n\nReturns: { success: boolean, primitive: object, message: string }.\n\nELECTRICAL SAFETY: Only place GND flags on ground pins, VCC/power flags on power pins. Verify the pin you are connecting to is indeed a power/ground pin by checking eda_sch_get_component_context first. Do NOT place a VCC flag on a signal pin.',
     {
       identification: z.string().describe('Net flag type identifier'),
       net: z.string().describe('Net name (e.g. "GND", "VCC", "3V3")'),

@@ -14,9 +14,12 @@
 3. `eda_check_design` type="sch" — 运行 DRC
 4. `eda_sch_list_components` — 获取所有器件列表
 5. `eda_sch_list_nets` — 获取完整网表
-6. 对每个 IC（U*）调用 `eda_sch_get_component` — 检查引脚连接
-7. 分析网表：找单引脚网络（浮空）、电源引脚无电容等问题
-8. 输出结构化审查报告
+6. 对每个 IC（U*）调用 `eda_sch_get_component_context` — 获取引脚+连接网络+邻居
+7. **电源引脚验证**：遍历 IC 引脚，名含 VCC/VDD → 检查是否连电源网络；名含 GND/VSS → 检查是否连 GND
+8. **去耦电容验证**：对每个 IC 电源引脚的网络，在邻居器件中查找电容（位号 C*），检查距离 < 120mil
+9. 分析网表：找单引脚网络（浮空）、输出-输出冲突、电源短路
+10. 如遇不确定的器件 → 用 WebSearch 搜索 "<型号> datasheet pinout" 确认引脚功能
+11. 输出结构化审查报告
 
 ---
 
