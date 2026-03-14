@@ -81,13 +81,20 @@
 | `check(strict, userInterface, includeVerboseError)` | strict, userInterface, includeVerboseError: boolean | (BETA) 检查DRC |
 
 ### SCH_ManufactureData — `eda.sch_ManufactureData` — 生产资料
-> 导出BOM等生产资料（待补充详细方法）
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `getBomFile(fileName?, fileType?, template?, filterOptions?, statistics?, property?, columns?, assemblyVariantsConfig?)` | fileName?: string; fileType?: 'xlsx'\|'csv'; template?: string | (BETA) 获取BOM文件 → File对象 |
+| `getNetlistFile(fileName?, netlistType?)` | fileName?: string; netlistType?: ESYS_NetlistType | (BETA) 获取网表文件 |
+| `getExportDocumentFile(fileName?, fileType?, ...)` | fileType?: ESCH_ExportDocumentFileType | (BETA) 导出文档(PDF/SVG等) |
+| `getSimulationNetlistFile(fileName?, netlistType?)` | fileName?: string; netlistType?: ESCH_SimulationNetlistType | (BETA) 获取仿真网表 |
+| `getAssemblyVariantsConfigs()` | 无 | (BETA) 获取装配体变量配置 → Array<{text,value}> |
+| `placeComponentsOrder(interactive?, ignoreWarning?)` | interactive, ignoreWarning: boolean | (BETA) 元件下单 |
+| `placeSmtComponentsOrder(interactive?, ignoreWarning?)` | interactive, ignoreWarning: boolean | (BETA) SMT下单 |
 
 ### SCH_SimulationEngine — `eda.sch_SimulationEngine` — 仿真引擎
-> 仿真相关API（待补充详细方法）
-
-### SCH_Utils — `eda.sch_Utils` — 工具类
-> 原理图工具方法（待补充详细方法）
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `pushData(eventType, props)` | eventType; props: object | 向仿真内核发送数据 |
 
 ---
 

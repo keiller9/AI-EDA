@@ -77,15 +77,21 @@ PCB相关扩展API参考。任务：$ARGUMENTS
 ### PCB_Net — `eda.pcb_Net` — 网络操作
 | 方法 | 参数 | 描述 |
 |------|------|------|
-| `getAllNetName()` | 无 | 获取所有网络名称 |
-| `getAllNetsName()` | 无 | 获取所有网络名称(别名) |
-| `getNetLength(net)` | net: string | 获取指定网络长度 |
-| `getNetlist(type)` | type: ESYS_NetlistType | 获取网表 |
-| `setNetlist(type, netlist)` | type; netlist | 更新网表 |
-| `getAllPrimitivesByNet(net, primitiveTypes)` | net: string; primitiveTypes: EPCB_PrimitiveType[] | (BETA) 获取网络的所有图元 |
+| `getAllNetName()` | 无 | 获取所有网络名称 → string[] |
+| `getAllNets()` | 无 | 获取所有网络详情 → IPCB_NetInfo[] |
+| `getNet(net)` | net: string | 获取单个网络详情 → IPCB_NetInfo |
+| `getNetLength(net)` | net: string | 获取指定网络长度 → number |
+| `getNetColor(net)` | net: string | 获取网络颜色 |
+| `setNetColor(net, color)` | net: string; color | 设置网络颜色 |
+| `getNetlist(type?)` | type?: ESYS_NetlistType | 获取网表 → string |
+| `setNetlist(type, netlist)` | type; netlist: string | 更新网表 |
+| `getAllPrimitivesByNet(net, primitiveTypes?)` | net: string; primitiveTypes?: EPCB_PrimitiveType[] | (BETA) 获取网络的所有图元 |
 | `highlightNet(net)` | net: string | (BETA) 高亮网络 |
 | `unhighlightNet(net)` | net: string | (BETA) 取消高亮 |
+| `unhighlightAllNets()` | 无 | (BETA) 取消所有高亮 |
 | `selectNet(net)` | net: string | (BETA) 选中网络 |
+| `unselectNet(net)` | net: string | (BETA) 取消选中网络 |
+| `unselectAllNets()` | 无 | (BETA) 取消所有网络选中 |
 
 ### PCB_Layer — `eda.pcb_Layer` — 图层操作
 | 方法 | 参数 | 描述 |
@@ -163,11 +169,39 @@ PCB相关扩展API参考。任务：$ARGUMENTS
 | `getAllPadPairGroups()` | 无 | (BETA) 获取所有焊盘对组 |
 | `getPadPairGroupMinWireLength(name)` | string | (BETA) 获取最短导线长度 |
 
-### PCB_MathPolygon — `eda.pcb_MathPolygon` — 多边形数学计算
-> 待补充详细方法
+### PCB_ManufactureData — `eda.pcb_ManufactureData` — 生产资料导出
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `getGerberFile(fileName?, colorSilkscreen?, unit?, digitalFormat?, other?, layers?, objects?)` | fileName?: string; unit?: MILLIMETER\|INCH | (BETA) 获取Gerber制版文件 → File |
+| `getBomFile(fileName?, fileType?, template?, filterOptions?, statistics?, property?, columns?)` | fileType?: 'xlsx'\|'csv'; template?: string | (BETA) 获取BOM文件 → File |
+| `getPickAndPlaceFile(fileName?, fileType?, unit?)` | fileType?: 'xlsx'\|'csv'; unit?: MILLIMETER\|MIL | (BETA) 获取坐标文件 → File |
+| `getPdfFile(fileName?, outputMethod?, contentConfig?, watermark?)` | outputMethod?: EPCB_PdfOutputMethod | (BETA) 获取PDF文件 → File |
+| `getDxfFile(fileName?, layers?, objects?)` | layers?, objects?: 图层/对象配置 | (BETA) 获取DXF文件 → File |
+| `get3DFile(fileName?, fileType?, element?, modelMode?, autoGenerateModels?)` | fileType?: 'step'\|'obj' | (BETA) 获取3D模型 → File |
+| `get3DShellFile(fileName?, fileType?)` | fileType?: 'stl'\|'step'\|'obj' | (BETA) 获取3D外壳 → File |
+| `getNetlistFile(fileName?, netlistType?)` | netlistType?: ESYS_NetlistType | (BETA) 获取网表文件 → File |
+| `getTestPointFile(fileName?, fileType?)` | fileType?: 'xlsx'\|'csv' | (BETA) 测试点报告 → File |
+| `getFlyingProbeTestFile(fileName?)` | fileName?: string | (BETA) 飞针测试文件 → File |
+| `getDsnFile(fileName?)` | fileName?: string | (BETA) DSN自动布线文件 → File |
+| `getAutoLayoutJsonFile(fileName?)` | fileName?: string | (BETA) 自动布局JSON → File |
+| `getAutoRouteJsonFile(fileName?)` | fileName?: string | (BETA) 自动布线JSON → File |
+| `getManufactureData()` | 无 | (BETA) 导出完整制造文件 |
+| `getPcbInfoFile(fileName?)` | fileName?: string | (BETA) PCB信息文件 → File |
+| `getAltiumDesignerFile(fileName?)` | fileName?: string | (BETA) AD格式文件 → File |
+| `getPadsFile(fileName?)` | fileName?: string | (BETA) PADS格式文件 → File |
+| `getBomTemplates()` | 无 | (BETA) 获取BOM模板列表 → string[] |
+| `placePcbOrder(interactive?, ignoreWarning?)` | boolean | (BETA) PCB下单 |
+| `placeComponentsOrder(interactive?, ignoreWarning?)` | boolean | (BETA) 元件下单 |
+| `placeSmtComponentsOrder(interactive?, ignoreWarning?)` | boolean | (BETA) SMT下单 |
+| `place3DShellOrder(interactive?, ignoreWarning?)` | boolean | (BETA) 3D外壳下单 |
 
-### PCB_ManufactureData — `eda.pcb_ManufactureData` — 生产资料
-> 待补充详细方法
+### PCB_Primitive — `eda.pcb_Primitive` — PCB图元通用操作
+| 方法 | 参数 | 描述 |
+|------|------|------|
+| `getPrimitiveTypeByPrimitiveId(id)` | id: string | 获取图元类型 → EPCB_PrimitiveType |
+| `getPrimitiveByPrimitiveId(id)` | id: string | 获取图元所有属性 → IPCB_Primitive |
+| `getPrimitivesByPrimitiveId(ids)` | ids: string[] | 批量获取图元 → IPCB_Primitive[] |
+| `getPrimitivesBBox(primitiveIds)` | primitiveIds: string[] | (BETA) 获取边界框 → {minX,minY,maxX,maxY} |
 
 ---
 
