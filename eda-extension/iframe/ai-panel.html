@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI EDA Assistant</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  color: #e0e0e0;
+  background: #1e1e2e;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== Tab Bar ===== */
+.tab-bar {
+  display: flex;
+  background: #181825;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: #ccc; background: #1e1e2e; }
+.tab-btn.active { color: #89b4fa; border-bottom-color: #89b4fa; }
+
+/* ===== Tab Content ===== */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: none;
+}
+.tab-content.active { display: block; }
+
+/* ===== Dashboard ===== */
+.conn-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #2a2a3e;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot.on { background: #a6e3a1; box-shadow: 0 0 8px #a6e3a144; }
+.dot.off { background: #f38ba8; box-shadow: 0 0 8px #f38ba844; }
+.conn-text { font-weight: 600; font-size: 13px; }
+.conn-sub { color: #888; font-size: 11px; margin-left: auto; }
+
+.doc-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.doc-badge.sch { background: #1e3a5f; color: #89b4fa; }
+.doc-badge.pcb { background: #3a1e5f; color: #cba6f7; }
+.doc-badge.unknown { background: #333; color: #888; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.stat-card {
+  background: #2a2a3e;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+.stat-value { font-size: 24px; font-weight: 700; color: #fff; }
+.stat-label { font-size: 11px; color: #888; margin-top: 4px; }
+
+.exec-bar {
+  padding: 8px 12px;
+  background: #2a2a3e;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.exec-bar .label { color: #888; font-size: 11px; margin-bottom: 4px; }
+.exec-bar .cmd { color: #a6e3a1; font-weight: 600; }
+.exec-bar .idle { color: #666; font-style: italic; }
+
+/* ===== Quick Actions ===== */
+.action-group { margin-bottom: 14px; }
+.group-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #888;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #333;
+}
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.action-btn {
+  background: #2a2a3e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 8px;
+  color: #e0e0e0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.action-btn:hover { background: #333; border-color: #555; }
+.action-btn:active { transform: scale(0.97); }
+.action-btn .icon { font-size: 18px; display: block; margin-bottom: 4px; }
+.action-btn.loading { opacity: 0.5; pointer-events: none; }
+
+/* ===== Activity Log ===== */
+.filter-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.filter-btn {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  background: none;
+  color: #aaa;
+  font-size: 11px;
+  cursor: pointer;
+}
+.filter-btn.active { background: #89b4fa22; border-color: #89b4fa; color: #89b4fa; }
+.log-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.log-table th {
+  text-align: left; color: #888; font-weight: 500;
+  padding: 4px 6px; border-bottom: 1px solid #333;
+  position: sticky; top: 0; background: #1e1e2e;
+}
+.log-table td {
+  padding: 4px 6px; border-bottom: 1px solid #2a2a3e;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
+}
+.log-table tr:hover { background: #2a2a3e; }
+.badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; }
+.badge.ok { background: #1b5e20; color: #a6e3a1; }
+.badge.err { background: #b71c1c33; color: #f38ba8; }
+.empty-msg { text-align: center; color: #666; padding: 30px; font-style: italic; }
+
+/* ===== About ===== */
+.about-card {
+  background: #2a2a3e;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.about-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.about-sub { color: #888; font-size: 12px; margin-bottom: 12px; }
+.about-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+.about-row .k { color: #888; }
+.about-row .v { color: #e0e0e0; font-weight: 600; }
+.tip-box {
+  background: #1e3a5f;
+  border: 1px solid #89b4fa44;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.tip-box .tip-title { color: #89b4fa; font-weight: 600; margin-bottom: 6px; }
+.tip-box code { background: #181825; padding: 2px 6px; border-radius: 3px; color: #a6e3a1; }
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="dashboard">📊 仪表盘</button>
+  <button class="tab-btn" data-tab="actions">⚡ 快捷操作</button>
+  <button class="tab-btn" data-tab="log">📋 日志</button>
+  <button class="tab-btn" data-tab="about">ℹ️ 关于</button>
+</div>
+
+<!-- Dashboard -->
+<div id="tab-dashboard" class="tab-content active">
+  <div class="conn-bar">
+    <div id="d-dot" class="dot off"></div>
+    <span id="d-conn" class="conn-text">未连接</span>
+    <span id="d-sub" class="conn-sub">端口: --</span>
+  </div>
+  <div id="d-doc-badge" class="doc-badge unknown">未知文档</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-value" id="d-components">--</div><div class="stat-label">器件数</div></div>
+    <div class="stat-card"><div class="stat-value" id="d-nets">--</div><div class="stat-label">网络数</div></div>
+    <div class="stat-card"><div class="stat-value" id="d-wires">--</div><div class="stat-label">导线/走线</div></div>
+    <div class="stat-card"><div class="stat-value" id="d-drc">--</div><div class="stat-label">DRC 违规</div></div>
+  </div>
+  <div class="exec-bar">
+    <div class="label">Claude Code 执行状态</div>
+    <div id="d-exec"><span class="idle">空闲</span></div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div id="tab-actions" class="tab-content">
+  <div class="action-group">
+    <div class="group-title">审查</div>
+    <div class="action-grid">
+      <button class="action-btn" data-action="review-sch"><span class="icon">🔍</span>审查原理图</button>
+      <button class="action-btn" data-action="review-pcb"><span class="icon">📐</span>审查 PCB</button>
+      <button class="action-btn" data-action="design-check"><span class="icon">✅</span>设计检查</button>
+      <button class="action-btn" data-action="run-drc"><span class="icon">⚠️</span>运行 DRC</button>
+    </div>
+  </div>
+  <div class="action-group">
+    <div class="group-title">操作</div>
+    <div class="action-grid">
+      <button class="action-btn" data-action="search-component"><span class="icon">🔎</span>搜索元件</button>
+      <button class="action-btn" data-action="get-bom"><span class="icon">📋</span>查看 BOM</button>
+      <button class="action-btn" data-action="export-gerber"><span class="icon">📦</span>导出 Gerber</button>
+      <button class="action-btn" data-action="overview"><span class="icon">📊</span>设计概览</button>
+    </div>
+  </div>
+  <div class="action-group">
+    <div class="group-title">文档</div>
+    <div class="action-grid">
+      <button class="action-btn" data-action="save-sch"><span class="icon">💾</span>保存原理图</button>
+      <button class="action-btn" data-action="save-pcb"><span class="icon">💾</span>保存 PCB</button>
+      <button class="action-btn" data-action="import-changes"><span class="icon">🔄</span>导入变更</button>
+      <button class="action-btn" data-action="refresh"><span class="icon">🔃</span>刷新数据</button>
+    </div>
+  </div>
+</div>
+
+<!-- Activity Log -->
+<div id="tab-log" class="tab-content">
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">全部</button>
+    <button class="filter-btn" data-filter="ok">成功</button>
+    <button class="filter-btn" data-filter="err">失败</button>
+  </div>
+  <div style="overflow-y:auto; max-height:calc(100vh - 120px);">
+    <table class="log-table">
+      <thead><tr><th>命令</th><th>时间</th><th>耗时</th><th>状态</th></tr></thead>
+      <tbody id="log-body"></tbody>
+    </table>
+    <div id="empty-log" class="empty-msg">暂无执行记录</div>
+  </div>
+</div>
+
+<!-- About -->
+<div id="tab-about" class="tab-content">
+  <div class="about-card">
+    <div class="about-title">AI EDA Bridge</div>
+    <div class="about-sub">Claude Code 可视化前端 · 嘉立创 EDA 专业版</div>
+    <div class="about-row"><span class="k">版本</span><span class="v" id="a-version">1.2.0</span></div>
+    <div class="about-row"><span class="k">MCP 工具</span><span class="v">122 个</span></div>
+    <div class="about-row"><span class="k">AI Skill</span><span class="v">14 个</span></div>
+    <div class="about-row"><span class="k">WebSocket 端口</span><span class="v" id="a-port">--</span></div>
+    <div class="about-row"><span class="k">连接时长</span><span class="v" id="a-uptime">--</span></div>
+  </div>
+  <div class="tip-box">
+    <div class="tip-title">使用提示</div>
+    在 Claude Code 中使用以下命令：<br>
+    <code>/review-sch</code> 审查原理图<br>
+    <code>/review-pcb</code> 审查 PCB 布局<br>
+    <code>/design-check</code> 生产前设计检查<br>
+    <code>/generate-schematic</code> 自然语言生成原理图<br>
+    <code>/component-research</code> 元件研究<br>
+    <code>/place-components</code> PCB 器件布局<br>
+    <code>/route-traces</code> PCB 走线布线
+  </div>
+</div>
+
+<script>
+/* ===== Tab Switching ===== */
+var tabs = document.querySelectorAll('.tab-btn');
+var contents = document.querySelectorAll('.tab-content');
+tabs.forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    tabs.forEach(function(b) { b.classList.remove('active'); });
+    contents.forEach(function(c) { c.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ===== Filter Switching ===== */
+var currentFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    refreshLog();
+  });
+});
+
+/* ===== Quick Actions ===== */
+document.querySelectorAll('.action-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var action = btn.dataset.action;
+    btn.classList.add('loading');
+    setTimeout(function() { btn.classList.remove('loading'); }, 3000);
+    try {
+      var actions = window.parent.__AI_EDA_PANEL_ACTIONS__;
+      if (actions && actions.executeAction) {
+        actions.executeAction(action);
+      }
+    } catch(e) {}
+  });
+});
+
+/* ===== Utilities ===== */
+function formatUptime(ms) {
+  if (!ms || ms <= 0) return '--';
+  var s = Math.floor(ms / 1000);
+  var h = Math.floor(s / 3600); var m = Math.floor((s % 3600) / 60); s = s % 60;
+  if (h > 0) return h + 'h ' + m + 'm';
+  if (m > 0) return m + 'm ' + s + 's';
+  return s + 's';
+}
+function formatTime(ts) {
+  return new Date(ts).toLocaleTimeString('en-GB', { hour12: false });
+}
+function shortCmd(cmd) {
+  var idx = cmd.indexOf('.'); return idx >= 0 ? cmd.substring(idx + 1) : cmd;
+}
+
+/* ===== Dashboard Refresh ===== */
+function refreshDashboard() {
+  var data = null;
+  try { data = window.parent.__AI_EDA_PANEL_DATA__; } catch(e) {}
+  if (!data) return;
+
+  // Connection
+  var dot = document.getElementById('d-dot');
+  var conn = document.getElementById('d-conn');
+  dot.className = 'dot ' + (data.connected ? 'on' : 'off');
+  conn.textContent = data.connected ? '已连接' : '未连接';
+  document.getElementById('d-sub').textContent = '端口: ' + (data.port || '--');
+
+  // Dashboard stats
+  var db = data.dashboard || {};
+  var badge = document.getElementById('d-doc-badge');
+  if (db.docType === 'schematic') { badge.className = 'doc-badge sch'; badge.textContent = '📄 原理图'; }
+  else if (db.docType === 'pcb') { badge.className = 'doc-badge pcb'; badge.textContent = '🔲 PCB'; }
+  else { badge.className = 'doc-badge unknown'; badge.textContent = '未知文档'; }
+
+  document.getElementById('d-components').textContent = db.componentCount != null ? db.componentCount : '--';
+  document.getElementById('d-nets').textContent = db.netCount != null ? db.netCount : '--';
+  document.getElementById('d-wires').textContent = db.wireCount != null ? db.wireCount : '--';
+  document.getElementById('d-drc').textContent = db.drcViolations != null ? db.drcViolations : '--';
+
+  // Execution state
+  var exec = document.getElementById('d-exec');
+  var ce = data.currentExecution;
+  if (ce && ce.command) {
+    var elapsed = Math.round((Date.now() - ce.startTime) / 1000);
+    exec.innerHTML = '<span class="cmd">' + shortCmd(ce.command) + '</span> <span style="color:#888;">(' + elapsed + 's)</span>';
+  } else {
+    exec.innerHTML = '<span class="idle">空闲</span>';
+  }
+
+  // About tab
+  document.getElementById('a-port').textContent = data.port || '--';
+  document.getElementById('a-uptime').textContent = data.connected && data.connectedSince
+    ? formatUptime(Date.now() - data.connectedSince) : '--';
+}
+
+/* ===== Log Refresh ===== */
+function refreshLog() {
+  var data = null;
+  try { data = window.parent.__AI_EDA_PANEL_DATA__; } catch(e) {}
+  var log = (data && data.log) || [];
+  var tbody = document.getElementById('log-body');
+  var emptyMsg = document.getElementById('empty-log');
+
+  // Filter
+  var filtered = log;
+  if (currentFilter === 'ok') filtered = log.filter(function(e) { return e.success; });
+  else if (currentFilter === 'err') filtered = log.filter(function(e) { return !e.success; });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    emptyMsg.style.display = 'block';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  var html = '';
+  for (var i = filtered.length - 1; i >= 0; i--) {
+    var e = filtered[i];
+    var b = e.success ? '<span class="badge ok">OK</span>' : '<span class="badge err">ERR</span>';
+    html += '<tr><td title="' + e.command + '">' + shortCmd(e.command) + '</td>'
+      + '<td>' + formatTime(e.timestamp) + '</td>'
+      + '<td>' + e.durationMs + 'ms</td>'
+      + '<td>' + b + '</td></tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+/* ===== Auto Refresh ===== */
+function refresh() { refreshDashboard(); refreshLog(); }
+setInterval(refresh, 2000);
+refresh();
+</script>
+</body>
+</html>

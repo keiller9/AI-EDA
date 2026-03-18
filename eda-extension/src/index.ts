@@ -26,9 +26,47 @@ registerSystemHandlers();
 // Set the dispatcher as the WebSocket request handler
 setRequestHandler(dispatch);
 
-// ============ Status Panel Data ============
+// ============ Panel Data ============
 
 let panelUpdateTimer: any = null;
+let dashboardData: Record<string, any> = {};
+
+async function collectDashboardData(): Promise<void> {
+  try {
+    // Detect document type and collect stats
+    let docType = 'unknown';
+    let componentCount = 0;
+    let netCount = 0;
+    let wireCount = 0;
+
+    try {
+      const schComponents = await eda.sch_PrimitiveComponent.getAll();
+      if (schComponents && schComponents.length > 0) {
+        docType = 'schematic';
+        componentCount = schComponents.length;
+        try {
+          const wires = await eda.sch_PrimitiveWire.getAll();
+          wireCount = wires ? wires.length : 0;
+        } catch { /* ignore */ }
+      }
+    } catch {
+      // Not a schematic, try PCB
+      try {
+        const pcbComponents = await eda.pcb_PrimitiveComponent.getAll();
+        if (pcbComponents && pcbComponents.length > 0) {
+          docType = 'pcb';
+          componentCount = pcbComponents.length;
+          try {
+            const nets = await eda.pcb_Net.getAll();
+            netCount = nets ? nets.length : 0;
+          } catch { /* ignore */ }
+        }
+      } catch { /* ignore */ }
+    }
+
+    dashboardData = { docType, componentCount, netCount, wireCount, drcViolations: dashboardData.drcViolations ?? null };
+  } catch { /* ignore errors during data collection */ }
+}
 
 function updatePanelData(): void {
   (globalThis as any).__AI_EDA_PANEL_DATA__ = {
@@ -37,6 +75,8 @@ function updatePanelData(): void {
     connectedSince: getConnectedSince(),
     stats: getCommandStats(),
     log: getCommandLog(),
+    dashboard: dashboardData,
+    currentExecution: (globalThis as any).__AI_EDA_CURRENT_EXEC__ || null,
     updatedAt: Date.now(),
   };
 }
@@ -44,7 +84,10 @@ function updatePanelData(): void {
 function startPanelUpdates(): void {
   updatePanelData();
   if (panelUpdateTimer) return;
+  // Update panel data every 2s, collect dashboard every 5s
   panelUpdateTimer = setInterval(updatePanelData, 2000);
+  collectDashboardData();
+  setInterval(collectDashboardData, 5000);
 }
 
 function stopPanelUpdates(): void {
@@ -52,6 +95,87 @@ function stopPanelUpdates(): void {
     clearInterval(panelUpdateTimer);
     panelUpdateTimer = null;
   }
+}
+
+// ============ Panel Actions (called from iframe) ============
+
+function registerPanelActions(): void {
+  (globalThis as any).__AI_EDA_PANEL_ACTIONS__ = {
+    executeAction: async (actionId: string) => {
+      try {
+        switch (actionId) {
+          case 'review-sch':
+            await checkDesignSch();
+            break;
+          case 'review-pcb':
+            await reviewLayoutPcb();
+            break;
+          case 'design-check':
+            await checkDesignSch();
+            break;
+          case 'run-drc': {
+            // Try PCB first, fallback to SCH
+            try {
+              await dispatchLocal(BridgeCommand.SYS_RUN_DRC, { type: 'pcb' });
+              eda.sys_ToastMessage.showMessage('DRC 检查完成', ESYS_ToastMessageType.SUCCESS);
+            } catch {
+              await dispatchLocal(BridgeCommand.SYS_RUN_DRC, { type: 'sch' });
+              eda.sys_ToastMessage.showMessage('DRC 检查完成', ESYS_ToastMessageType.SUCCESS);
+            }
+            break;
+          }
+          case 'search-component':
+            eda.sys_Dialog.showInputDialog('搜索关键词', '', '搜索元件', 'text', '', {}, async (value: any) => {
+              if (!value) return;
+              const resp = await dispatchLocal(BridgeCommand.SYS_FIND_COMPONENT, { query: String(value) });
+              const count = resp?.data?.matches?.length ?? 0;
+              eda.sys_ToastMessage.showMessage(
+                `找到 ${count} 个匹配器件`,
+                count > 0 ? ESYS_ToastMessageType.SUCCESS : ESYS_ToastMessageType.WARNING,
+              );
+            });
+            break;
+          case 'get-bom':
+            await dispatchLocal(BridgeCommand.SYS_GET_BOM);
+            eda.sys_ToastMessage.showMessage('BOM 数据已获取', ESYS_ToastMessageType.SUCCESS);
+            break;
+          case 'export-gerber':
+            await dispatchLocal(BridgeCommand.PCB_EXPORT_GERBER, {});
+            eda.sys_ToastMessage.showMessage('Gerber 导出完成', ESYS_ToastMessageType.SUCCESS);
+            break;
+          case 'overview':
+            await dispatchLocal(BridgeCommand.SYS_GET_DESIGN_OVERVIEW, {});
+            eda.sys_ToastMessage.showMessage('设计概览已获取', ESYS_ToastMessageType.SUCCESS);
+            break;
+          case 'save-sch':
+            await dispatchLocal(BridgeCommand.SCH_SAVE, {});
+            eda.sys_ToastMessage.showMessage('原理图已保存', ESYS_ToastMessageType.SUCCESS);
+            break;
+          case 'save-pcb':
+            await dispatchLocal(BridgeCommand.PCB_SAVE, {});
+            eda.sys_ToastMessage.showMessage('PCB 已保存', ESYS_ToastMessageType.SUCCESS);
+            break;
+          case 'import-changes':
+            await dispatchLocal(BridgeCommand.PCB_IMPORT_CHANGES, {});
+            eda.sys_ToastMessage.showMessage('变更已导入', ESYS_ToastMessageType.SUCCESS);
+            break;
+          case 'refresh':
+            await collectDashboardData();
+            updatePanelData();
+            eda.sys_ToastMessage.showMessage('数据已刷新', ESYS_ToastMessageType.SUCCESS);
+            break;
+          default:
+            eda.sys_ToastMessage.showMessage(`未知操作: ${actionId}`, ESYS_ToastMessageType.WARNING);
+        }
+      } catch (e: any) {
+        eda.sys_ToastMessage.showMessage(`操作失败: ${e?.message || e}`, ESYS_ToastMessageType.ERROR);
+      }
+    },
+    refreshDashboard: async () => {
+      await collectDashboardData();
+      updatePanelData();
+    },
+  };
 }
 
 // ============ Lifecycle (exported for activationEvents) ============
@@ -65,6 +189,7 @@ export function activate(): void {
   if (typeof storedPort === 'number' && storedPort >= 1024 && storedPort <= 65535) {
     setPort(storedPort);
   }
+  registerPanelActions();
   connectToServer();
 }
 
@@ -152,6 +277,25 @@ export function showStatusPanel(): void {
   startPanelUpdates();
   eda.sys_IFrame.openIFrame('./iframe/panel.html', 420, 520, 'ai-status-panel', {
     title: 'AI Bridge 状态',
+    maximizeButton: true,
+    minimizeButton: true,
+    minimizeStyle: 'collapsed',
+    buttonCallbackFn: (button: string) => {
+      if (button === 'close') {
+        stopPanelUpdates();
+      }
+    },
+  });
+}
+
+/**
+ * Open the full-featured AI assistant panel
+ * Registered as menu item: AI Bridge -> AI 助手面板
+ */
+export function showAIPanel(): void {
+  startPanelUpdates();
+  eda.sys_IFrame.openIFrame('./iframe/ai-panel.html', 500, 700, 'ai-assistant-panel', {
+    title: 'AI EDA 助手',
     maximizeButton: true,
     minimizeButton: true,
     minimizeStyle: 'collapsed',

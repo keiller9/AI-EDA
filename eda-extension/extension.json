@@ -3,7 +3,7 @@
 	"uuid": "5fea22594dd044e0a418a2fb27cbf59f",
 	"displayName": "AI EDA Bridge",
 	"description": "MCP 代理桥接 - 实现大模型与嘉立创EDA的双向交互",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"publisher": "AI-EDA",
 	"engines": {
 		"eda": "^2.3.0"
@@ -57,6 +57,11 @@
 						"registerFn": "showStatusPanel"
 					},
 					{
+						"id": "AIPanel",
+						"title": "AI 助手面板",
+						"registerFn": "showAIPanel"
+					},
+					{
 						"id": "ConfigurePort",
 						"title": "配置端口",
 						"registerFn": "configurePort"
@@ -88,6 +93,11 @@
 						"id": "StatusPanel",
 						"title": "状态面板",
 						"registerFn": "showStatusPanel"
+					},
+					{
+						"id": "AIPanel",
+						"title": "AI 助手面板",
+						"registerFn": "showAIPanel"
 					},
 					{
 						"id": "ConfigurePort",
@@ -137,6 +147,11 @@
 						"id": "StatusPanel",
 						"title": "状态面板",
 						"registerFn": "showStatusPanel"
+					},
+					{
+						"id": "AIPanel",
+						"title": "AI 助手面板",
+						"registerFn": "showAIPanel"
 					},
 					{
 						"id": "ConfigurePort",

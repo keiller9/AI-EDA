@@ -345,7 +345,10 @@ AI-EDA/
 │   │       ├── pcb-read.ts
 │   │       ├── pcb-write.ts
 │   │       └── system.ts
-│   ├── extension.json           # Extension manifest (v1.1.0)
+│   ├── iframe/
+│   │   ├── panel.html          # Status panel (connection, stats, command log)
+│   │   └── ai-panel.html       # Full AI assistant panel (dashboard, actions, log, about)
+│   ├── extension.json           # Extension manifest (v1.2.0)
 │   ├── package.json
 │   └── tsconfig.json
 │
@@ -393,6 +396,7 @@ npm run test:watch  # Watch mode
 
 | Version | Tools | Skills | Highlights |
 |---------|-------|--------|------------|
+| v2.1.0 | 122 | 14 | **AI Assistant Panel** — full-featured UI in EDA editor (dashboard, quick actions, activity log), modify_attribute key normalization fix |
 | v2.0.0 | 122 | 14 | Document creation, DRC CRUD, routing control, net labels, coordinate transforms, test infrastructure, generate-schematic skill |
 | v1.9.0 | 93 | 13 | UI enhancement — status panel, port config, auto-connect, context menus |
 | v1.8.0 | 93 | 11 | Complete coverage — SCH/PCB primitives, DMT, LIB, SYS |

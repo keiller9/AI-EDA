@@ -10,8 +10,35 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versio
 
 ### Planned
 - Add error retry and reconnection logic for WebSocket
-- Add unit/integration tests
 - Support multiple concurrent EDA connections
+- End-to-end schematic generation from natural language
+- Circuit knowledge graph + RAG
+
+---
+
+## [2.1.0] — 2026-03-18
+
+### Added — AI Assistant Panel (full-featured UI in EDA editor)
+
+**New: `ai-panel.html` — 4-tab panel embedded in JLCEDA Pro**
+- **Dashboard tab**: MCP connection status, document type detection, real-time stats (component count, net count, wire count, DRC violations), Claude Code execution state
+- **Quick Actions tab**: 12 one-click buttons grouped by category (review, operations, documents) — review schematic, review PCB, design check, run DRC, search components, view BOM, export Gerber, design overview, save, import changes, refresh
+- **Activity Log tab**: Command history with OK/ERR filtering, last 100 entries, newest first
+- **About tab**: Project info, version, tool/skill counts, usage tips with slash command reference
+
+**Extension enhancements (`index.ts`)**:
+- `showAIPanel()` — opens full AI assistant panel (500×700)
+- Dashboard data auto-collection every 5 seconds (detects SCH/PCB, counts components/nets/wires)
+- `__AI_EDA_PANEL_ACTIONS__` callback system — 12 quick action handlers via `dispatchLocal()`
+- Menu entry "AI 助手面板" added to home/sch/pcb contexts
+
+**Bug fix: `schematic-write.ts` modify_attribute key normalization**
+- Added key normalization map: `Designator`→`designator`, `Value`→`value`, `Name`→`name`, etc.
+- JLCEDA API requires lowercase field names; previously `Designator` silently failed
+- Fixed `createNetFlag`/`createNetPort` type errors
+
+### Changed
+- Extension version bumped to 1.2.0
 
 ---
 
