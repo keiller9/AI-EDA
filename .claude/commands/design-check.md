@@ -16,11 +16,16 @@
 3. `eda_check_design` type="sch" — 原理图 DRC（scope 含 sch 时）
 4. `eda_check_design` type="pcb" — PCB DRC（scope 含 pcb 时）
 
-#### 第二阶段：交叉比对
+#### 第二阶段：Board 一致性
 
-5. `eda_sch_list_components` — 原理图器件清单
-6. `eda_pcb_list_components` — PCB 器件清单
-7. 比对两份清单的位号（designator）：
+5. `eda_dmt_list_boards` — 获取所有 Board
+6. `eda_dmt_get_board_info` name=<board> — 检查 SCH/PCB 关联是否完整
+
+#### 第三阶段：交叉比对
+
+7. `eda_sch_list_components` — 原理图器件清单
+8. `eda_pcb_list_components` — PCB 器件清单
+9. 比对两份清单的位号（designator）：
    - 原理图有但 PCB 没有 → **缺失器件**
    - PCB 有但原理图没有 → **多余器件**
 

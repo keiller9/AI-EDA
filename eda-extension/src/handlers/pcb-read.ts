@@ -263,4 +263,18 @@ export function registerPcbReadHandlers(): void {
     const ids = eda.pcb_SelectControl.getAllSelectedPrimitives_PrimitiveId();
     return { selectedIds: ids ?? [] };
   });
+
+  // ============ Coordinate Transform ============
+
+  registerHandler(BridgeCommand.PCB_CONVERT_CANVAS_TO_DATA, async (params) => {
+    const { x, y } = params as { x: number; y: number };
+    const result = await eda.pcb_Document.convertCanvasOriginToDataOrigin(x, y);
+    return result ?? {};
+  });
+
+  registerHandler(BridgeCommand.PCB_CONVERT_DATA_TO_CANVAS, async (params) => {
+    const { x, y } = params as { x: number; y: number };
+    const result = await eda.pcb_Document.convertDataOriginToCanvasOrigin(x, y);
+    return result ?? {};
+  });
 }

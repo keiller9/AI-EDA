@@ -340,4 +340,27 @@ export function registerSchematicWriteHandlers(): void {
       results,
     };
   });
+
+  // ============ Navigation ============
+
+  registerHandler(BridgeCommand.SCH_NAVIGATE_TO, async (params) => {
+    const { x, y } = params as { x: number; y: number };
+    const result = await eda.sch_Document.navigateToCoordinates(x, y);
+    return { success: result, message: `Navigated to (${x}, ${y})` };
+  });
+
+  registerHandler(BridgeCommand.SCH_NAVIGATE_TO_REGION, async (params) => {
+    const { left, right, top, bottom } = params as { left: number; right: number; top: number; bottom: number };
+    const result = await eda.sch_Document.navigateToRegion(left, right, top, bottom);
+    return { success: result, message: 'Navigated to region' };
+  });
+
+  // ============ Net Label ============
+
+  registerHandler(BridgeCommand.SCH_CREATE_NET_LABEL, async (params) => {
+    const { x, y, net } = params as { x: number; y: number; net: string };
+    const result = await eda.sch_PrimitiveAttribute.createNetLabel(x, y, net);
+    if (!result) throw new Error('Failed to create net label');
+    return { success: true, primitive: result, message: `Net label "${net}" created at (${x}, ${y})` };
+  });
 }

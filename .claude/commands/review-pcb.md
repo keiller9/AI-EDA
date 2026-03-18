@@ -20,7 +20,11 @@
 7. `eda_pcb_list_nets` — 识别电源/地网络（名称含 VCC/VDD/3V3/5V/GND/VBUS）
 8. `eda_pcb_list_primitives` type="VIA" — 过孔审计
 9. `eda_pcb_list_layers` — 层叠信息
-10. 汇总所有数据，输出结构化审查报告
+10. `eda_pcb_get_all_rule_configs` — 检查当前 DRC 规则配置
+11. `eda_pcb_get_net_by_net_rules` — 检查网络间距规则
+12. `eda_pcb_get_equal_length_groups` — 检查等长组配置
+13. `eda_pcb_get_pad_pair_groups` — 检查焊盘对约束
+14. 汇总所有数据，输出结构化审查报告
 
 ---
 
@@ -108,7 +112,12 @@
 ### 6. 信号完整性
 - [PASS/WARN/FAIL] 差分对、高速信号、参考平面
 
-### 7. 总结
+### 7. DRC 规则审查
+- 当前规则配置名称及关键参数
+- 等长组设置是否覆盖所有高速总线
+- 网络间距规则是否合理
+
+### 8. 总结
 - 通过项数 / 警告数 / 失败数
 - 优先修复建议
 ```

@@ -175,4 +175,32 @@ export function registerPcbReadTools(server: McpServer, bridge: WSBridge): void 
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ Coordinate Transform ============
+
+  server.tool(
+    'eda_pcb_convert_canvas_to_data',
+    'Convert canvas (UI) coordinates to data (design) coordinates. Use when translating mouse positions to design-space coordinates.',
+    {
+      x: z.number().describe('Canvas X coordinate'),
+      y: z.number().describe('Canvas Y coordinate'),
+    },
+    async ({ x, y }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CONVERT_CANVAS_TO_DATA, { x, y });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_convert_data_to_canvas',
+    'Convert data (design) coordinates to canvas (UI) coordinates. Use when navigating to a specific design location.',
+    {
+      x: z.number().describe('Data X coordinate'),
+      y: z.number().describe('Data Y coordinate'),
+    },
+    async ({ x, y }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CONVERT_DATA_TO_CANVAS, { x, y });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

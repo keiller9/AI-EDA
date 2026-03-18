@@ -125,6 +125,38 @@ export enum BridgeCommand {
   PCB_GET_DIFF_PAIRS = 'pcb.getDiffPairs',
   PCB_CREATE_DIFF_PAIR = 'pcb.createDiffPair',
 
+  // PCB DRC Rule Management
+  PCB_GET_ALL_RULE_CONFIGS = 'pcb.getAllRuleConfigs',
+  PCB_SAVE_RULE_CONFIG = 'pcb.saveRuleConfig',
+  PCB_RENAME_RULE_CONFIG = 'pcb.renameRuleConfig',
+  PCB_DELETE_RULE_CONFIG = 'pcb.deleteRuleConfig',
+  PCB_OVERWRITE_NET_RULES = 'pcb.overwriteNetRules',
+  PCB_GET_NET_BY_NET_RULES = 'pcb.getNetByNetRules',
+  PCB_OVERWRITE_REGION_RULES = 'pcb.overwriteRegionRules',
+  PCB_DELETE_NET_CLASS = 'pcb.deleteNetClass',
+  PCB_ADD_NET_TO_NET_CLASS = 'pcb.addNetToNetClass',
+  PCB_REMOVE_NET_FROM_NET_CLASS = 'pcb.removeNetFromNetClass',
+  PCB_DELETE_DIFF_PAIR = 'pcb.deleteDiffPair',
+  PCB_GET_EQUAL_LENGTH_GROUPS = 'pcb.getEqualLengthGroups',
+  PCB_CREATE_EQUAL_LENGTH_GROUP = 'pcb.createEqualLengthGroup',
+  PCB_DELETE_EQUAL_LENGTH_GROUP = 'pcb.deleteEqualLengthGroup',
+  PCB_GET_PAD_PAIR_GROUPS = 'pcb.getPadPairGroups',
+
+  // PCB Routing Control
+  PCB_CLEAR_ROUTING = 'pcb.clearRouting',
+  PCB_START_RATLINE = 'pcb.startRatline',
+  PCB_STOP_RATLINE = 'pcb.stopRatline',
+  PCB_GET_RATLINE_STATUS = 'pcb.getRatlineStatus',
+
+  // PCB Coordinate Transform
+  PCB_CONVERT_CANVAS_TO_DATA = 'pcb.convertCanvasToData',
+  PCB_CONVERT_DATA_TO_CANVAS = 'pcb.convertDataToCanvas',
+
+  // SCH Navigation & Net Label
+  SCH_NAVIGATE_TO = 'sch.navigateTo',
+  SCH_NAVIGATE_TO_REGION = 'sch.navigateToRegion',
+  SCH_CREATE_NET_LABEL = 'sch.createNetLabel',
+
   // PCB Manufacture
   PCB_EXPORT_GERBER = 'pcb.exportGerber',
   PCB_EXPORT_PICK_PLACE = 'pcb.exportPickPlace',
@@ -153,6 +185,13 @@ export enum BridgeCommand {
   DMT_LIST_BOARDS = 'dmt.listBoards',
   DMT_GET_BOARD_INFO = 'dmt.getBoardInfo',
   DMT_LIST_TABS = 'dmt.listTabs',
+
+  // DMT Document Creation
+  DMT_CREATE_PROJECT = 'dmt.createProject',
+  DMT_CREATE_SCHEMATIC = 'dmt.createSchematic',
+  DMT_CREATE_SCHEMATIC_PAGE = 'dmt.createSchematicPage',
+  DMT_CREATE_PCB = 'dmt.createPcb',
+  DMT_CREATE_BOARD = 'dmt.createBoard',
 
   // LIB Library
   LIB_SEARCH_DEVICE = 'lib.searchDevice',

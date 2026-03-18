@@ -467,6 +467,118 @@ export function registerPcbWriteHandlers(): void {
     return { success: true, message: `Differential pair "${name}" created: +${positiveNet} / -${negativeNet}` };
   });
 
+  // ============ DRC Rule Management ============
+
+  registerHandler(BridgeCommand.PCB_GET_ALL_RULE_CONFIGS, async (params) => {
+    const { includeSystem } = params as any;
+    const configs = await eda.pcb_Drc.getAllRuleConfigurations(includeSystem);
+    return configs ?? [];
+  });
+
+  registerHandler(BridgeCommand.PCB_SAVE_RULE_CONFIG, async (params) => {
+    const { ruleConfiguration, name, allowOverwrite } = params as any;
+    const result = await eda.pcb_Drc.saveRuleConfiguration(ruleConfiguration, name, allowOverwrite);
+    return { success: !!result, message: result ? `Rule config "${name}" saved` : 'Failed to save rule config' };
+  });
+
+  registerHandler(BridgeCommand.PCB_RENAME_RULE_CONFIG, async (params) => {
+    const { originalName, newName } = params as any;
+    const result = await eda.pcb_Drc.renameRuleConfiguration(originalName, newName);
+    return { success: result, message: result ? `Renamed "${originalName}" → "${newName}"` : 'Failed to rename' };
+  });
+
+  registerHandler(BridgeCommand.PCB_DELETE_RULE_CONFIG, async (params) => {
+    const { configurationName } = params as any;
+    const result = await eda.pcb_Drc.deleteRuleConfiguration(configurationName);
+    return { success: result, message: result ? `Deleted "${configurationName}"` : 'Failed to delete' };
+  });
+
+  registerHandler(BridgeCommand.PCB_OVERWRITE_NET_RULES, async (params) => {
+    const { netRules } = params as any;
+    const result = await eda.pcb_Drc.overwriteNetRules(netRules);
+    return { success: !!result, message: 'Net rules overwritten' };
+  });
+
+  registerHandler(BridgeCommand.PCB_GET_NET_BY_NET_RULES, async () => {
+    const rules = await eda.pcb_Drc.getNetByNetRules();
+    return rules ?? {};
+  });
+
+  registerHandler(BridgeCommand.PCB_OVERWRITE_REGION_RULES, async (params) => {
+    const { regionRules } = params as any;
+    const result = await eda.pcb_Drc.overwriteRegionRules(regionRules);
+    return { success: !!result, message: 'Region rules overwritten' };
+  });
+
+  registerHandler(BridgeCommand.PCB_DELETE_NET_CLASS, async (params) => {
+    const { netClassName } = params as any;
+    const result = await eda.pcb_Drc.deleteNetClass(netClassName);
+    return { success: result, message: result ? `Net class "${netClassName}" deleted` : 'Failed to delete' };
+  });
+
+  registerHandler(BridgeCommand.PCB_ADD_NET_TO_NET_CLASS, async (params) => {
+    const { netClassName, net } = params as any;
+    const result = await eda.pcb_Drc.addNetToNetClass(netClassName, net);
+    return { success: result, message: result ? 'Net(s) added to class' : 'Failed to add' };
+  });
+
+  registerHandler(BridgeCommand.PCB_REMOVE_NET_FROM_NET_CLASS, async (params) => {
+    const { netClassName, net } = params as any;
+    const result = await eda.pcb_Drc.removeNetFromNetClass(netClassName, net);
+    return { success: result, message: result ? 'Net(s) removed from class' : 'Failed to remove' };
+  });
+
+  registerHandler(BridgeCommand.PCB_DELETE_DIFF_PAIR, async (params) => {
+    const { differentialPairName } = params as any;
+    const result = await eda.pcb_Drc.deleteDifferentialPair(differentialPairName);
+    return { success: result, message: result ? `Diff pair "${differentialPairName}" deleted` : 'Failed to delete' };
+  });
+
+  registerHandler(BridgeCommand.PCB_GET_EQUAL_LENGTH_GROUPS, async () => {
+    const groups = await eda.pcb_Drc.getAllEqualLengthNetGroups();
+    return groups ?? [];
+  });
+
+  registerHandler(BridgeCommand.PCB_CREATE_EQUAL_LENGTH_GROUP, async (params) => {
+    const { name, nets, color } = params as any;
+    const result = await eda.pcb_Drc.createEqualLengthNetGroup(name, nets, color);
+    return { success: result, message: result ? `Equal-length group "${name}" created` : 'Failed to create' };
+  });
+
+  registerHandler(BridgeCommand.PCB_DELETE_EQUAL_LENGTH_GROUP, async (params) => {
+    const { name } = params as any;
+    const result = await eda.pcb_Drc.deleteEqualLengthNetGroup(name);
+    return { success: result, message: result ? `Equal-length group "${name}" deleted` : 'Failed to delete' };
+  });
+
+  registerHandler(BridgeCommand.PCB_GET_PAD_PAIR_GROUPS, async () => {
+    const groups = await eda.pcb_Drc.getAllPadPairGroups();
+    return groups ?? [];
+  });
+
+  // ============ Routing Control ============
+
+  registerHandler(BridgeCommand.PCB_CLEAR_ROUTING, async (params) => {
+    const { type } = params as any;
+    const result = await eda.pcb_Document.clearRouting(type ?? 'all');
+    return { success: result, message: `Routing cleared (type: ${type ?? 'all'})` };
+  });
+
+  registerHandler(BridgeCommand.PCB_START_RATLINE, async () => {
+    const result = await eda.pcb_Document.startCalculatingRatline();
+    return { success: result, message: 'Ratline calculation started' };
+  });
+
+  registerHandler(BridgeCommand.PCB_STOP_RATLINE, async () => {
+    const result = await eda.pcb_Document.stopCalculatingRatline();
+    return { success: result, message: 'Ratline calculation stopped' };
+  });
+
+  registerHandler(BridgeCommand.PCB_GET_RATLINE_STATUS, async () => {
+    const status = await eda.pcb_Document.getCalculatingRatlineStatus();
+    return { status };
+  });
+
   // ============ PCB Primitive Create ============
 
   // Draw arc

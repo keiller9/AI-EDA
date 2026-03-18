@@ -3,3 +3,11 @@ dist/
 *.js.map
 .env
 *.eext
+
+# Reverse-engineering test files
+*.epro2
+*.epru
+schematic-analysis/
+scripts/generate-schematic.mjs
+scripts/sch-templates.mjs
+scripts/test-*.mjs

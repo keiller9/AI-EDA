@@ -431,6 +431,43 @@ export function registerSystemHandlers(): void {
     return tabs ?? [];
   });
 
+  // ============ DMT Document Creation ============
+
+  registerHandler(BridgeCommand.DMT_CREATE_PROJECT, async (params) => {
+    const { name, teamUuid, folderUuid, description } = params as any;
+    const uuid = await eda.dmt_Project.createProject(name, undefined, teamUuid, folderUuid, description);
+    if (!uuid) throw new Error('Failed to create project');
+    return { success: true, uuid, message: `Project "${name}" created` };
+  });
+
+  registerHandler(BridgeCommand.DMT_CREATE_SCHEMATIC, async (params) => {
+    const { boardName } = params as any;
+    const uuid = await eda.dmt_Schematic.createSchematic(boardName);
+    if (!uuid) throw new Error('Failed to create schematic');
+    return { success: true, uuid, message: 'Schematic created' };
+  });
+
+  registerHandler(BridgeCommand.DMT_CREATE_SCHEMATIC_PAGE, async (params) => {
+    const { schematicUuid } = params as any;
+    const uuid = await eda.dmt_Schematic.createSchematicPage(schematicUuid);
+    if (!uuid) throw new Error('Failed to create schematic page');
+    return { success: true, uuid, message: 'Schematic page created' };
+  });
+
+  registerHandler(BridgeCommand.DMT_CREATE_PCB, async (params) => {
+    const { boardName } = params as any;
+    const uuid = await eda.dmt_Pcb.createPcb(boardName);
+    if (!uuid) throw new Error('Failed to create PCB');
+    return { success: true, uuid, message: 'PCB created' };
+  });
+
+  registerHandler(BridgeCommand.DMT_CREATE_BOARD, async (params) => {
+    const { schematicUuid, pcbUuid } = params as any;
+    const name = await eda.dmt_Board.createBoard(schematicUuid, pcbUuid);
+    if (!name) throw new Error('Failed to create board');
+    return { success: true, name, message: `Board "${name}" created` };
+  });
+
   // ============ LIB Library ============
 
   registerHandler(BridgeCommand.LIB_SEARCH_DEVICE, async (params) => {

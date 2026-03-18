@@ -215,4 +215,48 @@ export function registerSchematicWriteTools(server: McpServer, bridge: WSBridge)
       return { content: [{ type: 'text', text: JSON.stringify(data) }] };
     },
   );
+
+  // ============ Navigation ============
+
+  server.tool(
+    'eda_sch_navigate_to',
+    'Navigate the schematic view to center on specific coordinates.',
+    {
+      x: z.number().describe('X coordinate to navigate to'),
+      y: z.number().describe('Y coordinate to navigate to'),
+    },
+    async ({ x, y }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_NAVIGATE_TO, { x, y });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_navigate_to_region',
+    'Navigate and zoom the schematic view to fit a specific region.',
+    {
+      left: z.number().describe('Left boundary'),
+      right: z.number().describe('Right boundary'),
+      top: z.number().describe('Top boundary'),
+      bottom: z.number().describe('Bottom boundary'),
+    },
+    async ({ left, right, top, bottom }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_NAVIGATE_TO_REGION, { left, right, top, bottom });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_sch_create_net_label',
+    'Place a net label on the schematic at the specified position. Net labels name signals and create logical connections between same-named labels.',
+    {
+      x: z.number().describe('X coordinate'),
+      y: z.number().describe('Y coordinate'),
+      net: z.string().describe('Net name for the label (e.g. "SDA", "SCL", "RESET")'),
+    },
+    async ({ x, y, net }) => {
+      const data = await bridge.sendCommand(BridgeCommand.SCH_CREATE_NET_LABEL, { x, y, net });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
 }

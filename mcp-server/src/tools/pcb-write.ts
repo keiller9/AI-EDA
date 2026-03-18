@@ -318,6 +318,238 @@ export function registerPcbWriteTools(server: McpServer, bridge: WSBridge): void
     },
   );
 
+  // ============ DRC Rule Management ============
+
+  server.tool(
+    'eda_pcb_get_all_rule_configs',
+    'Get all DRC rule configurations. Returns named rule sets that can be applied to the design.\n\nSet includeSystem=true to include built-in system rule sets.',
+    {
+      includeSystem: z.boolean().optional().describe('Include system/built-in rule configurations (default false)'),
+    },
+    async ({ includeSystem }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_ALL_RULE_CONFIGS, { includeSystem });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_save_rule_config',
+    'Save a DRC rule configuration. Creates a new named rule set or overwrites an existing one.\n\nThe ruleConfiguration object should match the structure returned by eda_pcb_get_drc_rules.',
+    {
+      ruleConfiguration: z.record(z.unknown()).describe('Rule configuration object'),
+      name: z.string().describe('Name for the rule configuration'),
+      allowOverwrite: z.boolean().optional().describe('Allow overwriting existing config with same name'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_SAVE_RULE_CONFIG, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_rename_rule_config',
+    'Rename a DRC rule configuration.',
+    {
+      originalName: z.string().describe('Current configuration name'),
+      newName: z.string().describe('New configuration name'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_RENAME_RULE_CONFIG, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_delete_rule_config',
+    'Delete a custom DRC rule configuration by name. Cannot delete system/built-in configurations.',
+    {
+      configurationName: z.string().describe('Name of the rule configuration to delete'),
+    },
+    async ({ configurationName }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_DELETE_RULE_CONFIG, { configurationName });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_overwrite_net_rules',
+    'Overwrite all net-specific DRC rules. Replaces current net rules with the provided array.\n\nEach rule specifies clearance/width constraints for a specific net.',
+    {
+      netRules: z.array(z.record(z.unknown())).describe('Array of net rule objects'),
+    },
+    async ({ netRules }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_OVERWRITE_NET_RULES, { netRules });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_net_by_net_rules',
+    'Get all net-to-net clearance rules. These define minimum clearance between specific net pairs.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_NET_BY_NET_RULES);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_overwrite_region_rules',
+    'Overwrite all region constraint rules. Replaces current region rules with the provided array.\n\nRegion rules define constraints within specific board areas (e.g. keep-out zones, clearance overrides).',
+    {
+      regionRules: z.array(z.record(z.unknown())).describe('Array of region rule objects'),
+    },
+    async ({ regionRules }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_OVERWRITE_REGION_RULES, { regionRules });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_delete_net_class',
+    'Delete a net class by name.',
+    {
+      netClassName: z.string().describe('Name of the net class to delete'),
+    },
+    async ({ netClassName }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_DELETE_NET_CLASS, { netClassName });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_add_net_to_net_class',
+    'Add one or more nets to an existing net class.',
+    {
+      netClassName: z.string().describe('Net class name'),
+      net: z.union([z.string(), z.array(z.string())]).describe('Net name or array of net names to add'),
+    },
+    async ({ netClassName, net }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_ADD_NET_TO_NET_CLASS, { netClassName, net });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_remove_net_from_net_class',
+    'Remove one or more nets from an existing net class.',
+    {
+      netClassName: z.string().describe('Net class name'),
+      net: z.union([z.string(), z.array(z.string())]).describe('Net name or array of net names to remove'),
+    },
+    async ({ netClassName, net }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_REMOVE_NET_FROM_NET_CLASS, { netClassName, net });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_delete_diff_pair',
+    'Delete a differential pair definition by name.',
+    {
+      differentialPairName: z.string().describe('Name of the differential pair to delete'),
+    },
+    async ({ differentialPairName }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_DELETE_DIFF_PAIR, { differentialPairName });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_equal_length_groups',
+    'Get all equal-length net groups. Equal-length groups enforce matched trace lengths between grouped nets (e.g. DDR data lines).',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_EQUAL_LENGTH_GROUPS);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_create_equal_length_group',
+    'Create an equal-length net group. Nets in this group must be routed to the same length.',
+    {
+      name: z.string().describe('Group name (e.g. "DDR_DATA")'),
+      nets: z.array(z.string()).describe('Array of net names that must match in length'),
+      color: z.object({
+        r: z.number().describe('Red 0-255'),
+        g: z.number().describe('Green 0-255'),
+        b: z.number().describe('Blue 0-255'),
+        a: z.number().optional().describe('Alpha 0-1'),
+      }).optional().describe('Display color'),
+    },
+    async ({ name, nets, color }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CREATE_EQUAL_LENGTH_GROUP, { name, nets, color });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_delete_equal_length_group',
+    'Delete an equal-length net group by name.',
+    {
+      name: z.string().describe('Name of the equal-length group to delete'),
+    },
+    async ({ name }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_DELETE_EQUAL_LENGTH_GROUP, { name });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_pad_pair_groups',
+    'Get all pad pair groups. Pad pair groups define start/end pad pairs for length matching calculations.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_PAD_PAIR_GROUPS);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  // ============ Routing Control ============
+
+  server.tool(
+    'eda_pcb_clear_routing',
+    'Clear routing on the PCB. Can clear all routing, specific net routing, or connection routing.\n\nWARNING: This is destructive — all cleared traces are removed.',
+    {
+      type: z.enum(['all', 'net', 'connection']).optional().describe('What to clear: "all" (default), "net", or "connection"'),
+    },
+    async ({ type }) => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_CLEAR_ROUTING, { type: type ?? 'all' });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_start_ratline',
+    'Start calculating and displaying ratlines (unrouted connections) on the PCB. Ratlines show which pads still need to be connected.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_START_RATLINE);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_stop_ratline',
+    'Stop ratline calculation and hide ratline display.',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_STOP_RATLINE);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_pcb_get_ratline_status',
+    'Get the current ratline calculation status (whether ratlines are being displayed).',
+    {},
+    async () => {
+      const data = await bridge.sendCommand(BridgeCommand.PCB_GET_RATLINE_STATUS);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
   // ============ Manufacture Export ============
 
   server.tool(

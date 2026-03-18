@@ -12,14 +12,19 @@
 ### 布线流程
 
 1. `eda_connection_status` — 确认连接
-2. `eda_pcb_list_nets` — 获取所有网络，找 length=0（未布线）
-3. `eda_pcb_list_layers` — 可用铜层和层叠结构
-4. `eda_pcb_list_components` — 器件位置参考
-5. 对起止器件调用 `eda_pcb_get_component_context` — 获取引脚坐标和连接信息
-6. **根据规则生成走线方案，展示给用户**
-7. 用户确认后 → `eda_pcb_draw_line` 画走线 + `eda_pcb_place_via` 换层
-8. `eda_sys_run_drc` type="pcb" — 布线后 DRC 验证
-9. `eda_pcb_list_nets` — 确认目标网络 length > 0
+2. `eda_pcb_start_ratline` — 开启飞线显示（直观查看未连接）
+3. `eda_pcb_list_nets` — 获取所有网络，找 length=0（未布线）
+4. `eda_pcb_list_layers` — 可用铜层和层叠结构
+5. `eda_pcb_list_components` — 器件位置参考
+6. 对起止器件调用 `eda_pcb_get_component_context` — 获取引脚坐标和连接信息
+7. `eda_pcb_get_equal_length_groups` — 检查等长约束（影响布线策略）
+8. **根据规则生成走线方案，展示给用户**
+9. 用户确认后 → `eda_pcb_draw_line` 画走线 + `eda_pcb_place_via` 换层
+10. `eda_sys_run_drc` type="pcb" — 布线后 DRC 验证
+11. `eda_pcb_list_nets` — 确认目标网络 length > 0
+12. `eda_pcb_stop_ratline` — 关闭飞线显示
+
+**重新布线时**：先 `eda_pcb_clear_routing` type="net" 清除特定网络的已有走线，再重新布线。
 
 ---
 

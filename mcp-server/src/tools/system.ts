@@ -164,6 +164,72 @@ export function registerSystemTools(server: McpServer, bridge: WSBridge): void {
     },
   );
 
+  // ============ DMT Document Creation ============
+
+  server.tool(
+    'eda_dmt_create_project',
+    'Create a new project in JLCEDA Pro.\n\nReturns: { success: boolean, uuid: string, message: string }.',
+    {
+      name: z.string().describe('Project name'),
+      teamUuid: z.string().optional().describe('Team UUID to create project under'),
+      folderUuid: z.string().optional().describe('Folder UUID to create project in'),
+      description: z.string().optional().describe('Project description'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_CREATE_PROJECT, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_create_schematic',
+    'Create a new schematic document. Optionally specify a board name to associate with.\n\nReturns: { success: boolean, uuid: string, message: string }.',
+    {
+      boardName: z.string().optional().describe('Board name to associate the schematic with'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_CREATE_SCHEMATIC, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_create_schematic_page',
+    'Create a new page within an existing schematic document.\n\nReturns: { success: boolean, uuid: string, message: string }.',
+    {
+      schematicUuid: z.string().describe('UUID of the schematic to add a page to'),
+    },
+    async ({ schematicUuid }) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_CREATE_SCHEMATIC_PAGE, { schematicUuid });
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_create_pcb',
+    'Create a new PCB document. Optionally specify a board name to associate with.\n\nReturns: { success: boolean, uuid: string, message: string }.',
+    {
+      boardName: z.string().optional().describe('Board name to associate the PCB with'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_CREATE_PCB, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
+  server.tool(
+    'eda_dmt_create_board',
+    'Create a new board that links a schematic and PCB together.\n\nReturns: { success: boolean, name: string, message: string }.',
+    {
+      schematicUuid: z.string().optional().describe('Schematic UUID to link'),
+      pcbUuid: z.string().optional().describe('PCB UUID to link'),
+    },
+    async (p) => {
+      const data = await bridge.sendCommand(BridgeCommand.DMT_CREATE_BOARD, p);
+      return { content: [{ type: 'text', text: JSON.stringify(data) }] };
+    },
+  );
+
   // ============ LIB Library ============
 
   server.tool(
