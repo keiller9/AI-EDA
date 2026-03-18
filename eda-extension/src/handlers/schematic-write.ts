@@ -106,15 +106,24 @@ export function registerSchematicWriteHandlers(): void {
     // Build property object from key-value pair
     const property: Record<string, any> = {};
 
+    // Normalize common attribute keys: JLCEDA API uses lowercase for built-in fields
+    const keyNormMap: Record<string, string> = {
+      'Designator': 'designator', 'DESIGNATOR': 'designator',
+      'Value': 'value', 'VALUE': 'value',
+      'Name': 'name', 'NAME': 'name',
+      'Mirror': 'mirror', 'Rotation': 'rotation',
+    };
+    const normalizedKey = keyNormMap[key] || key;
+
     // Handle numeric values
     const numValue = Number(value);
-    if (['x', 'y', 'rotation', 'lineWidth'].includes(key)) {
-      if (isNaN(numValue)) throw new Error(`Invalid numeric value for "${key}": "${value}"`);
-      property[key] = numValue;
-    } else if (['mirror', 'addIntoBom', 'addIntoPcb'].includes(key)) {
-      property[key] = value === 'true';
+    if (['x', 'y', 'rotation', 'lineWidth'].includes(normalizedKey)) {
+      if (isNaN(numValue)) throw new Error(`Invalid numeric value for "${normalizedKey}": "${value}"`);
+      property[normalizedKey] = numValue;
+    } else if (['mirror', 'addIntoBom', 'addIntoPcb'].includes(normalizedKey)) {
+      property[normalizedKey] = value === 'true';
     } else {
-      property[key] = value;
+      property[normalizedKey] = value;
     }
 
     let result: any;
@@ -135,7 +144,7 @@ export function registerSchematicWriteHandlers(): void {
     return {
       success: true,
       primitive: result,
-      message: `Modified "${key}" to "${value}" on primitive ${id}`,
+      message: `Modified "${key}" (→${normalizedKey}) to "${value}" on primitive ${id}`,
     };
   });
 
@@ -269,7 +278,7 @@ export function registerSchematicWriteHandlers(): void {
       rotation?: number;
       mirror?: boolean;
     };
-    const result = await eda.sch_PrimitiveComponent.createNetFlag(identification, net, x, y, rotation ?? 0, mirror ?? false);
+    const result = await eda.sch_PrimitiveComponent.createNetFlag(identification as any, net, x, y, rotation ?? 0, mirror ?? false);
     if (!result) throw new Error(`Failed to create net flag: ${net}`);
     return { success: true, primitive: result, message: `Net flag "${net}" created at (${x}, ${y})` };
   });
@@ -284,7 +293,7 @@ export function registerSchematicWriteHandlers(): void {
       rotation?: number;
       mirror?: boolean;
     };
-    const result = await eda.sch_PrimitiveComponent.createNetPort(direction, net, x, y, rotation ?? 0, mirror ?? false);
+    const result = await eda.sch_PrimitiveComponent.createNetPort(direction as any, net, x, y, rotation ?? 0, mirror ?? false);
     if (!result) throw new Error(`Failed to create net port: ${net}`);
     return { success: true, primitive: result, message: `Net port "${net}" (${direction}) created at (${x}, ${y})` };
   });
