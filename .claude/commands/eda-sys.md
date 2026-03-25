@@ -239,4 +239,25 @@
 
 ---
 
+### 深度参考（详细方法签名、参数、返回值）
+
+- 快速签名查找：`skills/easyeda-api/references/_quick-reference.md`（搜索 SYS_ 段落）
+- SYS_IFrame：`skills/easyeda-api/references/classes/SYS_IFrame.md`
+- SYS_Dialog：`skills/easyeda-api/references/classes/SYS_Dialog.md`
+- SYS_WebSocket：`skills/easyeda-api/references/classes/SYS_WebSocket.md`
+- SYS_Storage：`skills/easyeda-api/references/classes/SYS_Storage.md`
+- SYS_HeaderMenu：`skills/easyeda-api/references/classes/SYS_HeaderMenu.md`
+- SYS_RightClickMenu：`skills/easyeda-api/references/classes/SYS_RightClickMenu.md`
+- SYS_PanelControl：`skills/easyeda-api/references/classes/SYS_PanelControl.md`
+- SYS_ShortcutKey：`skills/easyeda-api/references/classes/SYS_ShortcutKey.md`
+- SYS_Window：`skills/easyeda-api/references/classes/SYS_Window.md`
+- SYS_FileSystem：`skills/easyeda-api/references/classes/SYS_FileSystem.md`
+- SYS_ToastMessage：`skills/easyeda-api/references/classes/SYS_ToastMessage.md`
+- SYS_MessageBus：`skills/easyeda-api/references/classes/SYS_MessageBus.md`
+- 扩展开发指南：`skills/easyeda-api/guide/how-to-start.md`
+- IFrame 面板开发：`skills/easyeda-api/guide/inline-frame.md`
+- extension.json 配置：`skills/easyeda-api/guide/extension-json.md`
+
+---
+
 根据以上API完成任务：**$ARGUMENTS**

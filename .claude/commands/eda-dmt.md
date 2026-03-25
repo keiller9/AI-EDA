@@ -92,4 +92,19 @@
 
 ---
 
+### 深度参考（详细方法签名、参数、返回值）
+
+- 快速签名查找：`skills/easyeda-api/references/_quick-reference.md`（搜索 DMT_ 段落）
+- DMT_Board：`skills/easyeda-api/references/classes/DMT_Board.md`
+- DMT_EditorControl：`skills/easyeda-api/references/classes/DMT_EditorControl.md`
+- DMT_Project：`skills/easyeda-api/references/classes/DMT_Project.md`
+- DMT_Schematic：`skills/easyeda-api/references/classes/DMT_Schematic.md`
+- DMT_Pcb：`skills/easyeda-api/references/classes/DMT_Pcb.md`
+- DMT_Panel：`skills/easyeda-api/references/classes/DMT_Panel.md`
+- DMT_Folder：`skills/easyeda-api/references/classes/DMT_Folder.md`
+- DMT_Team：`skills/easyeda-api/references/classes/DMT_Team.md`
+- DMT_Workspace：`skills/easyeda-api/references/classes/DMT_Workspace.md`
+
+---
+
 根据以上API完成任务：**$ARGUMENTS**

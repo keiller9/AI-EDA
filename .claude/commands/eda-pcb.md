@@ -262,4 +262,23 @@ PCB相关扩展API参考。任务：$ARGUMENTS
 
 ---
 
+### 深度参考（详细方法签名、参数、返回值）
+
+需要更详细的 API 信息时，读取以下文件：
+- 快速签名查找：`skills/easyeda-api/references/_quick-reference.md`（搜索 PCB_ 段落）
+- PCB_Document：`skills/easyeda-api/references/classes/PCB_Document.md`
+- PCB_Primitive：`skills/easyeda-api/references/classes/PCB_Primitive.md`
+- PCB_PrimitiveComponent：`skills/easyeda-api/references/classes/PCB_PrimitiveComponent.md`
+- PCB_PrimitiveLine：`skills/easyeda-api/references/classes/PCB_PrimitiveLine.md`
+- PCB_PrimitiveVia：`skills/easyeda-api/references/classes/PCB_PrimitiveVia.md`
+- PCB_PrimitivePour：`skills/easyeda-api/references/classes/PCB_PrimitivePour.md`
+- PCB_Layer：`skills/easyeda-api/references/classes/PCB_Layer.md`
+- PCB_Net：`skills/easyeda-api/references/classes/PCB_Net.md`
+- PCB_Drc：`skills/easyeda-api/references/classes/PCB_Drc.md`
+- PCB_SelectControl：`skills/easyeda-api/references/classes/PCB_SelectControl.md`
+- PCB 枚举：`skills/easyeda-api/references/enums/EPCB_LayerId.md`、`EPCB_PrimitiveType.md` 等
+- PCB 图元接口：`skills/easyeda-api/references/classes/IPCB_PrimitiveLine.md` 等
+
+---
+
 根据以上API完成任务：**$ARGUMENTS**

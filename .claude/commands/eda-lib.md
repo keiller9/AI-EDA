@@ -89,4 +89,17 @@
 
 ---
 
+### 深度参考（详细方法签名、参数、返回值）
+
+- 快速签名查找：`skills/easyeda-api/references/_quick-reference.md`（搜索 LIB_ 段落）
+- LIB_Device：`skills/easyeda-api/references/classes/LIB_Device.md`
+- LIB_Symbol：`skills/easyeda-api/references/classes/LIB_Symbol.md`
+- LIB_Footprint：`skills/easyeda-api/references/classes/LIB_Footprint.md`
+- LIB_3DModel：`skills/easyeda-api/references/classes/LIB_3DModel.md`
+- LIB_Classification：`skills/easyeda-api/references/classes/LIB_Classification.md`
+- LIB_LibrariesList：`skills/easyeda-api/references/classes/LIB_LibrariesList.md`
+- 库相关接口：`skills/easyeda-api/references/interfaces/ILIB_DeviceItem.md` 等
+
+---
+
 根据以上API完成任务：**$ARGUMENTS**

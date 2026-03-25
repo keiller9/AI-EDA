@@ -115,4 +115,11 @@ const mil = eda.sys_Unit.mmToMil(1);    // 39.37mil
 
 ## Your Task
 
+### 深度参考
+
+需要完整 API 方法签名时，使用 `/project:eda-ref` 查看 120 个类、62 个枚举、70 个接口的完整文档。
+扩展开发指南位于 `skills/easyeda-api/guide/` 目录。
+
+---
+
 根据以上API参考，完成任务：**$ARGUMENTS**

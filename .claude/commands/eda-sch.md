@@ -150,4 +150,21 @@
 
 ---
 
+### 深度参考（详细方法签名、参数、返回值）
+
+需要更详细的 API 信息时，读取以下文件：
+- 快速签名查找：`skills/easyeda-api/references/_quick-reference.md`（搜索 SCH_ 段落）
+- SCH_Document：`skills/easyeda-api/references/classes/SCH_Document.md`
+- SCH_Primitive：`skills/easyeda-api/references/classes/SCH_Primitive.md`
+- SCH_PrimitiveComponent：`skills/easyeda-api/references/classes/SCH_PrimitiveComponent.md`
+- SCH_PrimitiveWire：`skills/easyeda-api/references/classes/SCH_PrimitiveWire.md`
+- SCH_Netlist：`skills/easyeda-api/references/classes/SCH_Netlist.md`
+- SCH_Drc：`skills/easyeda-api/references/classes/SCH_Drc.md`
+- SCH_Event：`skills/easyeda-api/references/classes/SCH_Event.md`
+- SCH_SelectControl：`skills/easyeda-api/references/classes/SCH_SelectControl.md`
+- 原理图枚举：`skills/easyeda-api/references/enums/ESCH_PrimitiveType.md` 等
+- 原理图图元接口：`skills/easyeda-api/references/classes/ISCH_PrimitiveComponent.md` 等
+
+---
+
 根据以上API完成任务：**$ARGUMENTS**
