@@ -116,7 +116,66 @@ npm run build
 
 > /project:design-check all
   → 生产前检查：DRC + 原理图↔PCB 交叉校验 + BOM
+
+> /project:review-sch 电源旁路
+  → 原理图审查：旁路电容、上拉电阻、浮空引脚、ESD
+
+> /project:generate-schematic ESP32 温度传感器带 OLED 显示屏
+  → 自然语言描述自动生成原理图
+
+> /project:eda-ref
+  → 浏览完整 API 参考（120 个类、62 个枚举、70 个接口）
 ```
+
+## 使用技能（Skill）
+
+技能是将领域知识与 MCP 工具序列结合的斜杠命令，在 Claude Code 中运行。
+
+### 调用方式
+
+```bash
+# 在 Claude Code 中输入斜杠命令：
+/project:review-sch           # 审查当前原理图
+/project:review-pcb           # 审查 PCB 布局
+/project:design-check         # 生产前检查
+/project:generate-schematic   # 自然语言生成原理图
+/project:component-research   # 元件库研究
+/project:eda-ref              # 浏览完整 API 参考
+
+# 带参数：
+/project:review-sch 电源旁路电容检查
+/project:generate-schematic STM32 最小系统，带 USB 和 SD 卡
+/project:component-research STM32F103 LQFP-64
+```
+
+### 技能分类
+
+| 分类 | 技能 | 适用场景 |
+|------|------|----------|
+| **设计审查** | `review-sch`、`review-pcb`、`design-check` | 投产前、重大修改后 |
+| **设计自动化** | `generate-schematic`、`place-components`、`route-traces` | 新建设计、布局优化 |
+| **研究** | `component-research`、`electrical-rules` | 选型、设计规则查询 |
+| **API 参考** | `eda`、`eda-sch`、`eda-pcb`、`eda-lib`、`eda-dmt`、`eda-sys`、`eda-ref` | 扩展开发、API 调试 |
+
+### 添加自定义技能
+
+在 `.claude/commands/` 目录下创建 `.md` 文件：
+
+```markdown
+# 我的自定义技能
+
+`/my-skill <ARGUMENTS>`
+
+告诉 Claude 如何执行任务的指令。
+使用 $ARGUMENTS 引用用户输入。
+
+## 步骤
+1. 调用 eda_get_design_overview
+2. 分析结果
+3. ...
+```
+
+文件名即为斜杠命令：`my-skill.md` → `/project:my-skill`
 
 ## MCP 工具（122 个）
 

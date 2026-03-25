@@ -116,7 +116,66 @@ The project includes `.mcp.json` — update the path if needed:
 
 > /project:design-check all
   → pre-fabrication check: DRC + SCH↔PCB cross-ref + BOM
+
+> /project:review-sch power bypass
+  → schematic review: bypass caps, pull-ups, floating pins, ESD
+
+> /project:generate-schematic ESP32 temperature sensor with OLED display
+  → auto-generate schematic from natural language description
+
+> /project:eda-ref
+  → browse full API reference (120 classes, 62 enums, 70 interfaces)
 ```
+
+## Using Skills
+
+Skills are slash commands that combine domain knowledge with MCP tool sequences. They run inside Claude Code.
+
+### How to invoke
+
+```bash
+# In Claude Code, type the slash command:
+/project:review-sch           # Review current schematic
+/project:review-pcb           # Review PCB layout
+/project:design-check         # Pre-fabrication check
+/project:generate-schematic   # Generate schematic from description
+/project:component-research   # Research components in library
+/project:eda-ref              # Browse full API reference
+
+# With arguments:
+/project:review-sch power bypass capacitors
+/project:generate-schematic STM32 minimal system with USB and SD card
+/project:component-research STM32F103 LQFP-64
+```
+
+### Skill categories
+
+| Category | Skills | When to use |
+|----------|--------|-------------|
+| **Design Review** | `review-sch`, `review-pcb`, `design-check` | Before sending to production, after major changes |
+| **Design Automation** | `generate-schematic`, `place-components`, `route-traces` | Creating new designs, layout optimization |
+| **Research** | `component-research`, `electrical-rules` | Selecting components, checking design rules |
+| **API Reference** | `eda`, `eda-sch`, `eda-pcb`, `eda-lib`, `eda-dmt`, `eda-sys`, `eda-ref` | Developing extensions, debugging API calls |
+
+### Adding custom skills
+
+Create a `.md` file in `.claude/commands/`:
+
+```markdown
+# My Custom Skill
+
+`/my-skill <ARGUMENTS>`
+
+Instructions for Claude on how to perform the task.
+Use $ARGUMENTS to reference user input.
+
+## Steps
+1. Call eda_get_design_overview
+2. Analyze the results
+3. ...
+```
+
+The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 
 ## MCP Tools (122)
 
