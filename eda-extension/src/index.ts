@@ -29,6 +29,7 @@ setRequestHandler(dispatch);
 // ============ Panel Data ============
 
 let panelUpdateTimer: any = null;
+let dashboardCollectTimer: any = null;
 let dashboardData: Record<string, any> = {};
 
 async function collectDashboardData(): Promise<void> {
@@ -86,8 +87,10 @@ function startPanelUpdates(): void {
   if (panelUpdateTimer) return;
   // Update panel data every 2s, collect dashboard every 5s
   panelUpdateTimer = setInterval(updatePanelData, 2000);
-  collectDashboardData();
-  setInterval(collectDashboardData, 5000);
+  if (!dashboardCollectTimer) {
+    collectDashboardData();
+    dashboardCollectTimer = setInterval(collectDashboardData, 5000);
+  }
 }
 
 function stopPanelUpdates(): void {
@@ -190,6 +193,8 @@ export function activate(): void {
     setPort(storedPort);
   }
   registerPanelActions();
+  // Start panel data updates immediately so panels always have fresh data
+  startPanelUpdates();
   connectToServer();
 }
 
