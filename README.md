@@ -79,7 +79,17 @@ The project includes `.mcp.json` — update the path if needed:
 }
 ```
 
-### 5. Connect
+### 5. Install Skills (optional but recommended)
+
+The 15 built-in skills in `.claude/commands/` work automatically when you clone the repo. For the full API reference skill with 120+ class docs:
+
+```bash
+npx clawhub@latest install easyeda-api
+```
+
+This installs into `skills/easyeda-api/` with complete API documentation (classes, enums, interfaces, guides).
+
+### 6. Connect
 
 1. In JLCEDA Pro **desktop client**, click **AI Bridge → 连接 AI**
 2. You should see a success toast: "Connected to MCP Server"

@@ -79,7 +79,17 @@ npm run build
 }
 ```
 
-### 5. 连接
+### 5. 安装技能（可选但推荐）
+
+克隆仓库后 `.claude/commands/` 中的 15 个内置技能自动可用。如需完整 API 参考文档（120+ 个类文档）：
+
+```bash
+npx clawhub@latest install easyeda-api
+```
+
+安装到 `skills/easyeda-api/` 目录，包含完整的 API 文档（类、枚举、接口、开发指南）。
+
+### 6. 连接
 
 1. 在嘉立创EDA专业版**桌面客户端**中，点击 **AI Bridge → 连接 AI**
 2. 看到成功提示："Connected to MCP Server"
