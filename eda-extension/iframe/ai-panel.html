@@ -375,13 +375,7 @@ function refreshDashboard() {
   var dot = document.getElementById('d-dot');
   var conn = document.getElementById('d-conn');
   dot.className = 'dot ' + (data.connected ? 'on' : 'off');
-  if (data.wsConnected) {
-    conn.textContent = '已连接';
-  } else if (data.connected) {
-    conn.textContent = '本地就绪';
-  } else {
-    conn.textContent = '未连接';
-  }
+  conn.textContent = data.connected ? '已连接' : '未连接';
   document.getElementById('d-sub').textContent = '端口: ' + (data.port || '--');
 
   var db = data.dashboard || {};
