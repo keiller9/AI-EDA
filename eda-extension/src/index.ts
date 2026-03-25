@@ -69,8 +69,12 @@ async function collectDashboardData(): Promise<void> {
 }
 
 function updatePanelData(): void {
+  // Consider "connected" if either WebSocket is up OR dashboard data was successfully collected
+  const wsConnected = isConnected();
+  const dataAvailable = dashboardData && (dashboardData.componentCount > 0 || dashboardData.wireCount > 0);
   (globalThis as any).__AI_EDA_PANEL_DATA__ = {
-    connected: isConnected(),
+    connected: wsConnected || !!dataAvailable,
+    wsConnected,
     port: getPort(),
     connectedSince: getConnectedSince(),
     stats: getCommandStats(),
