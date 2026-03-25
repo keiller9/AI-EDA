@@ -29,7 +29,8 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 |------|------|
 | **mcp-server/** | Node.js MCP 服务器 — 122 个工具通过 stdio 暴露，WebSocket 桥接到 EDA |
 | **eda-extension/** | 嘉立创 EDA Pro 扩展 — 接收命令，调用 EDA API，返回结果 |
-| **.claude/commands/** | 14 个技能 — 领域知识 + MCP 工具引导 |
+| **.claude/commands/** | 15 个技能 — 领域知识 + MCP 工具引导 |
+| **skills/** | 第三方 Skill 集成（easyeda-api 完整 API 参考） |
 
 ## 快速开始
 
@@ -142,9 +143,9 @@ npm run build
 
 **坐标 + 导航 + 标签（5）**：画布↔数据坐标转换、原理图导航、网络标签放置
 
-## 技能（14 个）
+## 技能（15 个）
 
-### API 参考技能（6）
+### API 参考技能（7）
 | 技能 | 说明 |
 |------|------|
 | `/project:eda` | EDA API 主参考，调用约定 |
@@ -153,6 +154,7 @@ npm run build
 | `/project:eda-lib` | 综合库 API — 9 个类（器件、符号、封装、3D 模型） |
 | `/project:eda-dmt` | 文档树 API — 10 个类（工程、板子、编辑器控制） |
 | `/project:eda-sys` | 系统 API — 20+ 个类（文件、对话框、菜单、存储、单位） |
+| `/project:eda-ref` | **完整 API 参考** — 120 个类、62 枚举、70 接口的详细文档索引 |
 
 ### 设计工作流技能（6）
 | 技能 | 说明 |
@@ -187,7 +189,7 @@ AI-EDA/
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── eda-extension/               # 嘉立创 EDA Pro 扩展（v1.1.0）
+├── eda-extension/               # 嘉立创 EDA Pro 扩展（v1.2.0）
 │   ├── src/
 │   │   ├── index.ts             # 扩展入口 — 菜单操作、自动连接
 │   │   ├── ws-client.ts         # WebSocket 客户端
@@ -198,8 +200,12 @@ AI-EDA/
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── .claude/commands/            # Claude Code 技能（14 个文件）
+├── .claude/commands/            # Claude Code 技能（15 个文件）
+├── skills/                      # 第三方 Skill 集成
+│   └── easyeda-api/            # 完整 API 参考（120 类、62 枚举、70 接口）
 ├── .mcp.json                    # MCP 服务器注册
+├── CONTRIBUTING.md              # 贡献指南
+├── LICENSE                      # MIT 许可证
 └── .gitignore
 ```
 
@@ -227,6 +233,7 @@ npm run test:watch  # 监听模式
 
 | 版本 | 工具数 | 技能数 | 亮点 |
 |------|--------|--------|------|
+| v2.1.0 | 122 | 15 | **AI 助手面板**（仪表盘/快捷操作/日志/关于）、完整 API 参考集成、modify_attribute 修复 |
 | v2.0.0 | 122 | 14 | 文档创建、DRC CRUD、路由控制、网络标签、坐标变换、测试基础设施、自然语言生成原理图 |
 | v1.9.0 | 93 | 13 | UI 增强 — 状态面板、端口配置、自动连接、右键菜单 |
 | v1.8.0 | 93 | 11 | 全覆盖 — SCH/PCB 图元、DMT、LIB、SYS |

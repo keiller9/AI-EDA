@@ -11,20 +11,24 @@
 	"license": "MIT",
 	"repository": {
 		"type": "github",
-		"url": ""
+		"url": "https://github.com/keiller9/AI-EDA"
 	},
 	"categories": "Other",
 	"keywords": [
 		"AI",
 		"MCP",
 		"Bridge",
-		"LLM"
+		"LLM",
+		"Claude",
+		"自动化",
+		"原理图审查",
+		"PCB"
 	],
 	"images": {
 		"logo": "./images/logo.png"
 	},
-	"homepage": "",
-	"bugs": "",
+	"homepage": "https://github.com/keiller9/AI-EDA",
+	"bugs": "https://github.com/keiller9/AI-EDA/issues",
 	"activationEvents": {
 		"onStartupFinished": "activate"
 	},

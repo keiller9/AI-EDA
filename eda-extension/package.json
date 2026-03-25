@@ -1,7 +1,13 @@
 {
 	"name": "ai-eda-bridge-extension",
-	"version": "1.1.0",
-	"description": "JLCEDA Pro Extension - AI Bridge via WebSocket",
+	"version": "1.2.0",
+	"description": "JLCEDA Pro Extension — AI assistant panel, 125+ command handlers, WebSocket bridge to MCP Server",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/keiller9/AI-EDA.git",
+		"directory": "eda-extension"
+	},
 	"scripts": {
 		"compile": "rimraf ./dist/ && ts-node ./config/esbuild.prod.ts",
 		"build": "npm run compile && ts-node ./build/packaged.ts"

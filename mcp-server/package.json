@@ -1,9 +1,16 @@
 {
   "name": "jlceda-mcp-server",
-  "version": "1.0.0",
-  "description": "MCP Server for JLCEDA Pro - Bridge between Claude and EDA",
+  "version": "2.1.0",
+  "description": "MCP Server for JLCEDA Pro — 122 tools bridging Claude Code with schematic/PCB design via WebSocket",
   "type": "module",
   "main": "dist/index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keiller9/AI-EDA.git",
+    "directory": "mcp-server"
+  },
+  "keywords": ["mcp", "eda", "jlceda", "easyeda", "claude", "schematic", "pcb", "ai"],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",

@@ -29,7 +29,8 @@ Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA E
 |-----------|-------------|
 | **mcp-server/** | Node.js MCP server — 122 tools via stdio, WebSocket bridge to EDA |
 | **eda-extension/** | JLCEDA Pro extension — receives commands, calls EDA API, returns results |
-| **.claude/commands/** | 14 skills — domain knowledge + MCP tool guidance |
+| **.claude/commands/** | 15 skills — domain knowledge + MCP tool guidance |
+| **skills/** | Third-party skill integrations (easyeda-api full API reference) |
 
 ## Quick Start
 
@@ -277,11 +278,11 @@ The project includes `.mcp.json` — update the path if needed:
 | `eda_check_design` | DRC + net analysis + human-readable report |
 | `eda_sch_get_bom` | BOM data grouped by value/footprint |
 
-## Skills (14)
+## Skills (15)
 
 In addition to the 122 MCP tools, the project includes **skills** — slash commands that inject EDA domain knowledge and guide Claude through multi-step design tasks.
 
-### API Reference Skills (6)
+### API Reference Skills (7)
 | Skill | Description |
 |-------|-------------|
 | `/project:eda` | Master EDA API reference with calling conventions |
@@ -290,6 +291,7 @@ In addition to the 122 MCP tools, the project includes **skills** — slash comm
 | `/project:eda-lib` | Library API — 9 classes (device, symbol, footprint, 3D model) |
 | `/project:eda-dmt` | Document tree API — 10 classes (project, board, editor control) |
 | `/project:eda-sys` | System API — 20+ classes (file, dialog, menu, storage, unit) |
+| `/project:eda-ref` | **Full API reference** — 120 classes, 62 enums, 70 interfaces index |
 
 ### Design Workflow Skills (6)
 | Skill | Description |
@@ -352,7 +354,7 @@ AI-EDA/
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── .claude/commands/            # Claude Code skills (14 files)
+├── .claude/commands/            # Claude Code skills (15 files)
 │   ├── eda.md                  # Master API reference
 │   ├── eda-sch.md              # Schematic API
 │   ├── eda-pcb.md              # PCB API
@@ -368,7 +370,12 @@ AI-EDA/
 │   ├── electrical-rules.md     # Electrical design rules
 │   └── component-research.md   # Component research
 │
+├── skills/                      # Third-party skill integrations
+│   └── easyeda-api/            # Full API reference (120 classes, 62 enums, 70 interfaces)
+│
 ├── .mcp.json                    # MCP server registration
+├── CONTRIBUTING.md              # Contribution guide
+├── LICENSE                      # MIT license
 └── .gitignore
 ```
 
