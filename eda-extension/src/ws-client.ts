@@ -167,10 +167,29 @@ export function disconnectFromServer(): void {
 }
 
 /**
- * Check if connected to MCP Server
+ * Check if connected to MCP Server.
+ * Uses live probe: tries to send a ping on the current WebSocket.
+ * If the variable says connected, trust it. If it says disconnected but
+ * we still have a wsId, try a probe send to recover from stale state
+ * (e.g. extension reload while WS was alive).
  */
 export function isConnected(): boolean {
-  return connected;
+  if (connected) return true;
+  // Probe: if we have a wsId but connected is false, try sending to detect live WS
+  if (currentWsId) {
+    try {
+      eda.sys_WebSocket.send(currentWsId, JSON.stringify({ type: 'ping', ts: Date.now() }));
+      // If send didn't throw, connection is actually alive — fix the flag
+      connected = true;
+      if (!connectedSince) connectedSince = Date.now();
+      startHeartbeat(currentWsId);
+      return true;
+    } catch {
+      // Really disconnected
+      currentWsId = null;
+    }
+  }
+  return false;
 }
 
 /**
