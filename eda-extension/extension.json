@@ -25,7 +25,8 @@
 		"PCB"
 	],
 	"images": {
-		"logo": "./images/logo.png"
+		"logo": "./images/logo.png",
+		"banner": "./images/banner.png"
 	},
 	"homepage": "https://github.com/keiller9/AI-EDA",
 	"bugs": "https://github.com/keiller9/AI-EDA/issues",
