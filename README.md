@@ -1,6 +1,23 @@
+<div align="center">
+
 # AI-EDA
 
+### Intelligent EDA Assistant powered by Claude
+
+**Natural Language → Schematic & PCB Design**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![MCP Tools](https://img.shields.io/badge/MCP_Tools-122-blue.svg)](#mcp-tools-122)
+[![Skills](https://img.shields.io/badge/Skills-15-green.svg)](#skills-15)
+[![Tests](https://img.shields.io/badge/Tests-19_passing-brightgreen.svg)](#testing)
+[![JLCEDA Pro](https://img.shields.io/badge/JLCEDA_Pro-≥2.3.0-orange.svg)](https://lceda.cn/)
+[![Node.js](https://img.shields.io/badge/Node.js-≥18-339933.svg)](https://nodejs.org/)
+
 **English** | [中文](README.zh-CN.md)
+
+</div>
+
+---
 
 MCP (Model Context Protocol) bridge that connects **Claude Code** with **JLCEDA Pro** (嘉立创EDA专业版), enabling hardware engineers to interact with schematic and PCB designs through natural language.
 
@@ -8,21 +25,33 @@ MCP (Model Context Protocol) bridge that connects **Claude Code** with **JLCEDA 
 
 Traditional EDA workflows require deep menu navigation and manual repetition. AI-EDA bridges Claude's reasoning with JLCEDA Pro's full API surface — **122 MCP tools** covering schematic, PCB, library, and system operations. Ask in natural language, get results in the editor.
 
-**Key capabilities:**
-- **Read** — List components, nets, layers, DRC rules; query by coordinates or region
-- **Write** — Place components, draw traces, create net flags/labels, modify attributes, batch operations
-- **Create** — Create projects, schematics, PCBs, boards from scratch
-- **Analyze** — Run DRC, cross-probe between SCH↔PCB, generate BOM, export Gerber
-- **Navigate** — Zoom to board, highlight nets, select primitives, navigate to coordinates
-- **DRC Management** — Full CRUD for rule configs, net classes, diff pairs, equal-length groups
-- **Routing Control** — Clear routing, ratline display, coordinate transforms
-- **Automate** — Auto layout/routing, batch move/modify/delete, natural language → schematic
+### Key Capabilities
+
+| | Capability | Description |
+|---|------------|-------------|
+| 📖 | **Read** | List components, nets, layers, DRC rules; query by coordinates or region |
+| ✏️ | **Write** | Place components, draw traces, create net flags/labels, modify attributes |
+| 🆕 | **Create** | Create projects, schematics, PCBs, boards from scratch |
+| 🔍 | **Analyze** | Run DRC, cross-probe SCH↔PCB, generate BOM, export Gerber |
+| 🧭 | **Navigate** | Zoom to board, highlight nets, navigate to coordinates |
+| ⚙️ | **DRC Management** | Full CRUD for rule configs, net classes, diff pairs, equal-length groups |
+| 🔌 | **Routing** | Clear routing, ratline display, coordinate transforms |
+| 🤖 | **Automate** | Auto layout/routing, batch operations, natural language → schematic |
 
 ## Architecture
 
-```
-Claude Code ◄──Stdio──► MCP Server ◄──WebSocket──► EDA Extension
-  (LLM)                (Node.js)       :8765        (JLCEDA Pro)
+```mermaid
+graph LR
+    A["👤 Engineer<br/>(Natural Language)"] --> B["🤖 Claude Code<br/>(LLM Agent)"]
+    B -->|"MCP / Stdio"| C["⚡ MCP Server<br/>(Node.js, 122 tools)"]
+    C -->|"WebSocket :8765"| D["🔌 EDA Extension<br/>(125+ handlers)"]
+    D -->|"Native API"| E["📐 JLCEDA Pro<br/>(Editor)"]
+
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e9
+    style D fill:#fff3e0
+    style E fill:#fce4ec
 ```
 
 | Component | Description |
@@ -189,10 +218,20 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 
 ## MCP Tools (122)
 
+> 122 tools across 8 categories. Click to expand each category.
+
+<details>
+<summary><b>🔗 Connection (1)</b></summary>
+
 ### Connection (1)
 | Tool | Description |
 |------|-------------|
 | `eda_connection_status` | Check EDA extension connection status |
+
+</details>
+
+<details>
+<summary><b>📋 Schematic Read (10)</b></summary>
 
 ### Schematic Read (10)
 | Tool | Description |
@@ -207,6 +246,11 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 | `eda_sch_get_selection` | Get currently selected primitive IDs |
 | `eda_sch_get_mouse_position` | Get current mouse position on schematic canvas |
 | `eda_sch_get_primitives_bbox` | Get bounding box of primitives by IDs |
+
+</details>
+
+<details>
+<summary><b>✏️ Schematic Write (18)</b></summary>
 
 ### Schematic Write (18)
 | Tool | Description |
@@ -230,6 +274,11 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 | `eda_sch_navigate_to` | Navigate view to specific coordinates |
 | `eda_sch_navigate_to_region` | Navigate and zoom to fit a region |
 
+</details>
+
+<details>
+<summary><b>📋 PCB Read (16)</b></summary>
+
 ### PCB Read (16)
 | Tool | Description |
 |------|-------------|
@@ -249,6 +298,11 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 | `eda_pcb_get_selection` | Get currently selected primitive IDs |
 | `eda_pcb_convert_canvas_to_data` | Convert canvas UI coordinates to data coordinates |
 | `eda_pcb_convert_data_to_canvas` | Convert data coordinates to canvas UI coordinates |
+
+</details>
+
+<details>
+<summary><b>✏️ PCB Write (45)</b></summary>
 
 ### PCB Write (45)
 | Tool | Description |
@@ -307,6 +361,11 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 | `eda_pcb_export_pick_place` | Export pick-and-place file |
 | `eda_pcb_get_mouse_position` | Get current mouse position on PCB canvas |
 
+</details>
+
+<details>
+<summary><b>📁 Document Management (11)</b></summary>
+
 ### Document Management (11)
 | Tool | Description |
 |------|-------------|
@@ -322,6 +381,11 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 | `eda_dmt_create_pcb` | Create a new PCB document |
 | `eda_dmt_create_board` | Create a board linking SCH and PCB |
 
+</details>
+
+<details>
+<summary><b>📦 Library (5)</b></summary>
+
 ### Library (5)
 | Tool | Description |
 |------|-------------|
@@ -330,6 +394,11 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 | `eda_lib_search_footprint` | Search footprint library |
 | `eda_lib_get_libraries` | List all available libraries |
 | `eda_lib_get_device_by_lcsc` | Lookup devices by LCSC part numbers |
+
+</details>
+
+<details>
+<summary><b>🔧 System & Composite (12)</b></summary>
 
 ### System & Composite (12)
 | Tool | Description |
@@ -346,6 +415,8 @@ The file name becomes the slash command: `my-skill.md` → `/project:my-skill`
 | `eda_find_component` | Smart search by designator/value/footprint |
 | `eda_check_design` | DRC + net analysis + human-readable report |
 | `eda_sch_get_bom` | BOM data grouped by value/footprint |
+
+</details>
 
 ## Skills (15)
 
@@ -472,7 +543,7 @@ npm run test:watch  # Watch mode
 
 | Version | Tools | Skills | Highlights |
 |---------|-------|--------|------------|
-| v2.1.0 | 122 | 14 | **AI Assistant Panel** — full-featured UI in EDA editor (dashboard, quick actions, activity log), modify_attribute key normalization fix |
+| v2.1.0 | 122 | 15 | **AI Assistant Panel** — full-featured UI in EDA editor (dashboard, quick actions, activity log), full API reference integration, modify_attribute key normalization fix |
 | v2.0.0 | 122 | 14 | Document creation, DRC CRUD, routing control, net labels, coordinate transforms, test infrastructure, generate-schematic skill |
 | v1.9.0 | 93 | 13 | UI enhancement — status panel, port config, auto-connect, context menus |
 | v1.8.0 | 93 | 11 | Complete coverage — SCH/PCB primitives, DMT, LIB, SYS |
@@ -480,6 +551,27 @@ npm run test:watch  # Watch mode
 | v1.6.0 | 40 | 11 | SCH full coverage — auto layout, cross-probe, BOM, net flags |
 | v1.5.0 | 31 | 11 | Workflow skills — domain knowledge + MCP tool guidance |
 
+## Screenshots
+
+> Coming soon — AI Assistant Panel, Schematic Review Report, PCB Layout Analysis
+
+<!--
+Add screenshots here:
+![AI Panel](docs/screenshots/ai-panel.png)
+![Schematic Review](docs/screenshots/sch-review.png)
+![PCB Analysis](docs/screenshots/pcb-analysis.png)
+-->
+
 ## License
 
 MIT
+
+---
+
+<div align="center">
+
+**[Documentation](README.md)** · **[中文文档](README.zh-CN.md)** · **[Contributing](CONTRIBUTING.md)** · **[Report Bug](https://github.com/keiller9/AI-EDA/issues)**
+
+Made with Claude Code + JLCEDA Pro
+
+</div>
