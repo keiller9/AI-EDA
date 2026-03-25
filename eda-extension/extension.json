@@ -13,7 +13,7 @@
 		"type": "github",
 		"url": "https://github.com/keiller9/AI-EDA"
 	},
-	"categories": "Other",
+	"categories": ["Schematic", "PCB", "Project"],
 	"keywords": [
 		"AI",
 		"MCP",
