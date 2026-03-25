@@ -11,3 +11,4 @@ schematic-analysis/
 scripts/generate-schematic.mjs
 scripts/sch-templates.mjs
 scripts/test-*.mjs
+.claude/settings.local.json
