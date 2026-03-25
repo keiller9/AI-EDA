@@ -9,8 +9,8 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 13px;
-  color: #e0e0e0;
-  background: #1e1e2e;
+  color: #1e293b;
+  background: #f0f7ff;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -20,25 +20,27 @@ body {
 /* ===== Tab Bar ===== */
 .tab-bar {
   display: flex;
-  background: #181825;
-  border-bottom: 1px solid #333;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .tab-btn {
   flex: 1;
   padding: 10px 4px;
   text-align: center;
   font-size: 12px;
-  color: #888;
+  color: #94a3b8;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
+  font-weight: 500;
 }
-.tab-btn:hover { color: #ccc; background: #1e1e2e; }
-.tab-btn.active { color: #89b4fa; border-bottom-color: #89b4fa; }
+.tab-btn:hover { color: #3b82f6; background: #f8fafc; }
+.tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; font-weight: 600; }
 
 /* ===== Tab Content ===== */
 .tab-content {
@@ -54,16 +56,17 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: #2a2a3e;
-  border-radius: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-radius: 10px;
   margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.dot.on { background: #a6e3a1; box-shadow: 0 0 8px #a6e3a144; }
-.dot.off { background: #f38ba8; box-shadow: 0 0 8px #f38ba844; }
-.conn-text { font-weight: 600; font-size: 13px; }
-.conn-sub { color: #888; font-size: 11px; margin-left: auto; }
+.dot.on { background: #22c55e; box-shadow: 0 0 8px #22c55e44; }
+.dot.off { background: #ef4444; box-shadow: 0 0 8px #ef444444; }
+.conn-text { font-weight: 600; font-size: 13px; color: #1e293b; }
+.conn-sub { color: #94a3b8; font-size: 11px; margin-left: auto; }
 
 .doc-badge {
   display: inline-block;
@@ -73,9 +76,9 @@ body {
   font-weight: 600;
   margin-bottom: 12px;
 }
-.doc-badge.sch { background: #1e3a5f; color: #89b4fa; }
-.doc-badge.pcb { background: #3a1e5f; color: #cba6f7; }
-.doc-badge.unknown { background: #333; color: #888; }
+.doc-badge.sch { background: #dbeafe; color: #2563eb; }
+.doc-badge.pcb { background: #ede9fe; color: #7c3aed; }
+.doc-badge.unknown { background: #f1f5f9; color: #94a3b8; }
 
 .stats-grid {
   display: grid;
@@ -84,34 +87,42 @@ body {
   margin-bottom: 12px;
 }
 .stat-card {
-  background: #2a2a3e;
-  border-radius: 8px;
-  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 14px 12px;
   text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid #3b82f6;
+  position: relative;
 }
-.stat-value { font-size: 24px; font-weight: 700; color: #fff; }
-.stat-label { font-size: 11px; color: #888; margin-top: 4px; }
+.stat-card:nth-child(2) { border-left-color: #8b5cf6; }
+.stat-card:nth-child(3) { border-left-color: #06b6d4; }
+.stat-card:nth-child(4) { border-left-color: #f59e0b; }
+.stat-value { font-size: 26px; font-weight: 700; color: #1e293b; }
+.stat-label { font-size: 11px; color: #94a3b8; margin-top: 4px; font-weight: 500; }
 
 .exec-bar {
-  padding: 8px 12px;
-  background: #2a2a3e;
-  border-radius: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  border-radius: 10px;
   font-size: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
-.exec-bar .label { color: #888; font-size: 11px; margin-bottom: 4px; }
-.exec-bar .cmd { color: #a6e3a1; font-weight: 600; }
-.exec-bar .idle { color: #666; font-style: italic; }
+.exec-bar .label { color: #94a3b8; font-size: 11px; margin-bottom: 4px; font-weight: 500; }
+.exec-bar .cmd { color: #16a34a; font-weight: 600; }
+.exec-bar .idle { color: #cbd5e1; font-style: italic; }
 
 /* ===== Quick Actions ===== */
 .action-group { margin-bottom: 14px; }
 .group-title {
   font-size: 11px;
   text-transform: uppercase;
-  color: #888;
+  color: #94a3b8;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
   padding-bottom: 4px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
 }
 .action-grid {
   display: grid;
@@ -119,18 +130,20 @@ body {
   gap: 6px;
 }
 .action-btn {
-  background: #2a2a3e;
-  border: 1px solid #333;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   padding: 10px 8px;
-  color: #e0e0e0;
+  color: #334155;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
   text-align: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  font-weight: 500;
 }
-.action-btn:hover { background: #333; border-color: #555; }
-.action-btn:active { transform: scale(0.97); }
+.action-btn:hover { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
+.action-btn:active { transform: scale(0.97); background: #dbeafe; }
 .action-btn .icon { font-size: 18px; display: block; margin-bottom: 4px; }
 .action-btn.loading { opacity: 0.5; pointer-events: none; }
 
@@ -141,53 +154,61 @@ body {
   margin-bottom: 10px;
 }
 .filter-btn {
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 12px;
-  border: 1px solid #444;
-  background: none;
-  color: #aaa;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
   font-size: 11px;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s;
 }
-.filter-btn.active { background: #89b4fa22; border-color: #89b4fa; color: #89b4fa; }
+.filter-btn:hover { border-color: #93c5fd; color: #3b82f6; }
+.filter-btn.active { background: #eff6ff; border-color: #3b82f6; color: #3b82f6; }
 .log-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .log-table th {
-  text-align: left; color: #888; font-weight: 500;
-  padding: 4px 6px; border-bottom: 1px solid #333;
-  position: sticky; top: 0; background: #1e1e2e;
+  text-align: left; color: #94a3b8; font-weight: 600;
+  padding: 6px 6px; border-bottom: 1px solid #e2e8f0;
+  position: sticky; top: 0; background: #f0f7ff;
+  font-size: 11px;
 }
 .log-table td {
-  padding: 4px 6px; border-bottom: 1px solid #2a2a3e;
+  padding: 5px 6px; border-bottom: 1px solid #f1f5f9;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
+  color: #475569;
 }
-.log-table tr:hover { background: #2a2a3e; }
-.badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; }
-.badge.ok { background: #1b5e20; color: #a6e3a1; }
-.badge.err { background: #b71c1c33; color: #f38ba8; }
-.empty-msg { text-align: center; color: #666; padding: 30px; font-style: italic; }
+.log-table tr:hover { background: #f8fafc; }
+.badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+.badge.ok { background: #dcfce7; color: #16a34a; }
+.badge.err { background: #fef2f2; color: #ef4444; }
+.empty-msg { text-align: center; color: #cbd5e1; padding: 30px; font-style: italic; }
 
 /* ===== About ===== */
 .about-card {
-  background: #2a2a3e;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 10px;
   padding: 16px;
   margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
-.about-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-.about-sub { color: #888; font-size: 12px; margin-bottom: 12px; }
-.about-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
-.about-row .k { color: #888; }
-.about-row .v { color: #e0e0e0; font-weight: 600; }
+.about-title { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+.about-sub { color: #94a3b8; font-size: 12px; margin-bottom: 12px; }
+.about-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; border-bottom: 1px solid #f1f5f9; }
+.about-row:last-child { border-bottom: none; }
+.about-row .k { color: #94a3b8; }
+.about-row .v { color: #1e293b; font-weight: 600; }
 .tip-box {
-  background: #1e3a5f;
-  border: 1px solid #89b4fa44;
-  border-radius: 8px;
-  padding: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 14px;
   font-size: 12px;
-  line-height: 1.6;
+  line-height: 1.7;
+  color: #334155;
 }
-.tip-box .tip-title { color: #89b4fa; font-weight: 600; margin-bottom: 6px; }
-.tip-box code { background: #181825; padding: 2px 6px; border-radius: 3px; color: #a6e3a1; }
+.tip-box .tip-title { color: #2563eb; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+.tip-box code { background: #dbeafe; padding: 2px 6px; border-radius: 4px; color: #1d4ed8; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -273,12 +294,12 @@ body {
     <div class="about-sub">Claude Code 可视化前端 · 嘉立创 EDA 专业版</div>
     <div class="about-row"><span class="k">版本</span><span class="v" id="a-version">1.2.0</span></div>
     <div class="about-row"><span class="k">MCP 工具</span><span class="v">122 个</span></div>
-    <div class="about-row"><span class="k">AI Skill</span><span class="v">14 个</span></div>
+    <div class="about-row"><span class="k">AI Skill</span><span class="v">15 个</span></div>
     <div class="about-row"><span class="k">WebSocket 端口</span><span class="v" id="a-port">--</span></div>
     <div class="about-row"><span class="k">连接时长</span><span class="v" id="a-uptime">--</span></div>
   </div>
   <div class="tip-box">
-    <div class="tip-title">使用提示</div>
+    <div class="tip-title">💡 使用提示</div>
     在 Claude Code 中使用以下命令：<br>
     <code>/review-sch</code> 审查原理图<br>
     <code>/review-pcb</code> 审查 PCB 布局<br>
@@ -351,14 +372,12 @@ function refreshDashboard() {
   try { data = window.parent.__AI_EDA_PANEL_DATA__; } catch(e) {}
   if (!data) return;
 
-  // Connection
   var dot = document.getElementById('d-dot');
   var conn = document.getElementById('d-conn');
   dot.className = 'dot ' + (data.connected ? 'on' : 'off');
   conn.textContent = data.connected ? '已连接' : '未连接';
   document.getElementById('d-sub').textContent = '端口: ' + (data.port || '--');
 
-  // Dashboard stats
   var db = data.dashboard || {};
   var badge = document.getElementById('d-doc-badge');
   if (db.docType === 'schematic') { badge.className = 'doc-badge sch'; badge.textContent = '📄 原理图'; }
@@ -370,17 +389,15 @@ function refreshDashboard() {
   document.getElementById('d-wires').textContent = db.wireCount != null ? db.wireCount : '--';
   document.getElementById('d-drc').textContent = db.drcViolations != null ? db.drcViolations : '--';
 
-  // Execution state
   var exec = document.getElementById('d-exec');
   var ce = data.currentExecution;
   if (ce && ce.command) {
     var elapsed = Math.round((Date.now() - ce.startTime) / 1000);
-    exec.innerHTML = '<span class="cmd">' + shortCmd(ce.command) + '</span> <span style="color:#888;">(' + elapsed + 's)</span>';
+    exec.innerHTML = '<span class="cmd">' + shortCmd(ce.command) + '</span> <span style="color:#94a3b8;">(' + elapsed + 's)</span>';
   } else {
     exec.innerHTML = '<span class="idle">空闲</span>';
   }
 
-  // About tab
   document.getElementById('a-port').textContent = data.port || '--';
   document.getElementById('a-uptime').textContent = data.connected && data.connectedSince
     ? formatUptime(Date.now() - data.connectedSince) : '--';
@@ -394,7 +411,6 @@ function refreshLog() {
   var tbody = document.getElementById('log-body');
   var emptyMsg = document.getElementById('empty-log');
 
-  // Filter
   var filtered = log;
   if (currentFilter === 'ok') filtered = log.filter(function(e) { return e.success; });
   else if (currentFilter === 'err') filtered = log.filter(function(e) { return !e.success; });
