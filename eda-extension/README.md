@@ -2,6 +2,8 @@
 
 将 AI 大模型能力引入嘉立创 EDA 专业版，通过 MCP 协议实现自然语言驱动的电子设计。
 
+**GitHub**: [https://github.com/keiller9/AI-EDA](https://github.com/keiller9/AI-EDA)
+
 ## 功能
 
 ### AI Bridge 菜单
