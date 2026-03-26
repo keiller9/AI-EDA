@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/images/logo.png" width="180" alt="AI-EDA Logo">
+
 # AI-EDA
 
 ### Intelligent EDA Assistant powered by Claude
