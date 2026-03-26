@@ -1,37 +1,40 @@
 # AI EDA Bridge — 嘉立创 EDA 专业版扩展
 
-将 AI 大模型能力引入嘉立创 EDA 专业版，通过 MCP 协议实现自然语言驱动的电子设计。
+本扩展是 **Claude Code**（Anthropic 官方 AI 编程工具）与嘉立创 EDA 专业版之间的桥梁。通过 MCP（Model Context Protocol）协议，让 Claude Code 能够**直接读取、分析、修改**你的原理图和 PCB 设计。
+
+> **核心工作流**：你在 Claude Code 中用自然语言下达指令 → Claude 通过本扩展提供的 122 个 MCP 工具操控 EDA 编辑器 → 自动完成审查、修复、放置器件、画线等操作。
 
 **GitHub**: [https://github.com/keiller9/AI-EDA](https://github.com/keiller9/AI-EDA)
 
-## 功能
+## 已验证的核心功能
 
-### AI Bridge 菜单
+### 原理图智能审查（通过 Claude Code）
+在 Claude Code 中输入 `/review-sch`，Claude 会自动：
+1. 扫描所有 IC 的电源引脚，检查旁路电容是否齐全
+2. 验证 I2C/SPI/UART/RESET 总线的上拉/下拉配置
+3. 检测浮空引脚和单引脚网络
+4. 审查复位电路、ESD 保护、位号规范
+5. 输出结构化报告（通过/警告/失败）
+
+### 原理图自动修复（通过 Claude Code）
+审查发现问题后，在 Claude Code 中输入"帮我修复"，Claude 会自动：
+- 修改错误位号（如 LED 误标为电感 L1 → D4）
+- 从嘉立创元件库搜索并放置缺失器件（如 10kΩ 上拉电阻）
+- 画导线连接引脚
+- 添加电源/地标识（VCC、GND）
+
+**所有操作都由 Claude Code 通过 MCP 工具远程执行，无需手动编辑。**
+
+## 扩展菜单
+
+### AI Bridge
 - **连接 AI** — 一键连接 MCP Server（WebSocket 端口 8765）
-- **断开连接** — 安全断开
-- **连接状态** — 查看当前连接信息
-- **状态面板** — 实时统计面板（命令数、成功率、延迟）
-- **AI 助手面板** — 全功能 4-Tab 面板（仪表盘、快捷操作、日志、关于）
-- **配置端口** — 自定义 WebSocket 端口
+- **断开连接 / 连接状态 / 配置端口**
+- **AI 助手面板** — 仪表盘 + 快捷操作 + 日志 + 关于
 
-### AI Tools 菜单（原理图编辑器）
-- **AI 分析选中元件** — 分析当前选中器件的上下文
-- **AI 检查设计** — 运行设计规则检查
-
-### AI Tools 菜单（PCB 编辑器）
-- **AI 审查布局** — PCB 布局审查
-- **AI 检查 DRC** — PCB 设计规则检查
-
-## AI 助手面板
-
-4 个标签页：
-
-| 标签 | 功能 |
-|------|------|
-| 仪表盘 | 连接状态、文档类型、器件数/网络数/导线数/DRC 违规数 |
-| 快捷操作 | 12 个一键按钮（审查原理图、审查 PCB、运行 DRC、搜索元件、导出 Gerber 等） |
-| 日志 | 命令执行历史，支持 OK/ERR 筛选 |
-| 关于 | 项目信息、版本、使用提示 |
+### AI Tools（原理图/PCB 编辑器）
+- **AI 分析选中元件** — 分析器件上下文（引脚、网络、邻近器件）
+- **AI 检查设计 / AI 审查布局 / AI 检查 DRC**
 
 ## 安装
 
@@ -46,25 +49,27 @@ npm run build
 
 3. 打开嘉立创 EDA 专业版 → 扩展管理器 → 导入 `.eext` 文件
 
-## 配合 MCP Server 使用
+## 使用前提
 
-本扩展需要配合 [MCP Server](../mcp-server/) 使用：
+本扩展**必须配合 Claude Code + MCP Server 使用**：
 
-1. 构建并启动 MCP Server
-2. 在 Claude Code 中配置 `.mcp.json`
-3. 在 EDA 中点击 **AI Bridge → 连接 AI**
-4. 连接成功后即可通过 Claude Code 操控 EDA
+1. 安装 [Claude Code](https://docs.anthropic.com/en/docs/claude-code)（Anthropic 官方 CLI）
+2. 构建 [MCP Server](https://github.com/keiller9/AI-EDA/tree/master/mcp-server)
+3. 在项目目录配置 `.mcp.json` 指向 MCP Server
+4. 在 EDA 中点击 **AI Bridge → 连接 AI**
+5. 在 Claude Code 中用自然语言与原理图/PCB 交互
 
 ## 技术架构
 
 ```
 Claude Code ←MCP/Stdio→ MCP Server ←WebSocket:8765→ 本扩展 ←API→ EDA 编辑器
+  (AI 大脑)              (工具转发层)                  (编辑器桥接)
 ```
 
-- 使用 `eda.sys_WebSocket` API 建立 WebSocket 连接
-- 心跳检测（15s 间隔）保持连接活跃
-- 命令调度器路由 125+ 种操作到对应 Handler
-- 支持原理图读写、PCB 读写、元件库、系统操作
+- 本扩展本身**不包含 AI 能力**，AI 由 Claude Code 提供
+- 扩展负责接收 Claude Code 的工具调用指令，转换为 EDA API 调用
+- WebSocket 心跳（15s）保持连接活跃
+- 122 个 MCP 工具覆盖原理图/PCB/元件库/系统操作
 
 ## 开发
 
