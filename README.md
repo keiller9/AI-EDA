@@ -61,6 +61,16 @@ graph LR
 | **.claude/commands/** | 15 skills — domain knowledge + MCP tool guidance |
 | **skills/** | Third-party skill integrations (easyeda-api full API reference) |
 
+## Features in Action
+
+### Schematic Review & Auto-Fix via Claude Code
+
+The core workflow: Claude Code reads the schematic through MCP tools, analyzes every IC's power pins, bypass capacitors, bus pull-ups, floating pins, reset circuits, and ESD protection, then outputs a structured review report. For issues found, Claude can **directly fix them** — modifying designators, placing missing components, drawing wires, and adding power flags — all through the same MCP bridge, without manual editing.
+
+<img src="docs/images/review-report.png" width="700" alt="Schematic Review Report">
+
+*Claude Code automatically reviews 205 components, checks power bypass, bus pull-ups, floating pins, reset circuits, and generates a structured report with auto-fix capability.*
+
 ## Quick Start
 
 ### Prerequisites
