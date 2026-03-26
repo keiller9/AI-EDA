@@ -1,4 +1,8 @@
-# AI EDA Bridge — 嘉立创 EDA 专业版扩展
+# AI EDA Bridge
+
+![AI-EDA Logo](./images/logo.png)
+
+**嘉立创 EDA 专业版 × Claude Code 智能桥接扩展**
 
 本扩展是 **Claude Code**（Anthropic 官方 AI 编程工具）与嘉立创 EDA 专业版之间的桥梁。通过 MCP（Model Context Protocol）协议，让 Claude Code 能够**直接读取、分析、修改**你的原理图和 PCB 设计。
 
@@ -15,6 +19,8 @@
 3. 检测浮空引脚和单引脚网络
 4. 审查复位电路、ESD 保护、位号规范
 5. 输出结构化报告（通过/警告/失败）
+
+![原理图审查报告](./images/review-report.png)
 
 ### 原理图自动修复（通过 Claude Code）
 审查发现问题后，在 Claude Code 中输入"帮我修复"，Claude 会自动：
